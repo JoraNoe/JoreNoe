@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>JoreNoe</id>
-    <version>4.1.1</version>
-    <authors>Administrator</authors>
+    <version>4.1.2</version>
+    <authors>Jth_JoreNoe</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>http://project_url_here_or_delete_this_line/</projectUrl>
     <!-- <iconUrl>http://icon_url_here_or_delete_this_line/</iconUrl>-->
-    <description>Package description</description>
+    <description>sqlserver操作 </description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>JthJoreNoe</copyright>
     <tags>Tag1 Tag2</tags>

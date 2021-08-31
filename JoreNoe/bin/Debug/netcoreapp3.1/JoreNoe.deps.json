@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v3.1": {
-      "JoreNoe/0.1.1": {
+      "JoreNoe/4.1.4": {
         "dependencies": {
           "Autofac": "6.1.0",
           "Microsoft.EntityFrameworkCore": "5.0.4",
@@ -1111,7 +1111,7 @@
     }
   },
   "libraries": {
-    "JoreNoe/0.1.1": {
+    "JoreNoe/4.1.4": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

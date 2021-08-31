@@ -11,14 +11,14 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("JoreNoe")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("Jth_JoreNoe")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("包含DB")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.1.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.1")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("4.1.4.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("4.1.4")]
 [assembly: System.Reflection.AssemblyProductAttribute("JoreNoe")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JoreNoe")]
-[assembly: System.Reflection.AssemblyVersionAttribute("0.1.1.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("4.1.4.0")]
 
 // 由 MSBuild WriteCodeFragment 类生成。
 

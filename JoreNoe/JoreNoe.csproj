@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.1.1</Version>
+    <Version>4.1.4</Version>
     <Description>包含DB</Description>
+    <Authors>Jth_JoreNoe</Authors>
   </PropertyGroup>
   
   <ItemGroup>

@@ -15,6 +15,11 @@ namespace JoreNoe.DB.SqlServer
         /// </summary>
         private DbContext Db { get; set; }
 
+        public Repository()
+        {
+            this.Db = Register._Dbcontext;
+        }
+
         /// <summary>
         /// 添加
         /// </summary>
