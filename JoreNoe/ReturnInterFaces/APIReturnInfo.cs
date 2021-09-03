@@ -11,16 +11,31 @@ namespace JoreNoe.CommonInterFaces
     /// <typeparam name="T"></typeparam>
     public class APIReturnInfo<T>
     {
+        /// <summary>
+        /// 返回成功对象
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <returns></returns>
         public static APIReturnInfo<T> Success(T Data)
         {
             return new APIReturnInfo<T> { Data = Data };
         }
 
+        /// <summary>
+        /// 返回成功消息
+        /// </summary>
+        /// <param name="Message"></param>
+        /// <returns></returns>
         public static APIReturnInfo<T> Success(string Message)
         {
             return new APIReturnInfo<T> { Message = Message };
         }
 
+        /// <summary>
+        /// 返回错误消息
+        /// </summary>
+        /// <param name="Message"></param>
+        /// <returns></returns>
         public static APIReturnInfo<T> Error(string Message)
         {
             return new APIReturnInfo<T> { Data = default, Message = Message, Status = false };

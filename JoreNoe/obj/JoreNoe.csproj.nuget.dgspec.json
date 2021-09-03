@@ -1,23 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj": {}
+    "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj": {}
   },
   "projects": {
-    "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj": {
+    "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj": {
       "version": "4.1.4",
       "restore": {
-        "projectUniqueName": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
+        "projectUniqueName": "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
         "projectName": "JoreNoe",
-        "projectPath": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
+        "projectPath": "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Jore\\JoreNoe\\JoreNoe\\obj\\",
+        "outputPath": "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -25,9 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://idleret.synology.me:32769/repository/nuget-hosted/": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://www.nuget.org/api/v2/\nnuget": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp3.1": {

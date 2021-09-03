@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Mi+PIyNkveayl5xJGSUlzNvfYYSP+pPL4hEPmnYbIWTudTKqCKuuErOo8WyKAilKLL6DPb9+mQNhtM/WGW9L9g==",
+  "dgSpecHash": "iXtSu6RISIvmIKt1Dl4uB0ncXRVIVISIgHWgHb8YwlQY+c1zHj+UJnjs7xCYzT5eNfVfIyNgO0KMu2+QAAn9aw==",
   "success": true,
-  "projectFilePath": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
+  "projectFilePath": "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\autofac\\6.1.0\\autofac.6.1.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

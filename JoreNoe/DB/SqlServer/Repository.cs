@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.DB.SqlServer
 {
-    public class Repository<T> : IRepository<T> where T : BaseModel, new()
+    public class Repository<T> : IDisposable, IRepository<T> where T : BaseModel, new()
     {
         /// <summary>
         /// 基类
@@ -227,6 +227,22 @@ namespace JoreNoe.DB.SqlServer
         public void InitDb(DbContext DB)
         {
             this.Db = DB;
+        }
+
+        /// <summary>
+        /// 保存
+        /// </summary>
+        public void SaveChange()
+        {
+            this.Db.SaveChanges();
+        }
+
+        /// <summary>
+        /// 释放
+        /// </summary>
+        public void Dispose()
+        {
+            this.Db.Dispose();
         }
         #endregion
     }
