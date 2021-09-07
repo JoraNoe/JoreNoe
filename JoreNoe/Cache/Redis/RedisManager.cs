@@ -82,6 +82,27 @@ namespace JoreNoe.Cache.Redis
         }
 
         /// <summary>
+        /// 查询
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        public IList<T> Find<T>(string KeyName)
+        {
+            return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
+        }
+
+        /// <summary>
+        /// 查询
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        public T Single<T>(string KeyName)
+        {
+            return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
+        }
+
+        /// <summary>
         /// 是否存在
         /// </summary>
         /// <param name="KeyName"></param>
@@ -89,6 +110,22 @@ namespace JoreNoe.Cache.Redis
         public bool Exists(string KeyName)
         {
             return this.RedisDataBase.KeyExists(KeyName);
+        }
+
+
+
+        /// <summary>
+        /// 释放
+        /// </summary>
+        public void Dispose()
+        {
+            if (_connections != null && _connections.Count > 0)
+            {
+                foreach (var item in _connections.Values)
+                {
+                    item.Close();
+                }
+            }
         }
     }
 }

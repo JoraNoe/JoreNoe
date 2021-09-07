@@ -51,5 +51,26 @@ namespace JoreNoe.Cache.Redis
         /// <param name="KeyName"></param>
         /// <returns></returns>
         bool Exists(string KeyName);
+
+        /// <summary>
+        /// 查询集合
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        IList<T> Find<T>(string KeyName);
+
+        /// <summary>
+        /// 查询单个
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        T Single<T>(string KeyName);
+
+        /// <summary>
+        /// 释放
+        /// </summary>
+        void Dispose();
     }
 }

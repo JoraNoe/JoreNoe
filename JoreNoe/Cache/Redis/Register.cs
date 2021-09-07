@@ -15,7 +15,7 @@ namespace JoreNoe.Cache.Redis
         //默认数据库
         private static int _defaultDB;
 
-        private static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
+        protected static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
 
         public static void SetInitRedisConfig(string ConnectionString,string InstanceName,int DefaultDB = 0)
         {
