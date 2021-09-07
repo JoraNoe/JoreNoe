@@ -267,6 +267,14 @@ namespace JoreNoe.DB.SqlServer
             return null;
         }
 
+        /// 总数
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        public int Count(Func<T, bool> Func)
+        {
+            return this.Db.Set<T>().Count(Func);
+        }
         public async Task<T> AddIngoreSaveAsync(T t)
         {
             await this.Db.Set<T>().AddAsync(t);
