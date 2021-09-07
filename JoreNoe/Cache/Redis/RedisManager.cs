@@ -3,11 +3,10 @@ using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace JoreNoe.Cache.Redis
 {
-    public class RedisManager :Register,IRedisManager
+    public class RedisManager : Register, IRedisManager
     {
         private readonly IDatabase RedisDataBase;
 
@@ -20,9 +19,9 @@ namespace JoreNoe.Cache.Redis
         /// 添加字符串
         /// </summary>
         /// <returns></returns>
-        public bool Add(string KeyName,string Context,int Expire = 180)
+        public bool Add(string KeyName, string Context, int Expire = 180)
         {
-            var Result = this.RedisDataBase.StringSet(KeyName,Context);
+            var Result = this.RedisDataBase.StringSet(KeyName, Context);
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             return Result;
         }
@@ -46,9 +45,9 @@ namespace JoreNoe.Cache.Redis
         /// <param name="Context"></param>
         /// <param name="Expire"></param>
         /// <returns></returns>
-        public T Add<T>(string KeyName,T Context,int Expire = 180)
+        public T Add<T>(string KeyName, T Context, int Expire = 180)
         {
-            var Result = this.RedisDataBase.StringSet(KeyName,JsonConvert.SerializeObject(Context));
+            var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             if (!Result)
                 throw new Exception("存储失败");
@@ -110,12 +109,12 @@ namespace JoreNoe.Cache.Redis
         /// <param name="Context"></param>
         /// <param name="Expire"></param>
         /// <returns></returns>
-        public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context,string FolderName, int Expire = 180)
+        public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180)
         {
             if (this.RedisDataBase.KeyExists(KeyName))
-                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(KeyName,FolderName));
+                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(KeyName, FolderName));
 
-            var Result = this.RedisDataBase.HashSet(KeyName, FolderName+":"+KeyName, JsonConvert.SerializeObject(Context));
+            var Result = this.RedisDataBase.HashSet(KeyName, FolderName + ":" + KeyName, JsonConvert.SerializeObject(Context));
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             if (!Result)
                 throw new Exception("存储失败");
@@ -124,7 +123,6 @@ namespace JoreNoe.Cache.Redis
             var TData = JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
             return TData;
         }
-
 
         /// <summary>
         /// 是否存在
@@ -135,8 +133,6 @@ namespace JoreNoe.Cache.Redis
         {
             return this.RedisDataBase.KeyExists(KeyName);
         }
-
-
 
         /// <summary>
         /// 释放
