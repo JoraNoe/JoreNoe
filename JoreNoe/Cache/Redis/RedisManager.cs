@@ -103,6 +103,30 @@ namespace JoreNoe.Cache.Redis
         }
 
         /// <summary>
+        /// 添加或者获取
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context,string FolderName, int Expire = 180)
+        {
+            if (this.RedisDataBase.KeyExists(KeyName))
+                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(KeyName,FolderName));
+
+            var Result = this.RedisDataBase.HashSet(KeyName, FolderName+":"+KeyName, JsonConvert.SerializeObject(Context));
+            this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
+            if (!Result)
+                throw new Exception("存储失败");
+
+            //查询
+            var TData = JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
+            return TData;
+        }
+
+
+        /// <summary>
         /// 是否存在
         /// </summary>
         /// <param name="KeyName"></param>

@@ -69,6 +69,17 @@ namespace JoreNoe.Cache.Redis
         T Single<T>(string KeyName);
 
         /// <summary>
+        /// 文件夹存储
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="FolderName"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180);
+
+        /// <summary>
         /// 释放
         /// </summary>
         void Dispose();
