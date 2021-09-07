@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>JoreNoe</id>
-    <version>4.1.5</version>
+    <version>5.0.0</version>
     <authors>Jth_JoreNoe</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>http://project_url_here_or_delete_this_line/</projectUrl>
    <!-- <iconUrl>http://icon_url_here_or_delete_this_line/</iconUrl> -->
-    <description>包含 Sqlserver ...</description>
+    <description>包含EFCore 封装 快速执行方法  轻量级</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Jth_JoreNoe</copyright>
     <tags>Tag1 Tag2</tags>

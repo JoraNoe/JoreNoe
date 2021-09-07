@@ -112,13 +112,41 @@ namespace JoreNoe.DB.SqlServer
 
         bool Exist(Func<T, bool> Func);
         #endregion
+        #region 无保存
+        /// <summary>
+        /// 添加无保存
+        /// </summary>
+        /// <returns></returns>
+        T AddIngoreSave(T t);
 
+        /// <summary>
+        /// 修改无保存
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        T EditIngoreSave(T t);
+
+        /// <summary>
+        /// 删除无保存
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        T DeleteIngoreSave(Guid Id);
+
+        /// <summary>
+        /// 添加无保存异步
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        Task<T> AddIngoreSaveAsync(T t);
+
+        #endregion
         #region 初始化
         /// <summary>
         /// 初始化数据库
         /// </summary>
         /// <param name="DB"></param>
-        void InitDb (DbContext DB);
+        void InitDb(DbContext DB);
         #endregion
     }
 }

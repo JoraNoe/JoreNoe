@@ -245,5 +245,33 @@ namespace JoreNoe.DB.SqlServer
             this.Db.Dispose();
         }
         #endregion
+
+        #region 无保存 
+        public T AddIngoreSave(T t)
+        {
+            this.Db.Set<T>().Add(t);
+            return t;
+        }
+
+        public T EditIngoreSave(T t)
+        {
+            this.Db.Set<T>().Update(t);
+            return t;
+        }
+
+        public T DeleteIngoreSave(Guid Id)
+        {
+            var Entity = this.Db.Set<T>().SingleOrDefault(d => d.Id == Id);
+            if(Entity != null)    
+                this.Db.Set<T>().Remove(Entity);
+            return null;
+        }
+
+        public async Task<T> AddIngoreSaveAsync(T t)
+        {
+            await this.Db.Set<T>().AddAsync(t);
+            return t;
+        }
+        #endregion
     }
 }

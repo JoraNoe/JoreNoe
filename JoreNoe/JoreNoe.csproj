@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>4.1.4</Version>
-    <Description>包含DB</Description>
+    <Version>4.1.5</Version>
+    <Description>封装EFCore  快速执行方法</Description>
     <Authors>Jth_JoreNoe</Authors>
   </PropertyGroup>
   
