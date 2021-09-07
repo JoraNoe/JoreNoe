@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace JoreNoe.Cache.Redis
+{
+    /// <summary>
+    /// Redis缓存
+    /// </summary>
+    public interface IRedisManager
+    {
+        /// <summary>
+        /// 添加字符串
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        bool Add(string KeyName, string Context, int Expire = 180);
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        bool Remove(string KeyName);
+
+        /// <summary>
+        /// 添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        T Add<T>(string KeyName, T Context, int Expire = 180);
+
+        /// <summary>
+        /// 添加或者获取
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        T AddOrGet<T>(string KeyName, T Context, int Expire = 180);
+
+        /// <summary>
+        /// 是否存在
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        bool Exists(string KeyName);
+    }
+}

@@ -110,7 +110,19 @@ namespace JoreNoe.DB.SqlServer
         /// <returns></returns>
         T Delete(Guid Id);
 
+        /// <summary>
+        /// 是否存在
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
         bool Exist(Func<T, bool> Func);
+
+        /// <summary>
+        /// 总数
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        int Count(Func<T,bool> Func);
         #endregion
 
         #region 初始化
