@@ -238,11 +238,6 @@ namespace JoreNoe.DB.SqlServer
         {
             return this.Db.Set<T>().Count(Func);
         }
-
-        public async Task<int> CountAsync(Func<T, bool> Func)
-        {
-            return await this.Db.Set<T>().CountAsync();
-        }
         #endregion
     }
 }
