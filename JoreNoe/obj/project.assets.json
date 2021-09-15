@@ -676,36 +676,6 @@
           "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll": {}
         }
       },
-      "System.Data.Odbc/5.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "5.0.0"
-        },
-        "compile": {
-          "ref/netstandard2.0/System.Data.Odbc.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/System.Data.Odbc.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/freebsd/lib/netcoreapp2.0/System.Data.Odbc.dll": {
-            "assetType": "runtime",
-            "rid": "freebsd"
-          },
-          "runtimes/linux/lib/netcoreapp2.0/System.Data.Odbc.dll": {
-            "assetType": "runtime",
-            "rid": "linux"
-          },
-          "runtimes/osx/lib/netcoreapp2.0/System.Data.Odbc.dll": {
-            "assetType": "runtime",
-            "rid": "osx"
-          },
-          "runtimes/win/lib/netcoreapp2.0/System.Data.Odbc.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
-        }
-      },
       "System.Diagnostics.Debug/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -2971,40 +2941,6 @@
         "ref/netstandard2.0/System.Configuration.ConfigurationManager.xml",
         "system.configuration.configurationmanager.5.0.0.nupkg.sha512",
         "system.configuration.configurationmanager.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
-    "System.Data.Odbc/5.0.0": {
-      "sha512": "j4WsYGmcD7m1D0Tc3N7HqWqcdUHNn9+kdXh9ODTWEsOGrAvALf+BgRStd7L0/O/zDS0R4Uu9vNM8UY6EnK+WYw==",
-      "type": "package",
-      "path": "system.data.odbc/5.0.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net461/System.Data.Odbc.dll",
-        "lib/net461/System.Data.Odbc.xml",
-        "lib/netstandard2.0/System.Data.Odbc.dll",
-        "lib/netstandard2.0/System.Data.Odbc.xml",
-        "ref/net461/System.Data.Odbc.dll",
-        "ref/net461/System.Data.Odbc.xml",
-        "ref/netstandard2.0/System.Data.Odbc.dll",
-        "ref/netstandard2.0/System.Data.Odbc.xml",
-        "runtimes/freebsd/lib/netcoreapp2.0/System.Data.Odbc.dll",
-        "runtimes/freebsd/lib/netcoreapp2.0/System.Data.Odbc.xml",
-        "runtimes/linux/lib/netcoreapp2.0/System.Data.Odbc.dll",
-        "runtimes/linux/lib/netcoreapp2.0/System.Data.Odbc.xml",
-        "runtimes/osx/lib/netcoreapp2.0/System.Data.Odbc.dll",
-        "runtimes/osx/lib/netcoreapp2.0/System.Data.Odbc.xml",
-        "runtimes/win/lib/net461/System.Data.Odbc.dll",
-        "runtimes/win/lib/net461/System.Data.Odbc.xml",
-        "runtimes/win/lib/netcoreapp2.0/System.Data.Odbc.dll",
-        "runtimes/win/lib/netcoreapp2.0/System.Data.Odbc.xml",
-        "system.data.odbc.5.0.0.nupkg.sha512",
-        "system.data.odbc.nuspec",
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
@@ -6096,8 +6032,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.9",
       "Microsoft.EntityFrameworkCore.Tools >= 5.0.9",
       "Microsoft.Extensions.Configuration >= 5.0.0",
-      "StackExchange.Redis >= 2.2.50",
-      "System.Data.Odbc >= 5.0.0"
+      "StackExchange.Redis >= 2.2.50"
     ]
   },
   "packageFolders": {
@@ -6176,10 +6111,6 @@
           "StackExchange.Redis": {
             "target": "Package",
             "version": "[2.2.50, )"
-          },
-          "System.Data.Odbc": {
-            "target": "Package",
-            "version": "[5.0.0, )"
           }
         },
         "imports": [

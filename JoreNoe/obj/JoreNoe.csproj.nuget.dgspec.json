@@ -76,10 +76,6 @@
             "StackExchange.Redis": {
               "target": "Package",
               "version": "[2.2.50, )"
-            },
-            "System.Data.Odbc": {
-              "target": "Package",
-              "version": "[5.0.0, )"
             }
           },
           "imports": [

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "VHa9kRpUotEUqMaoSc16ePyOQJN13HfmWB1AK7M5tfezwQrccCzzLJhL9L7ELZ3Q+xRcFEpXqAEg3zwHUbyQLA==",
+  "dgSpecHash": "xO2QeSHaiPhzfDaFDCoCj6O8BcENULF8d9RA1AqPTI5bl8h+b2Pqii/QOzZdTewhFTvkPMdiluuXlC3DdisBhg==",
   "success": true,
   "projectFilePath": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
   "expectedPackageFiles": [
@@ -50,7 +50,6 @@
     "C:\\Users\\Administrator\\.nuget\\packages\\system.componentmodel.primitives\\4.3.0\\system.componentmodel.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.componentmodel.typeconverter\\4.3.0\\system.componentmodel.typeconverter.4.3.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.configuration.configurationmanager\\5.0.0\\system.configuration.configurationmanager.5.0.0.nupkg.sha512",
-    "C:\\Users\\Administrator\\.nuget\\packages\\system.data.odbc\\5.0.0\\system.data.odbc.5.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.diagnostics.debug\\4.3.0\\system.diagnostics.debug.4.3.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.diagnostics.diagnosticsource\\5.0.1\\system.diagnostics.diagnosticsource.5.0.1.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.diagnostics.performancecounter\\5.0.0\\system.diagnostics.performancecounter.5.0.0.nupkg.sha512",
