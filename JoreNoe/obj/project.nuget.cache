@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "VHa9kRpUotEUqMaoSc16ePyOQJN13HfmWB1AK7M5tfezwQrccCzzLJhL9L7ELZ3Q+xRcFEpXqAEg3zwHUbyQLA==",
+  "dgSpecHash": "1Ew3jNkUZg2eMyQEUGEDsWWPnFvEXUPN+LcRUcvI9CAcaVsRTqbjf98se1vppzYP14Dvgl0sYyz6R3jTlrWGYg==",
   "success": true,
   "projectFilePath": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
   "expectedPackageFiles": [
@@ -39,6 +39,7 @@
     "C:\\Users\\Administrator\\.nuget\\packages\\newtonsoft.json\\10.0.1\\newtonsoft.json.10.0.1.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\pipelines.sockets.unofficial\\2.2.0\\pipelines.sockets.unofficial.2.2.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\runtime.native.system\\4.3.0\\runtime.native.system.4.3.0.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\sharpziplib\\1.3.2\\sharpziplib.1.3.2.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\stackexchange.redis\\2.2.50\\stackexchange.redis.2.2.50.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.collections\\4.3.0\\system.collections.4.3.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.collections.concurrent\\4.3.0\\system.collections.concurrent.4.3.0.nupkg.sha512",
