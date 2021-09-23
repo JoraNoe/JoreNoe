@@ -38,7 +38,7 @@ namespace JoreNoe.CommonInterFaces
         /// <returns></returns>
         public static APIReturnInfo<T> Error(string Message)
         {
-            return new APIReturnInfo<T> { Data = default, Message = Message, Status = false };
+            return new APIReturnInfo<T> { Data = default, Message = Message, Status = false, State = false };
 
         }
         /// <summary>

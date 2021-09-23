@@ -73,6 +73,10 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.5.4, )"
+            },
             "SharpZipLib": {
               "target": "Package",
               "version": "[1.3.2, )"
