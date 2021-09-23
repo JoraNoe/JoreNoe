@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using OfficeOpenXml;
 using System.Text;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace JoreNoe.JoreExcel
 {
@@ -90,87 +92,66 @@ namespace JoreNoe.JoreExcel
             return Streams;
         }
 
-        //private List<T> ReadExcel<T>(string SubPath, string Category = "")
-        //{
-        //    DirectoryInfo Files = null;  // 未完善帮助类
-        //    IList<string> MDBFileFullNamePaths = null;
-        //    if (string.IsNullOrEmpty(Category))
-        //    {
-        //        //查找约定EXCEl 
-        //        Files = new DirectoryInfo(SubPath);
-        //        MDBFileFullNamePaths = new List<string>();
-        //        foreach (FileInfo FileItem in Files.GetFiles())//遍历文件夹下所有文件
-        //        {
-        //            if (Path.GetExtension(FileItem.FullName) == ".xlsx")
-        //            {
-        //                //获取MBD文件地址 
-        //                MDBFileFullNamePaths.Add(string.Concat(FileItem.FullName));
-        //                break;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        MDBFileFullNamePaths = new List<string>();
-        //        MDBFileFullNamePaths.Add(Category);
-        //    }
+        /// <summary>
+        /// 将Excel转成List
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ExcelFilePath"></param>
+        /// <returns></returns>
+        public static IList<T> ExcelToList<T>(string ExcelFilePath)
+            where T : new()
+        {
+            if (!File.Exists(ExcelFilePath))
+                throw new Exception("文件不存在");
+
+            IList<T> TempExcelData = new List<T>();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (var Stream = File.OpenRead(ExcelFilePath))
+
+            using (ExcelPackage package = new ExcelPackage(Stream))
+            {
+                try
+                {
+
+                    foreach (var item in package.Workbook.Worksheets)
+                    {
+                        if (item.Dimension != null)
+                        {
+                            for (int i = 2; i <= item.Dimension.Rows; i++)
+                            {
+                                T SingleData = new T { };
+                                var Props = SingleData.GetType().GetProperties();
+                                for (int j = 1; j <= item.Dimension.Columns; j++)
+                                {
+                                    var Data = item.Cells[i, j].Value + "";
+                                    Props[j - 1].SetValue(SingleData, Data);
+                                }
+                                TempExcelData.Add(SingleData);
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message);
+                }
+                finally
+                {
+                    //关闭读取
+                    package.Workbook.Worksheets.Dispose();
+                    package.Workbook.Dispose();
+                    package.Dispose();
+                    GC.Collect();
+
+                }
+            }
 
 
-
-        //    List<T> TempExcelData = new List<T>();
-        //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-        //    using (var Stream = File.OpenRead(MDBFileFullNamePaths[0]))
-
-        //    using (ExcelPackage package = new ExcelPackage(Stream))
-        //    {
-        //        try
-        //        {
-        //            foreach (var item in package.Workbook.Worksheets)
-        //            {
-        //                if (item.Dimension != null)
-        //                {
-        //                    for (int i = 2; i <= item.Dimension.Rows; i++)
-        //                    {
-        //                        //去除空数据 
-        //                        if (!string.IsNullOrEmpty(item.Cells[i, 1].Value + ""))
-        //                        {
-        //                            TempExcelData.Add(new T
-        //                            {
-        //                                IdNumber = string.IsNullOrEmpty(item.Cells[i, 1].Value + "") ? "" : item.Cells[i, 1].Value.ToString(),
-        //                                IDFront = string.IsNullOrEmpty(item.Cells[i, 2].Value + "") ? "" : item.Cells[i, 2].Value.ToString(),
-        //                                IDBack = string.IsNullOrEmpty(item.Cells[i, 3].Value + "") ? "" : item.Cells[i, 3].Value.ToString(),
-        //                                GraduationCertificate = string.IsNullOrEmpty(item.Cells[i, 4].Value + "") ? "" : item.Cells[i, 4].Value.ToString(),
-        //                                IdentificationPhoto = string.IsNullOrEmpty(item.Cells[i, 5].Value + "") ? "" : item.Cells[i, 5].Value.ToString(),
-        //                                IdNumberChange = string.IsNullOrEmpty(item.Cells[i, 6].Value + "") ? "" : item.Cells[i, 6].Value.ToString(),
-        //                                PersonalPhoto = string.IsNullOrEmpty(item.Cells[i, 7].Value + "") ? "" : item.Cells[i, 7].Value.ToString(),
-        //                                PreQualification = string.IsNullOrEmpty(item.Cells[i, 8].Value + "") ? "" : item.Cells[i, 8].Value.ToString(),
-        //                            });
-        //                        }
-        //                    }
-        //                }
-
-        //            }
-        //        }
-        //        catch
-        //        {
-
-        //        }
-        //        finally
-        //        {
-        //            //关闭读取
-        //            package.Workbook.Worksheets.Dispose();
-        //            package.Workbook.Dispose();
-        //            package.Dispose();
-        //            GC.Collect();
-
-        //        }
-        //    }
-
-
-        //    GC.Collect();
-        //    return TempExcelData;
-        //}
+            GC.Collect();
+            return TempExcelData;
+        }
 
     }
 }
