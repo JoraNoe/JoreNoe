@@ -74,6 +74,8 @@ namespace JoreNoe.JoreFile
             catch (Exception e)
             {
                 result = false;
+                //直接抛出异常 
+                throw new Exception(e.Message);
             }
             finally
             {
