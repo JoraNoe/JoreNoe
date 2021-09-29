@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data.Odbc;
 using System.Text;
 
-namespace JoreNoe.DB.Access
+namespace JoreNoe.DB.ODBC.Core.Access
 {
     /// <summary>
     /// 注册服务

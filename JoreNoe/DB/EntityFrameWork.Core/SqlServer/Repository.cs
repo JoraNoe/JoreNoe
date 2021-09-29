@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JoreNoe.DB.SqlServer
+namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
     public class Repository<T> : IDisposable, IRepository<T> where T : BaseModel, new()
     {

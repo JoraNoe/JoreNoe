@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace JoreNoe.DB.Access.Models
+namespace JoreNoe.DB.ODBC.Core.Access.Models
 {
     public class AccessTable
     {

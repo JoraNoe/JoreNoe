@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace JoreNoe.DB.SqlServer
+namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
     /// <summary>
     /// 注册服务

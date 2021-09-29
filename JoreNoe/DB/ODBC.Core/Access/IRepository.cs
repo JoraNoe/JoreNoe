@@ -1,11 +1,11 @@
-﻿using JoreNoe.DB.Access.Models;
+﻿using JoreNoe.DB.ODBC.Core.Access.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JoreNoe.DB.Access
+namespace JoreNoe.DB.ODBC.Core.Access
 {
     public interface IRepository
     {
