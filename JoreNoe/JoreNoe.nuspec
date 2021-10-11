@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>JoreNoe</id>
+    <version>5.1.0</version>
+    <authors>Jth.JoreNoe</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/JoraNoe/JoreNoe/tree/main</projectUrl>
+   <!-- <iconUrl>http://icon_url_here_or_delete_this_line/</iconUrl> -->
+    <description>改为DI注入方式 进行服务注册</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Jth_JoreNoe</copyright>
+    <tags>NetCore Redis SqlServer Access</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="SampleDependency" version="1.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

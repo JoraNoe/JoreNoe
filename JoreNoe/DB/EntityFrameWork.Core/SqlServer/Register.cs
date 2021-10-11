@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using JoreNoe.DB.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +24,15 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public static void SetInitDbContext(DbContext DB)
         {
             _Dbcontext = DB;
+        }
+
+        /// <summary>
+        /// 服务
+        /// </summary>
+        /// <param name="Services"></param>
+        public static void AddJoreNoeEntityFrameworkSQLServer(IServiceCollection Services)
+        {
+            _ = Services.AddSingleton<IRepository<BaseModel>, Repository<BaseModel>>();
         }
     }
 }

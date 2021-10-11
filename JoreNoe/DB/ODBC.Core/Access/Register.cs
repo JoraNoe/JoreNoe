@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data.Odbc;
@@ -37,6 +38,15 @@ namespace JoreNoe.DB.ODBC.Core.Access
                 _Connection.Close();
                 _Connection.Open();
             }
+        }
+
+        /// <summary>
+        /// 服务
+        /// </summary>
+        /// <param name="Services"></param>
+        public static void AddJoreNoeODBCAccess(IServiceCollection Services)
+        {
+            _ = Services.AddSingleton<IRepository, Repository>();
         }
     }
 }

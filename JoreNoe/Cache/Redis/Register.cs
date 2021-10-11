@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace JoreNoe.Cache.Redis
 
         protected static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
 
-        public static void SetInitRedisConfig(string ConnectionString,string InstanceName,int DefaultDB = 0)
+        public static void SetInitRedisConfig(string ConnectionString, string InstanceName, int DefaultDB = 0)
         {
             _connectionString = ConnectionString;
             _instanceName = InstanceName;
@@ -40,6 +41,17 @@ namespace JoreNoe.Cache.Redis
         {
             return _connections.GetOrAdd(_instanceName, p => ConnectionMultiplexer.Connect(_connectionString));
         }
+
+
+        /// <summary>
+        /// 服务
+        /// </summary>
+        /// <param name="Services"></param>
+        public static void AddJoreNoeRedis(IServiceCollection Services)
+        {
+            _ = Services.AddSingleton<IRedisManager, RedisManager>();
+        }
+
 
     }
 }
