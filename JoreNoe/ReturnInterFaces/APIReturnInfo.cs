@@ -59,6 +59,7 @@ namespace JoreNoe.CommonInterFaces
         /// <summary>
         /// 数据
         /// </summary>
+        
         public T Data { get; set; }
         /// <summary>
         /// 消息
@@ -68,5 +69,7 @@ namespace JoreNoe.CommonInterFaces
         /// 请求状态
         /// </summary>
         public bool Status { get; set; } = true;
+
+        
     }
 }
