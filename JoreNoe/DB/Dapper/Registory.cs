@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using JoreNoe.DB.Models;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -41,6 +43,15 @@ namespace JoreNoe.DB.Dapper
             {
                 throw new Exception("未知类型");
             }
+        }
+        
+        /// <summary>
+        /// 服务注入
+        /// </summary>
+        /// <param name="Services"></param>
+        public static void AddJoreNoeDpper(IServiceCollection Services)
+        {
+            Services.AddSingleton<IRepository<BaseModel>, Repository<BaseModel>>();
         }
     }
 }

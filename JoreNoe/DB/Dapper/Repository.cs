@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace JoreNoe.DB.Dapper
 {
-    public class Repository<T>
+    public class Repository<T>:IRepository<T>
     {
         public readonly IDbConnection DBConnection;
 
