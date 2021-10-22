@@ -14,6 +14,9 @@ namespace JoreNoe.JoreHttpClient
     {
         private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors) => true;
 
+
+
+
         /// <summary>
         /// http请求 post 同步
         /// </summary>
@@ -116,5 +119,89 @@ namespace JoreNoe.JoreHttpClient
             }
             return Encoding.UTF8.GetString(result);
         }
+
+
+        /// <summary>
+        /// HTTP GET方式请求数据.
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <returns></returns>
+        public static async Task<string> GetASync(string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+            request.Method = "GET";
+            //request.ContentType = "application/x-www-form-urlencoded";
+            request.Accept = "*/*";
+            request.Timeout = 15000;
+            request.AllowAutoRedirect = false;
+
+            WebResponse response = null;
+            string responseStr = null;
+
+            try
+            {
+                response = request.GetResponse();
+
+                if (response != null)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                    responseStr = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                request = null;
+                response = null;
+            }
+
+            return responseStr;
+        }
+
+        /// <summary>
+        /// HTTP GET方式请求数据.
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <returns></returns>
+        public static string GetSync(string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+            request.Method = "GET";
+            //request.ContentType = "application/x-www-form-urlencoded";
+            request.Accept = "*/*";
+            request.Timeout = 15000;
+            request.AllowAutoRedirect = false;
+
+            WebResponse response = null;
+            string responseStr = null;
+
+            try
+            {
+                response = request.GetResponse();
+
+                if (response != null)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                    responseStr = reader.ReadToEnd();
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                request = null;
+                response = null;
+            }
+
+            return responseStr;
+        }
+
     }
 }
