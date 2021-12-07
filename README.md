@@ -4,7 +4,7 @@
 
 | Build                                                     | NuGet                                                        | Downloads                                                    |
 | --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](https://img.shields.io/badge/NetCore-5.0.9-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | ![](https://img.shields.io/badge/Downloads-1.14K+-green.svg) |
+| ![](https://img.shields.io/badge/NetCore-5.0.9-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | ![](https://img.shields.io/badge/Downloads-2.1K+-green.svg) |
 
 ```C
 Install-Package JoreNoe -Version 5.0.9 
