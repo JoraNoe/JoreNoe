@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
-    public class Repository<T> : IDisposable, IRepository<T> where T : BaseModel, new()
+    public class Repository<MID, T> : IDisposable, IRepository<MID, T> where T : BaseModel<MID>, new()
     {
         /// <summary>
         /// 基类
@@ -73,7 +73,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<IList<T>> AllAsync()
         {
-            var Result = await this.Db.Set<T>().Where(d => !d.IsDelete).ToListAsync();
+            var Result = await this.Db.Set<T>().Where(d => true).ToListAsync();
             return Result;
         }
         /// <summary>
@@ -81,10 +81,11 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public T SoftDelete(Guid Id)
+        public T SoftDelete(MID Id)
         {
+
             var Re = new T();
-            if (!this.Db.Set<T>().Any(d => d.Id == Id))
+            if (!this.Db.Set<T>().Any(d => d.Id.ToString() == Id.ToString()))
                 return null;
             Re = this.GetSingle(Id).Result;
 
@@ -103,9 +104,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public Task<T> DeleteAsync(Guid Id)
+        public Task<T> DeleteAsync(MID Id)
         {
-            var Result = this.Db.Set<T>().Remove(new T { Id = Id });
+            var Result = this.Db.Set<T>().Remove(new T { Id = Id }); ;
             this.Db.SaveChanges();
             return Task.Run(() => { return Result.Entity; });
         }
@@ -135,9 +136,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<T> GetSingle(Guid Id)
+        public async Task<T> GetSingle(MID Id)
         {
-            return await this.Db.Set<T>().AsTracking().SingleAsync(d => d.Id == Id && !d.IsDelete);
+            return await this.Db.Set<T>().AsTracking().SingleAsync(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
         }
         /// <summary>
         /// 分页查询
@@ -164,10 +165,10 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public T Delete(Guid Id)
+        public T Delete(MID Id)
         {
             var Re = new T();
-            if (!this.Db.Set<T>().Any(d => d.Id == Id))
+            if (!this.Db.Set<T>().Any(d => d.Id + string.Empty == Id + string.Empty))
                 return null;
             Re = this.GetSingle(Id).Result;
             this.Db.Set<T>().Remove(Re);
@@ -259,10 +260,10 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             return t;
         }
 
-        public T DeleteIngoreSave(Guid Id)
+        public T DeleteIngoreSave(MID Id)
         {
-            var Entity = this.Db.Set<T>().SingleOrDefault(d => d.Id == Id);
-            if(Entity != null)    
+            var Entity = this.Db.Set<T>().SingleOrDefault(d => d.Id + string.Empty == Id + String.Empty);
+            if (Entity != null)
                 this.Db.Set<T>().Remove(Entity);
             return null;
         }

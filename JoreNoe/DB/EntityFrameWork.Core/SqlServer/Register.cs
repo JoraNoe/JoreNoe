@@ -32,7 +32,8 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <param name="Services"></param>
         public static void AddJoreNoeEntityFrameworkSQLServer(IServiceCollection Services)
         {
-            _ = Services.AddSingleton<IRepository<BaseModel>, Repository<BaseModel>>();
+            _ = Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         }
     }
 }
+

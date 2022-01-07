@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace JoreNoe.DB.Models
 {
-    public class BaseModel
+    public class BaseModel<MID>
     {
         public BaseModel()
         {
-            this.Id = Guid.NewGuid();
-            this.IsDelete = false;
-            this.CreateTime = DateTime.Now;
-
+            var converter = TypeDescriptor.GetConverter(typeof(MID));
+            if (typeof(MID) is Guid)
+                this.Id = (MID)converter.ConvertTo(Guid.NewGuid(), typeof(Guid));
         }
 
         /// <summary>
         /// 主键Id
         /// </summary>
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public MID Id { get; set; }
 
         /// <summary>
         /// 是否删除 软删除

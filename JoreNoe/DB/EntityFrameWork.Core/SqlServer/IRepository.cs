@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<MID, T> where T : class
     {
         #region 异步数据
         /// <summary>
@@ -38,19 +38,19 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<T> DeleteAsync(Guid Id);
+        Task<T> DeleteAsync(MID Id);
         /// <summary>
         /// 批量删除
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<T> DeleteRangeAsync(Guid Id);
+        Task<T> DeleteRangeAsync(MID Id);
         /// <summary>
         /// 获取单个数据
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<T> GetSingle(Guid Id);
+        Task<T> GetSingle(MID Id);
         /// <summary>
         /// 查询全部数据
         /// </summary>
@@ -90,7 +90,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        T SoftDelete(Guid Id);
+        T SoftDelete(MID Id);
         /// <summary>
         /// 批量添加同步
         /// </summary>
@@ -108,7 +108,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        T Delete(Guid Id);
+        T Delete(MID Id);
 
         /// <summary>
         /// 是否存在
@@ -122,7 +122,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        int Count(Func<T,bool> Func);
+        int Count(Func<T, bool> Func);
         #endregion
         #region 无保存
         /// <summary>
@@ -143,7 +143,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        T DeleteIngoreSave(Guid Id);
+        T DeleteIngoreSave(MID Id);
 
         /// <summary>
         /// 添加无保存异步
