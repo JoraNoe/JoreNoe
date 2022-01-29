@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rI7X+q8G59hHsoqV89JVejaxHsBMtmkQPqv1vFINuHxQ9pe3xgQmTSLM6LTbabXIsPyH/oWpJ0ZtzjtHilU6rw==",
+  "dgSpecHash": "MgbFkoLEPxwBpze5bO+qFMKlJ0G1WcZX54oJrZ4pQ7OmL8f6IhOaupnEFtwDDJ/9fxwUm5QumxRA+mN7ZHuDgg==",
   "success": true,
-  "projectFilePath": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
+  "projectFilePath": "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\autofac\\6.2.0\\autofac.6.2.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\bouncycastle.netcore\\1.8.5\\bouncycastle.netcore.1.8.5.nupkg.sha512",
