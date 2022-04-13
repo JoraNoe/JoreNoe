@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace JoreNoe.Cache.Redis
+﻿namespace JoreNoe.Cache.Redis
 {
     /// <summary>
     /// 缓存有效时间辅助类

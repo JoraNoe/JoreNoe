@@ -1,14 +1,11 @@
-﻿using System;
+﻿using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using Dapper;
-using Microsoft.Data.SqlClient;
 
 namespace JoreNoe.DB.Dapper
 {
-    public class Repository<T>:IRepository<T>
+    public class Repository<T> : IRepository<T>
     {
         public readonly IDbConnection DBConnection;
 
@@ -25,7 +22,7 @@ namespace JoreNoe.DB.Dapper
         {
             this.DBConnection.Open();
             var TableName = typeof(T).Name;
-            var AllResult = this.DBConnection.Query<T>("Select * from "+TableName);
+            var AllResult = this.DBConnection.Query<T>("Select * from " + TableName);
             return AllResult.ToList();
         }
 
@@ -36,7 +33,7 @@ namespace JoreNoe.DB.Dapper
         public T Single(string Id)
         {
             var TableName = typeof(T).Name;
-            var Single = this.DBConnection.Query<T>("Select * from " + TableName + " where Id == '"+Id+"'");
+            var Single = this.DBConnection.Query<T>("Select * from " + TableName + " where Id == '" + Id + "'");
             return (T)Single;
         }
     }

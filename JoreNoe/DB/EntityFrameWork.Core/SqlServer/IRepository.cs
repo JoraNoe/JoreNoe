@@ -44,7 +44,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<T> DeleteRangeAsync(MID Id);
+        Task<bool> DeleteRangeAsync(MID[] Id);
         /// <summary>
         /// 获取单个数据
         /// </summary>
@@ -69,6 +69,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <returns></returns>
         Task<int> TotalAsync(Func<T, bool> Func = null);
+
 
         #endregion
         #region 同步 数据

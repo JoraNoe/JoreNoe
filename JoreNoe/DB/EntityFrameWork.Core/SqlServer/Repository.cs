@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
@@ -115,9 +114,14 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public Task<T> DeleteRangeAsync(Guid Id)
+        public async Task<bool> DeleteRangeAsync(MID[] Id)
         {
-            throw new Exception();
+            var Find = this.Db.Set<T>().Where(d => Id.Contains(d.Id));
+            this.Db.Set<T>().RemoveRange(Find);
+            return await Task.Run(() =>
+            {
+                return true;
+            }).ConfigureAwait(false);
         }
 
         /// <summary>
