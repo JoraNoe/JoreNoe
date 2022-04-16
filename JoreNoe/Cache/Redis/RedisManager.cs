@@ -6,13 +6,13 @@ using System.Collections.Generic;
 
 namespace JoreNoe.Cache.Redis
 {
-    public class RedisManager : Register, IRedisManager
+    public class RedisManager : IRedisManager
     {
         private readonly IDatabase RedisDataBase;
 
         public RedisManager()
         {
-            this.RedisDataBase = GetDatabase();
+            this.RedisDataBase = Register.GetDatabase();
         }
 
         /// <summary>
@@ -139,9 +139,9 @@ namespace JoreNoe.Cache.Redis
         /// </summary>
         public void Dispose()
         {
-            if (_connections != null && _connections.Count > 0)
+            if (Register._connections != null && Register._connections.Count > 0)
             {
-                foreach (var item in _connections.Values)
+                foreach (var item in Register._connections.Values)
                 {
                     item.Close();
                 }

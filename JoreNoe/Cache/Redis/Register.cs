@@ -4,31 +4,41 @@ using System.Collections.Concurrent;
 
 namespace JoreNoe.Cache.Redis
 {
-    public class Register
+    public class RedisEntity
     {
-        //连接字符串
-        private static string _connectionString;
-        //实例名称
-        private static string _instanceName;
-        //默认数据库
-        private static int _defaultDB;
+        /// <summary>
+        /// 链接字符串
+        /// </summary>
+        public string ConnectionString { get; set; }
 
-        protected static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
+        /// <summary>
+        /// 实例名称
+        /// </summary>
+        public string InstanceName { get; set; }
 
-        public static void SetInitRedisConfig(string ConnectionString, string InstanceName, int DefaultDB = 0)
+        /// <summary>
+        /// 默认数据库
+        /// </summary>
+        public int DefaultDB { get; set; }
+    }
+
+    public static class Register
+    {
+        public static RedisEntity RedisEntity;
+        public static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
+
+        public static void InitRedisConfig(RedisEntity Entity)
         {
-            _connectionString = ConnectionString;
-            _instanceName = InstanceName;
-            _defaultDB = DefaultDB;
+            RedisEntity = Entity;
         }
 
         /// <summary>
         /// 获取数据库
         /// </summary>
         /// <returns></returns>
-        protected static IDatabase GetDatabase()
+        public static IDatabase GetDatabase()
         {
-            return GetConnect().GetDatabase(_defaultDB);
+            return GetConnect().GetDatabase(RedisEntity.DefaultDB);
         }
         /// <summary>
         /// 获取ConnectionMultiplexer
@@ -36,7 +46,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         private static ConnectionMultiplexer GetConnect()
         {
-            return _connections.GetOrAdd(_instanceName, p => ConnectionMultiplexer.Connect(_connectionString));
+            return _connections.GetOrAdd(RedisEntity.InstanceName, p => ConnectionMultiplexer.Connect(RedisEntity.DefaultDB.ToString()));
         }
 
 
