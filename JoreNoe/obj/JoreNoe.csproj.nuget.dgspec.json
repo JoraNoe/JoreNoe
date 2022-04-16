@@ -94,7 +94,7 @@
             },
             "StackExchange.Redis": {
               "target": "Package",
-              "version": "[2.2.50, )"
+              "version": "[2.5.61, )"
             },
             "System.Data.Odbc": {
               "target": "Package",

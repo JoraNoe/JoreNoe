@@ -697,10 +697,10 @@
           "lib/netstandard2.1/NPOI.dll": {}
         }
       },
-      "Pipelines.Sockets.Unofficial/2.2.0": {
+      "Pipelines.Sockets.Unofficial/2.2.2": {
         "type": "package",
         "dependencies": {
-          "System.IO.Pipelines": "5.0.0"
+          "System.IO.Pipelines": "5.0.1"
         },
         "compile": {
           "lib/netcoreapp3.1/Pipelines.Sockets.Unofficial.dll": {}
@@ -885,10 +885,10 @@
           "lib/netstandard2.1/ICSharpCode.SharpZipLib.dll": {}
         }
       },
-      "StackExchange.Redis/2.2.50": {
+      "StackExchange.Redis/2.5.61": {
         "type": "package",
         "dependencies": {
-          "Pipelines.Sockets.Unofficial": "2.2.0",
+          "Pipelines.Sockets.Unofficial": "2.2.2",
           "System.Diagnostics.PerformanceCounter": "5.0.0"
         },
         "compile": {
@@ -1318,7 +1318,7 @@
           "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll": {}
         }
       },
-      "System.IO.Pipelines/5.0.0": {
+      "System.IO.Pipelines/5.0.1": {
         "type": "package",
         "compile": {
           "ref/netcoreapp2.0/System.IO.Pipelines.dll": {}
@@ -3410,10 +3410,10 @@
         "npoi.nuspec"
       ]
     },
-    "Pipelines.Sockets.Unofficial/2.2.0": {
-      "sha512": "7hzHplEIVOGBl5zOQZGX/DiJDHjq+RVRVrYgDiqXb6RriqWAdacXxp+XO9WSrATCEXyNOUOQg9aqQArsjase/A==",
+    "Pipelines.Sockets.Unofficial/2.2.2": {
+      "sha512": "Bhk0FWxH1paI+18zr1g5cTL+ebeuDcBCR+rRFO+fKEhretgjs7MF2Mc1P64FGLecWp4zKCUOPzngBNrqVyY7Zg==",
       "type": "package",
-      "path": "pipelines.sockets.unofficial/2.2.0",
+      "path": "pipelines.sockets.unofficial/2.2.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -3429,7 +3429,7 @@
         "lib/netstandard2.0/Pipelines.Sockets.Unofficial.xml",
         "lib/netstandard2.1/Pipelines.Sockets.Unofficial.dll",
         "lib/netstandard2.1/Pipelines.Sockets.Unofficial.xml",
-        "pipelines.sockets.unofficial.2.2.0.nupkg.sha512",
+        "pipelines.sockets.unofficial.2.2.2.nupkg.sha512",
         "pipelines.sockets.unofficial.nuspec"
       ]
     },
@@ -3679,10 +3679,10 @@
         "sharpziplib.nuspec"
       ]
     },
-    "StackExchange.Redis/2.2.50": {
-      "sha512": "jss1e27GaoI9efYtI+ZVGm2+QYKjFr92n/Jdjs4NY2jf/fFsu8lCNfaZ6tsR5nc5u67htNSRlyNkxFBuD8NVTA==",
+    "StackExchange.Redis/2.5.61": {
+      "sha512": "h1Gz4itrHL/PQ0GBLTEiPK8bBkOp5SFO6iaRFSSn/x1qltBWENsz/NUxPid6WHX9yf2Tiyzn9D3R7mtnksODxg==",
       "type": "package",
-      "path": "stackexchange.redis/2.2.50",
+      "path": "stackexchange.redis/2.5.61",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -3696,7 +3696,7 @@
         "lib/netcoreapp3.1/StackExchange.Redis.xml",
         "lib/netstandard2.0/StackExchange.Redis.dll",
         "lib/netstandard2.0/StackExchange.Redis.xml",
-        "stackexchange.redis.2.2.50.nupkg.sha512",
+        "stackexchange.redis.2.5.61.nupkg.sha512",
         "stackexchange.redis.nuspec"
       ]
     },
@@ -5041,10 +5041,10 @@
         "system.io.filesystem.primitives.nuspec"
       ]
     },
-    "System.IO.Pipelines/5.0.0": {
-      "sha512": "irMYm3vhVgRsYvHTU5b2gsT2CwT/SMM6LZFzuJjpIvT5Z4CshxNsaoBC1X/LltwuR3Opp8d6jOS/60WwOb7Q2Q==",
+    "System.IO.Pipelines/5.0.1": {
+      "sha512": "qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg==",
       "type": "package",
-      "path": "system.io.pipelines/5.0.0",
+      "path": "system.io.pipelines/5.0.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -5061,7 +5061,7 @@
         "lib/netstandard2.0/System.IO.Pipelines.xml",
         "ref/netcoreapp2.0/System.IO.Pipelines.dll",
         "ref/netcoreapp2.0/System.IO.Pipelines.xml",
-        "system.io.pipelines.5.0.0.nupkg.sha512",
+        "system.io.pipelines.5.0.1.nupkg.sha512",
         "system.io.pipelines.nuspec",
         "useSharedDesignerContext.txt",
         "version.txt"
@@ -7918,7 +7918,7 @@
       "MySql.Data >= 8.0.26",
       "NPOI >= 2.5.4",
       "SharpZipLib >= 1.3.2",
-      "StackExchange.Redis >= 2.2.50",
+      "StackExchange.Redis >= 2.5.61",
       "System.Data.Odbc >= 5.0.0"
     ]
   },
@@ -8016,7 +8016,7 @@
           },
           "StackExchange.Redis": {
             "target": "Package",
-            "version": "[2.2.50, )"
+            "version": "[2.5.61, )"
           },
           "System.Data.Odbc": {
             "target": "Package",

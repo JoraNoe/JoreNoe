@@ -4,32 +4,31 @@ using System.Collections.Concurrent;
 
 namespace JoreNoe.Cache.Redis
 {
-    public class RedisEntity
+
+    public static class Register
     {
         /// <summary>
         /// 链接字符串
         /// </summary>
-        public string ConnectionString { get; set; }
+        private static string _ConnectionString { get; set; }
 
         /// <summary>
         /// 实例名称
         /// </summary>
-        public string InstanceName { get; set; }
+        private static string _InstanceName { get; set; }
 
         /// <summary>
         /// 默认数据库
         /// </summary>
-        public int DefaultDB { get; set; }
-    }
+        private static int _DefaultDB { get; set; }
 
-    public static class Register
-    {
-        public static RedisEntity RedisEntity;
         public static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
 
-        public static void InitRedisConfig(RedisEntity Entity)
+        public static void InitRedisConfig(string ConnectionString, string InstanceName, int DefaultDB = 0)
         {
-            RedisEntity = Entity;
+            _ConnectionString = ConnectionString;
+            _InstanceName = InstanceName;
+            _DefaultDB = DefaultDB;
         }
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public static IDatabase GetDatabase()
         {
-            return GetConnect().GetDatabase(RedisEntity.DefaultDB);
+            return GetConnect().GetDatabase(_DefaultDB);
         }
         /// <summary>
         /// 获取ConnectionMultiplexer
@@ -46,7 +45,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         private static ConnectionMultiplexer GetConnect()
         {
-            return _connections.GetOrAdd(RedisEntity.InstanceName, p => ConnectionMultiplexer.Connect(RedisEntity.DefaultDB.ToString()));
+            return _connections.GetOrAdd(_InstanceName, p => ConnectionMultiplexer.Connect(_DefaultDB.ToString()));
         }
 
 

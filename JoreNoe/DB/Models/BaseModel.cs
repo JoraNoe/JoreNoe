@@ -8,7 +8,7 @@ namespace JoreNoe.DB.Models
         public BaseModel()
         {
             var converter = TypeDescriptor.GetConverter(typeof(MID));
-            if (typeof(MID) is Guid)
+            if (typeof(MID).IsAssignableFrom(typeof(Guid)))
                 this.Id = (MID)converter.ConvertTo(Guid.NewGuid(), typeof(Guid));
         }
 
