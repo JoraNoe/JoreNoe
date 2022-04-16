@@ -47,7 +47,7 @@ namespace JoreNoe.CommonInterFaces
         /// <param name="Data"></param>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public static APIReturnInfo<T> Error(T Data,string Message)
+        public static APIReturnInfo<T> Error(T Data, string Message)
         {
             return new APIReturnInfo<T> { Data = Data, Message = Message, Status = false, State = false };
         }
@@ -59,7 +59,7 @@ namespace JoreNoe.CommonInterFaces
         /// <summary>
         /// 数据
         /// </summary>
-        
+
         public T Data { get; set; }
         /// <summary>
         /// 消息
@@ -70,6 +70,6 @@ namespace JoreNoe.CommonInterFaces
         /// </summary>
         public bool Status { get; set; } = true;
 
-        
+
     }
 }

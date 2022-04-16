@@ -33,7 +33,7 @@ namespace JoreNoe.Cache.Redis
         public bool Remove(string KeyName)
         {
             if (this.RedisDataBase.KeyExists(KeyName))
-                throw new Exception("键不存在");
+                return false;
 
             return this.RedisDataBase.KeyDelete(KeyName);
         }
@@ -52,9 +52,7 @@ namespace JoreNoe.Cache.Redis
             if (!Result)
                 throw new Exception("存储失败");
 
-            //查询
-            var TData = JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
-            return TData;
+            return Context;
         }
 
         /// <summary>
@@ -75,9 +73,7 @@ namespace JoreNoe.Cache.Redis
             if (!Result)
                 throw new Exception("存储失败");
 
-            //查询
-            var TData = JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
-            return TData;
+            return Context;
         }
 
         /// <summary>
@@ -88,6 +84,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Find<T>(string KeyName)
         {
+            if (!this.Exists(KeyName))
+                return new List<T>();
+
             return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
         }
 
@@ -98,6 +97,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Single<T>(string KeyName)
         {
+            if (!this.Exists(KeyName))
+                return default(T);
+
             return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
         }
 
@@ -119,9 +121,7 @@ namespace JoreNoe.Cache.Redis
             if (!Result)
                 throw new Exception("存储失败");
 
-            //查询
-            var TData = JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
-            return TData;
+            return Context;
         }
 
         /// <summary>
@@ -166,9 +166,7 @@ namespace JoreNoe.Cache.Redis
             if (!Result)
                 throw new Exception("存储失败");
 
-            //查询
-            var TData = this.RedisDataBase.StringGet(KeyName);
-            return TData;
+            return Context;
         }
 
         /// <summary>
@@ -179,6 +177,10 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string Get(string KeyName)
         {
+
+            if (!this.Exists(KeyName))
+                return String.Empty;
+
             return this.RedisDataBase.StringGet(KeyName);
         }
     }
