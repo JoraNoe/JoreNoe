@@ -161,5 +161,10 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <param name="DB"></param>
         void InitDb(DbContext DB);
         #endregion
+
+        /// <summary>
+        /// 保存
+        /// </summary>
+        void SaveChange();
     }
 }

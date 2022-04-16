@@ -31,5 +31,6 @@
   
   <ItemGroup>
     <Folder Include="Cache\Memached\" />
+    <Folder Include="DB\Services\" />
   </ItemGroup>
 </Project>

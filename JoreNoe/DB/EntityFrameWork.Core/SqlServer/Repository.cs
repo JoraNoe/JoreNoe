@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
-    public class Repository<MID, T> : IDisposable, IRepository<MID, T> where T : BaseModel<MID>, new()
+    public class Repository<MID, T> :IRepository<MID, T> where T : BaseModel<MID>, new()
     {
         /// <summary>
         /// 基类
@@ -27,7 +27,6 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public T Add(T t)
         {
             this.Db.Set<T>().Add(t);
-            this.Db.SaveChanges();
             return t;
         }
 
@@ -39,7 +38,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public async Task<T> AddAsync(T t)
         {
             await this.Db.Set<T>().AddAsync(t);
-            this.Db.SaveChanges();
+             
             return t;
         }
         /// <summary>
@@ -50,7 +49,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public List<T> AddRange(IList<T> t)
         {
             this.Db.Set<T>().AddRange(t);
-            this.Db.SaveChanges();
+             
             return t.ToList();
         }
 
@@ -62,7 +61,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public async Task<IList<T>> AddRangeAsync(IList<T> t)
         {
             await this.Db.Set<T>().AddRangeAsync(t);
-            this.Db.SaveChanges();
+             
             return t;
         }
 
@@ -94,7 +93,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             }
             Re.IsDelete = true;
             var Result = this.Db.Set<T>().Update(Re);
-            this.Db.SaveChanges();
+             
             return Result.Entity;
         }
 
@@ -106,7 +105,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public Task<T> DeleteAsync(MID Id)
         {
             var Result = this.Db.Set<T>().Remove(new T { Id = Id }); ;
-            this.Db.SaveChanges();
+             
             return Task.Run(() => { return Result.Entity; });
         }
         /// <summary>
@@ -132,7 +131,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         public Task<T> EditAsync(T t)
         {
             var Result = this.Db.Set<T>().Update(t);
-            this.Db.SaveChanges();
+             
             return Task.Run(() => { return Result.Entity; });
         }
         /// <summary>
@@ -176,7 +175,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
                 return null;
             Re = this.GetSingle(Id).Result;
             this.Db.Set<T>().Remove(Re);
-            this.Db.SaveChanges();
+             
             return Re;
         }
         /// <summary>

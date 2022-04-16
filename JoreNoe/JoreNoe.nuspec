@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>JoreNoe</id>
+    <version>5.1.4</version>
+    <authors>Jth.JoreNoe</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/JoraNoe/JoreNoe/tree/main</projectUrl>
+   <!-- <iconUrl>http://icon_url_here_or_delete_this_line/</iconUrl> -->
+    <description>新增Access数据库操作帮助类</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Jth_JoreNoe</copyright>
+    <tags>NetCore Redis SqlServer Access</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="SampleDependency" version="1.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
