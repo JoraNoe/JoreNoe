@@ -8,7 +8,7 @@ namespace JoreNoe.Cache.Redis
 {
     public class RedisManager : IRedisManager
     {
-        private readonly IDatabase RedisDataBase;
+        private IDatabase RedisDataBase;
 
         public RedisManager()
         {
@@ -146,6 +146,40 @@ namespace JoreNoe.Cache.Redis
                     item.Close();
                 }
             }
+        }
+
+        /// <summary>
+        /// 添加或者获取
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public string AddOrGet(string KeyName, string Context, int Expire = 180)
+        {
+            if (this.RedisDataBase.KeyExists(KeyName))
+                return this.RedisDataBase.StringGet(KeyName);
+
+            var Result = this.RedisDataBase.StringSet(KeyName, Context);
+            this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
+            if (!Result)
+                throw new Exception("存储失败");
+
+            //查询
+            var TData = this.RedisDataBase.StringGet(KeyName);
+            return TData;
+        }
+
+        /// <summary>
+        /// 获取单个
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public string Get(string KeyName)
+        {
+            return this.RedisDataBase.StringGet(KeyName);
         }
     }
 }

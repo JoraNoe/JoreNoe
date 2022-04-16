@@ -81,5 +81,21 @@ namespace JoreNoe.Cache.Redis
         /// 释放
         /// </summary>
         void Dispose();
+
+        /// <summary>
+        /// 添加获取或者获取
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <param name="Expire"></param>
+        /// <returns></returns>
+        string AddOrGet(string KeyName,string Context,int Expire = 180);
+
+        /// <summary>
+        /// 获取单个
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <returns></returns>
+        string Get(string KeyName);
     }
 }

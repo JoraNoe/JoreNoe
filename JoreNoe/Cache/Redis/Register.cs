@@ -22,13 +22,14 @@ namespace JoreNoe.Cache.Redis
         /// </summary>
         private static int _DefaultDB { get; set; }
 
-        public static ConcurrentDictionary<string, ConnectionMultiplexer> _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
+        public static ConcurrentDictionary<string, ConnectionMultiplexer> _connections { get; set; }
 
         public static void InitRedisConfig(string ConnectionString, string InstanceName, int DefaultDB = 0)
         {
             _ConnectionString = ConnectionString;
             _InstanceName = InstanceName;
             _DefaultDB = DefaultDB;
+            _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         private static ConnectionMultiplexer GetConnect()
         {
-            return _connections.GetOrAdd(_InstanceName, p => ConnectionMultiplexer.Connect(_DefaultDB.ToString()));
+            return _connections.GetOrAdd(_InstanceName, p => ConnectionMultiplexer.Connect(_ConnectionString));
         }
 
 

@@ -876,7 +876,7 @@
           }
         }
       },
-      "SharpZipLib/1.3.2": {
+      "SharpZipLib/1.3.3": {
         "type": "package",
         "compile": {
           "lib/netstandard2.1/ICSharpCode.SharpZipLib.dll": {}
@@ -3658,10 +3658,10 @@
         "runtimes/ubuntu.16.10-x64/native/System.Security.Cryptography.Native.OpenSsl.so"
       ]
     },
-    "SharpZipLib/1.3.2": {
-      "sha512": "WSdeDReL8eugMCw5BH/tFAZpgR+YsYMwm6kIvqg3J8LbfRjbbebmEzn63AbEveqyMOljBO68g6tCCv165wMkSg==",
+    "SharpZipLib/1.3.3": {
+      "sha512": "N8+hwhsKZm25tDJfWpBSW7EGhH/R7EMuiX+KJ4C4u+fCWVc1lJ5zg1u3S1RPPVYgTqhx/C3hxrqUpi6RwK5+Tg==",
       "type": "package",
-      "path": "sharpziplib/1.3.2",
+      "path": "sharpziplib/1.3.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -3675,7 +3675,7 @@
         "lib/netstandard2.1/ICSharpCode.SharpZipLib.dll",
         "lib/netstandard2.1/ICSharpCode.SharpZipLib.pdb",
         "lib/netstandard2.1/ICSharpCode.SharpZipLib.xml",
-        "sharpziplib.1.3.2.nupkg.sha512",
+        "sharpziplib.1.3.3.nupkg.sha512",
         "sharpziplib.nuspec"
       ]
     },
@@ -7917,7 +7917,7 @@
       "Microsoft.Extensions.Configuration >= 5.0.0",
       "MySql.Data >= 8.0.26",
       "NPOI >= 2.5.4",
-      "SharpZipLib >= 1.3.2",
+      "SharpZipLib >= 1.3.3",
       "StackExchange.Redis >= 2.5.61",
       "System.Data.Odbc >= 5.0.0"
     ]
@@ -8012,7 +8012,7 @@
           },
           "SharpZipLib": {
             "target": "Package",
-            "version": "[1.3.2, )"
+            "version": "[1.3.3, )"
           },
           "StackExchange.Redis": {
             "target": "Package",

@@ -1,0 +1,12 @@
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\bin\Debug\netcoreapp3.1\JoreNoe.deps.json
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\bin\Debug\netcoreapp3.1\JoreNoe.runtimeconfig.json
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\bin\Debug\netcoreapp3.1\JoreNoe.runtimeconfig.dev.json
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\bin\Debug\netcoreapp3.1\JoreNoe.dll
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\bin\Debug\netcoreapp3.1\JoreNoe.pdb
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.AssemblyInfoInputs.cache
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.AssemblyInfo.cs
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.dll
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.pdb
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.genruntimeconfig.cache
