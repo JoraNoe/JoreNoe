@@ -13,8 +13,13 @@
     <PackageIconUrl>https://avatars.githubusercontent.com/u/103556099</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <LangVersion>latest</LangVersion>
+    <ApplicationIcon>JoreNoe.ico</ApplicationIcon>
 	
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="JoreNoe.ico" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />
