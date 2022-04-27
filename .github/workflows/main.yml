@@ -38,4 +38,4 @@ jobs:
     # 5. Push  package
     - name: Push generated package to GitHub registry
       run: |        
-        .\nuget push .\JoreNoePulish\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -ApiKey ${{ secrets.NUGETKEY }} -NoSymbols 
+        .\nuget push .\JoreNoe\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -ApiKey ${{ secrets.NUGETKEY }} -NoSymbols 
