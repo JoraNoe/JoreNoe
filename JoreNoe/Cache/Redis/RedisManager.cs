@@ -183,5 +183,71 @@ namespace JoreNoe.Cache.Redis
 
             return this.RedisDataBase.StringGet(KeyName);
         }
+
+        /// <summary>
+        /// 修改数据
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <returns></returns>
+        public string Update(string KeyName, string Context)
+        {
+            if (!this.Exists(KeyName))
+                return String.Empty;
+
+            var Delete = this.RedisDataBase.KeyDelete(KeyName);
+            if (Delete)
+            {
+                var KeyExpire = this.RedisDataBase.KeyTimeToLive(KeyName);
+                this.RedisDataBase.StringSet(KeyName, Context);
+                this.RedisDataBase.KeyExpire(KeyName, KeyExpire);
+            }
+            return Context;
+        }
+
+        /// <summary>
+        /// 修改实体类型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <returns></returns>
+        public T Update<T>(string KeyName, T Context)
+        {
+            if (!this.Exists(KeyName))
+                return default(T);
+
+            var Delete = this.RedisDataBase.KeyDelete(KeyName);
+            if (Delete)
+            {
+                var KeyExpire = this.RedisDataBase.KeyTimeToLive(KeyName);
+                this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
+                this.RedisDataBase.KeyExpire(KeyName, KeyExpire);
+            }
+            return Context;
+        }
+
+        /// <summary>
+        /// 修改多个
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Contexts"></param>
+        /// <returns></returns>
+        public IList<T> Update<T>(string KeyName,IList<T> Contexts)
+        {
+            if (!this.Exists(KeyName))
+                return default;
+
+            var Delete = this.RedisDataBase.KeyDelete(KeyName);
+            if (Delete)
+            {
+                var KeyExpire = this.RedisDataBase.KeyTimeToLive(KeyName);
+                this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Contexts));
+                this.RedisDataBase.KeyExpire(KeyName, KeyExpire);
+            }
+            return Contexts;
+        }
+
     }
 }

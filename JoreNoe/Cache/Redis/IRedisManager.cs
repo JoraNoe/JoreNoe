@@ -97,5 +97,33 @@ namespace JoreNoe.Cache.Redis
         /// <param name="KeyName"></param>
         /// <returns></returns>
         string Get(string KeyName);
+
+
+        /// <summary>
+        /// 修改数据
+        /// </summary>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <returns></returns>
+        string Update(string KeyName, string Context);
+
+        /// <summary>
+        /// 修改实体类型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Context"></param>
+        /// <returns></returns>
+        T Update<T>(string KeyName, T Context);
+
+        /// <summary>
+        /// 修改多个
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="KeyName"></param>
+        /// <param name="Contexts"></param>
+        /// <returns></returns>
+        IList<T> Update<T>(string KeyName, IList<T> Contexts);
+
     }
 }
