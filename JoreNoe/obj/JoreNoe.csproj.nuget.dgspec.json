@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj": {
-      "version": "6.0.2",
+      "version": "6.0.7",
       "restore": {
         "projectUniqueName": "C:\\Users\\Administrator\\Documents\\GitHub\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
         "projectName": "JoreNoe",
@@ -46,7 +46,7 @@
           "dependencies": {
             "Autofac": {
               "target": "Package",
-              "version": "[6.2.0, )"
+              "version": "[5.1.4, )"
             },
             "Dapper": {
               "target": "Package",

@@ -10,3 +10,4 @@ C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\
 C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.dll
 C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.pdb
 C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.genruntimeconfig.cache
+C:\Users\Administrator\Documents\GitHub\JoreNoe\JoreNoe\obj\Debug\netcoreapp3.1\JoreNoe.csproj.AssemblyReference.cache
