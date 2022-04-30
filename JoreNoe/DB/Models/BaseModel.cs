@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace JoreNoe.DB.Models
 {
@@ -15,6 +16,7 @@ namespace JoreNoe.DB.Models
         /// <summary>
         /// 主键Id
         /// </summary>
+        [Key]
         public MID Id { get; set; }
 
         /// <summary>
