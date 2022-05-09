@@ -23,8 +23,8 @@ namespace JoreNoe.CommonInterFaces
         {
             if (this.Total != 0 && this.PageSize != 0)
             {
-                string Count = (this.Total / this.PageSize).ToString();
-                int UseCount = 0;
+                string Count = ((float)this.Total / this.PageSize).ToString();
+                int UseCount;
                 if (Count.Contains("."))
                 {
                     UseCount = int.Parse(Count.Split(".")[0]) + 1;
