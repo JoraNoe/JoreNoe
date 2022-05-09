@@ -23,11 +23,16 @@ namespace JoreNoe.CommonInterFaces
         {
             if (this.Total != 0 && this.PageSize != 0)
             {
-                decimal Count = this.Total / this.PageSize;
-                var GetCeiling = Math.Ceiling(Count);
-                this.PageCount = Convert.ToInt32(GetCeiling);
+                string Count = (this.Total / this.PageSize).ToString();
+                int UseCount = 0;
+                if (Count.Contains("."))
+                {
+                    UseCount = int.Parse(Count.Split(".")[0]) + 1;
+                }
+                else UseCount = int.Parse(Count);
+                this.PageCount = UseCount;
                 this.Start = ((this.PageNum == 0 ? 1 : this.PageNum) - 1) * this.PageSize;
-                this.End = this.Start + PageSize;
+                this.End = PageSize;
             }
         }
 
