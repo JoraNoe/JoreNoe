@@ -13,8 +13,9 @@ namespace JoreNoe
         /// </summary>
         public DbContext Dbcontext { get; set; }
 
-        public UnitOfWork()
+        public UnitOfWork(ICurrencyRegister CurrentyRegister)
         {
+            this.Dbcontext = CurrentyRegister.Dbcontext;
             this.Dbcontext = Register._Dbcontext;
         }
 
