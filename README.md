@@ -26,7 +26,7 @@ Startup 中注册上下文
 ```C#
 //使用此方法进行注册 
 //参数 Connection 你的Reids链接地址
-//实例名称
+//实例名称 
 //默认数据库（Int 类型 ）
 Register.SetInitRedisConfig(YourRedisConnection,InstanceName,defaultDB = 0)
 ```
