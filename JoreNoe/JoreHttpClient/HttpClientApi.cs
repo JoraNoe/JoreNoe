@@ -130,7 +130,7 @@ namespace JoreNoe.JoreHttpClient
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             request.Method = "GET";
-            //request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = "application/json";
             request.Accept = "*/*";
             request.Timeout = 15000;
             request.AllowAutoRedirect = false;
@@ -171,7 +171,7 @@ namespace JoreNoe.JoreHttpClient
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             request.Method = "GET";
-            //request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = "application/json";
             request.Accept = "*/*";
             request.Timeout = 15000;
             request.AllowAutoRedirect = false;
