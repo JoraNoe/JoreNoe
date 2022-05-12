@@ -126,14 +126,11 @@ namespace JoreNoe.JoreHttpClient
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <returns></returns>
-        public static async Task<string> GetASync(string url)
+        public static async Task<string> GetASync(string url,string charset)
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             request.Method = "GET";
-            request.ContentType = "application/json";
-            request.Accept = "*/*";
-            request.Timeout = 15600;
-            request.AllowAutoRedirect = false;
+            request.KeepAlive = true;
 
             WebResponse response = null;
             string responseStr = null;
@@ -144,7 +141,7 @@ namespace JoreNoe.JoreHttpClient
 
                 if (response != null)
                 {
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding(charset));
                     responseStr = await reader.ReadToEndAsync().ConfigureAwait(false);
                     reader.Close();
                 }
@@ -167,13 +164,10 @@ namespace JoreNoe.JoreHttpClient
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <returns></returns>
-        public static string GetSync(string url)
+        public static string GetSync(string url, string charset)
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             request.Method = "GET";
-            request.ContentType = "application/json";
-            request.Accept = "*/*";
-            request.Timeout = 15000;
             request.AllowAutoRedirect = false;
 
             WebResponse response = null;
@@ -185,7 +179,7 @@ namespace JoreNoe.JoreHttpClient
 
                 if (response != null)
                 {
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding(charset));
                     responseStr = reader.ReadToEnd();
                     reader.Close();
                 }
