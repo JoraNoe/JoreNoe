@@ -132,7 +132,7 @@ namespace JoreNoe.JoreHttpClient
             request.Method = "GET";
             request.ContentType = "application/json";
             request.Accept = "*/*";
-            request.Timeout = 15000;
+            request.Timeout = 15600;
             request.AllowAutoRedirect = false;
 
             WebResponse response = null;
