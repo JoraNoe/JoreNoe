@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JoreNoe.CommonInterFaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,12 +15,13 @@ namespace JoreNoe.JoreVerify
         /// </summary>
         /// <param name="Arg">参数</param>
         /// <returns></returns>
-        public static bool CheckIsEmpty(string? Arg)
+        public static bool CheckIsEmpty(string Arg)
         {
             if (string.IsNullOrEmpty(Arg))
                 return false;
             else
                 return true;
         }
+
     }
 }

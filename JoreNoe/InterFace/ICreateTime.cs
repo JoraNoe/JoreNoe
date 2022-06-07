@@ -9,6 +9,6 @@ namespace JoreNoe.InterFace
     /// </summary>
     public interface ICreateTime
     {
-        DateTime? CreateTime { get; set; }
+        public DateTime? CreateTime { get; set; }
     }
 }

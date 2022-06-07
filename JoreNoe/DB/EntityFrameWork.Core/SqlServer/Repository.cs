@@ -27,6 +27,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public T Add(T t)
         {
+            if (t == null)
+                throw new ArgumentNullException("实体为空");
+
             this.Db.Set<T>().Add(t);
             return t;
         }
@@ -38,6 +41,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<T> AddAsync(T t)
         {
+            if (t == default || t == null)
+                throw new ArgumentNullException("实体为空");
+
             await this.Db.Set<T>().AddAsync(t);
 
             return t;
@@ -49,6 +55,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public List<T> AddRange(IList<T> t)
         {
+            if (t == default || t == null || t.Count == 0)
+                throw new ArgumentNullException("实体为空");
+
             this.Db.Set<T>().AddRange(t);
 
             return t.ToList();
@@ -61,6 +70,10 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<IList<T>> AddRangeAsync(IList<T> t)
         {
+
+            if (t == default || t == null || t.Count == 0)
+                throw new ArgumentNullException("实体为空");
+
             await this.Db.Set<T>().AddRangeAsync(t);
 
             return t;
@@ -76,7 +89,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Result == null)
                 return new List<T>();
 
-            return await Result.ToListAsync();
+            return await Result.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 删除同步
@@ -123,8 +136,6 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<bool> DeleteRangeAsync(MID[] Id)
         {
-
-
             var Find = this.Db.Set<T>().Where(d => Id.Contains(d.Id));
             if (Find == null)
                 return await Task.Run(() =>
@@ -190,6 +201,18 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
                 return new List<T>();
             return Result.ToList();
         }
+
+        /// <summary>
+        /// 忽略过滤查询
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        public IList<T> FindIngoreFilter(Func<T, bool> Func)
+        {
+            return this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
+        }
+
+
         /// <summary>
         /// 硬删除
         /// </summary>
@@ -231,7 +254,6 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public List<T> Find(Func<T, bool> Func)
         {
-
             var Result = this.Db.Set<T>().Where(Func);
             if (Result == null)
                 return new List<T>();
@@ -263,6 +285,37 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             return await this.Db.Set<T>().CountAsync();
         }
+
+
+        /// <summary>
+        /// 根据条件查询
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        public IList<T> FindAsNoTracking(Func<T, bool> Func)
+        {
+            return this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
+        }
+
+
+        /// <summary>
+        /// 查询异步
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        public async Task<IList<T>> FindAsNoTracKing(Func<T, bool> Func)
+        {
+            var Find = this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
+            if (Find == null || Find.Count == 0)
+                return null;
+            return await Task.Run(() =>
+            {
+                return Find;
+            }).ConfigureAwait(false);
+        }
+
+
+
 
         #region 初始化
         /// <summary>

@@ -9,6 +9,6 @@ namespace JoreNoe.InterFace
     /// </summary>
     public interface ISoftDelete
     {
-        bool IsDelete { get; set; }
+        public bool IsDelete { get; set; }
     }
 }

@@ -70,6 +70,13 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         Task<int> TotalAsync(Func<T, bool> Func = null);
 
+        /// <summary>
+        /// 忽略过滤查询
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        IList<T> FindIngoreFilter(Func<T, bool> Func);
+
 
         #endregion
         #region 同步 数据
@@ -124,6 +131,21 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <param name="Func"></param>
         /// <returns></returns>
         int Count(Func<T, bool> Func);
+
+        /// <summary>
+        /// 根据条件查询
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        IList<T> FindAsNoTracking(Func<T, bool> Func);
+
+        /// <summary>
+        /// 查询异步
+        /// </summary>
+        /// <param name="Func"></param>
+        /// <returns></returns>
+        Task<IList<T>> FindAsNoTracKing(Func<T, bool> Func);
+
         #endregion
         #region 无保存
         /// <summary>
