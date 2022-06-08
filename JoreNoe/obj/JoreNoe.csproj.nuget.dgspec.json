@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj": {
-      "version": "6.1.8",
+      "version": "6.1.9",
       "restore": {
         "projectUniqueName": "C:\\Jore\\JoreNoe\\JoreNoe\\JoreNoe.csproj",
         "projectName": "JoreNoe",
@@ -87,6 +87,10 @@
             "NPOI": {
               "target": "Package",
               "version": "[2.5.4, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.3.0, )"
             },
             "SharpZipLib": {
               "target": "Package",
