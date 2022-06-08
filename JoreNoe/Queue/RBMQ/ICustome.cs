@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.Queue.RBMQ
 {
-    public interface ICustome<T> where T : class
+    public interface ICustome
     {
-        Task<T> ConSume(CustomeContent<T> Context);
+        Task<T> ConSume<T>(CustomeContent<T> Context) where T : class;
     }
 }

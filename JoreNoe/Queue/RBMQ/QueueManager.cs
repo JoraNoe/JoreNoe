@@ -46,7 +46,7 @@ namespace JoreNoe.Queue.RBMQ
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Custome"></param>
-        public static void Receive<T>(ICustome Custome)
+        public static void Receive<T>(ICustome Custome) where T : class
         {
             using (var connection = ConectionFactory.CreateConnection())
             {
@@ -59,7 +59,7 @@ namespace JoreNoe.Queue.RBMQ
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body.ToArray());
 
-                        Custome.ConSume<T>(new CustomeContent<T>
+                        Custome.ConSume(new CustomeContent<T>
                         {
                             QueueName = QueueName,
                             Context = (T)JsonConvert.DeserializeObject(message)
