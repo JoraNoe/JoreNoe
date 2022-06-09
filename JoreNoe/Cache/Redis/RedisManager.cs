@@ -234,7 +234,7 @@ namespace JoreNoe.Cache.Redis
         /// <param name="KeyName"></param>
         /// <param name="Contexts"></param>
         /// <returns></returns>
-        public IList<T> Update<T>(string KeyName,IList<T> Contexts)
+        public IList<T> Update<T>(string KeyName, IList<T> Contexts)
         {
             if (!this.Exists(KeyName))
                 return default;

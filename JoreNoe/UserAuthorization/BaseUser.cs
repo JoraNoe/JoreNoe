@@ -2,8 +2,8 @@
 
 namespace JoreNoe.UserAuthorization
 {
-    public class Controller 
+    public class Controller
     {
-        
+
     }
 }

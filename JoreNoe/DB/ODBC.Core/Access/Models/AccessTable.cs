@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace JoreNoe.DB.ODBC.Core.Access.Models
+﻿namespace JoreNoe.DB.ODBC.Core.Access.Models
 {
     public class AccessTable
     {

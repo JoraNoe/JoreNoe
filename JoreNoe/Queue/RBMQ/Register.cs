@@ -1,8 +1,4 @@
 ﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JoreNoe.Queue.RBMQ
 {
@@ -33,7 +29,7 @@ namespace JoreNoe.Queue.RBMQ
         /// <param name="Password"></param>
         /// <param name="VirtualHost"></param>
         /// <param name="SendType"></param>
-        public static void RegisterQueue(string HostName, string UserName, string Password, string VirtualHost,string ChannelName)
+        public static void RegisterQueue(string HostName, string UserName, string Password, string VirtualHost, string ChannelName)
         {
             _ChannelName = ChannelName;
 

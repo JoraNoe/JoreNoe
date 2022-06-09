@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace JoreNoe.JoreHelper
+﻿namespace JoreNoe.JoreHelper
 {
     public class JoreHelperApi
     {
@@ -11,11 +6,11 @@ namespace JoreNoe.JoreHelper
         //{
         //    if (Data == null)
         //        throw new Exception("数据为空");
-            
+
         //    var 
 
         //    var ConvertList = Data.Select(d=>d.)
-            
+
         //}
     }
 }

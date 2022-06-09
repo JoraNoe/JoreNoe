@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace JoreNoe.InterFace
+﻿namespace JoreNoe.InterFace
 {
     /// <summary>
     /// 用户使用接口

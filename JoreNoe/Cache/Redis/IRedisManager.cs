@@ -89,7 +89,7 @@ namespace JoreNoe.Cache.Redis
         /// <param name="Context"></param>
         /// <param name="Expire"></param>
         /// <returns></returns>
-        string AddOrGet(string KeyName,string Context,int Expire = 180);
+        string AddOrGet(string KeyName, string Context, int Expire = 180);
 
         /// <summary>
         /// 获取单个

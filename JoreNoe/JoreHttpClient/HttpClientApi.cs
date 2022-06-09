@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -126,7 +125,7 @@ namespace JoreNoe.JoreHttpClient
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <returns></returns>
-        public static async Task<string> GetASync(string url,string charset)
+        public static async Task<string> GetASync(string url, string charset)
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             request.Method = "GET";

@@ -1,9 +1,7 @@
 ﻿using JoreNoe.DB.ODBC.Core.Access.Models;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Odbc;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace JoreNoe.DB.ODBC.Core.Access

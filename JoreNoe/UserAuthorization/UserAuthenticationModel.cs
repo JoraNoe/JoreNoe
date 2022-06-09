@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace JoreNoe.UserAuthorization
+﻿namespace JoreNoe.UserAuthorization
 {
     public class UserAuthenticationModel
     {
@@ -20,6 +16,6 @@ namespace JoreNoe.UserAuthorization
         /// 备注字段
         /// </summary>
         public string Reamrk { get; set; }
- 
+
     }
 }

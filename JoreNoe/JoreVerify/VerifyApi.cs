@@ -1,9 +1,4 @@
-﻿using JoreNoe.CommonInterFaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace JoreNoe.JoreVerify
+﻿namespace JoreNoe.JoreVerify
 {
     public class VerifyApi
     {

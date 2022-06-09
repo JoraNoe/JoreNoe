@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace JoreNoe.CommonInterFaces
+﻿namespace JoreNoe.CommonInterFaces
 {
     /// <summary>
     /// Api返回信息
