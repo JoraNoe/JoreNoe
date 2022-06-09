@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <Version>6.1.6</Version>
     <Description>优化代码，新增Redis更新</Description>
     <Authors>Jth.JoreNoe</Authors>
