@@ -90,7 +90,7 @@
             },
             "RabbitMQ.Client": {
               "target": "Package",
-              "version": "[5.2.0, )"
+              "version": "[4.1.3, )"
             },
             "SharpZipLib": {
               "target": "Package",
