@@ -14,6 +14,7 @@
     <RepositoryType>git</RepositoryType>
     <LangVersion>latest</LangVersion>
     <ApplicationIcon>JoreNoe.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64;x86;ARM64;ARM32</Platforms>
 	
   </PropertyGroup>
 
