@@ -1,4 +1,4 @@
-﻿using RabbitMQ.Client;
+﻿//using RabbitMQ.Client;
 
 namespace JoreNoe.Queue.RBMQ
 {
@@ -17,7 +17,7 @@ namespace JoreNoe.Queue.RBMQ
         /// <summary>
         /// 创建工厂
         /// </summary>
-        public static ConnectionFactory ConectionFactory = null;
+        //public static ConnectionFactory ConectionFactory = null;
 
         public static string _ChannelName = "";
 
@@ -33,13 +33,13 @@ namespace JoreNoe.Queue.RBMQ
         {
             _ChannelName = ChannelName;
 
-            ConectionFactory = new ConnectionFactory()
-            {
-                HostName = HostName,
-                UserName = UserName,
-                Password = Password,
-                VirtualHost = VirtualHost
-            };
+            //ConectionFactory = new ConnectionFactory()
+            //{
+            //    HostName = HostName,
+            //    UserName = UserName,
+            //    Password = Password,
+            //    VirtualHost = VirtualHost
+            //};
         }
     }
 }
