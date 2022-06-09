@@ -55,7 +55,7 @@ namespace JoreNoe.Queue.RBMQ
                     consumer.Received += (model, ea) =>
                     {
                         var body = ea.Body;
-                        var message = Encoding.UTF8.GetString(body);
+                        var message = Encoding.UTF8.GetString(body.ToArray());
 
                         Custome.ConSume(new CustomeContent<T>
                         {
