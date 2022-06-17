@@ -290,8 +290,11 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             return this.Db.Set<T>().Where(d=>true).ToList();
         }
 
-        public int Count(Func<T, bool> Func)
+        public int Count(Func<T, bool> Func = null)
         {
+            if(Func == null)
+                return this.Db.Set<T>().Count();
+
             return this.Db.Set<T>().Count(Func);
         }
     }

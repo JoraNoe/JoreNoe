@@ -26,7 +26,7 @@ namespace JoreNoe.DB.TEntityFrameWork.Core.SqlServer
         IList<TEntity> AddRange(IList<TEntity> t);
         IList<TEntity> All();
         bool Exist(Func<TEntity, bool> Func);
-        int Count(Func<TEntity, bool> Func);
+        int Count(Func<TEntity, bool> Func = null);
         IList<TEntity> FindAsNoTracking(Func<TEntity, bool> Func);
         Task<IList<TEntity>> FindAsNoTracKingAsync(Func<TEntity, bool> Func);
     }
