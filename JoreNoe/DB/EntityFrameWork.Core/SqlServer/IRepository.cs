@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.DB.TEntityFrameWork.Core.SqlServer
 {
-    public interface IRepository<TKey, TEntity> where TEntity : Entity<TKey>
+    public interface IRepository<TKey, TEntity>
     {    
         Task<IList<TEntity>> FindAsync(Func<TEntity, bool> Func);
         Task<TEntity> AddAsync(TEntity t);
