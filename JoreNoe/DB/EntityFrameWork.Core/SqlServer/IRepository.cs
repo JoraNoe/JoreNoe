@@ -1,82 +1,83 @@
 ﻿
+using JoreNoe.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
+namespace JoreNoe.DB.TEntityFrameWork.Core.SqlServer
 {
-    public interface IRepository<MID, T> where T : class
-    {
+    public interface IRepository<TKey, TEntity> where TEntity : Entity<TKey>
+    {    
         #region 异步数据
         /// <summary>
         /// 自定义查询内容
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        Task<IList<T>> FindAsync(Func<T, bool> Func);
+        Task<IList<TEntity>> FindAsync(Func<TEntity, bool> Func);
         /// <summary>
         /// 添加
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        Task<T> AddAsync(T t);
+        Task<TEntity> AddAsync(TEntity t);
         /// <summary>
         /// 批量添加
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        Task<IList<T>> AddRangeAsync(IList<T> t);
+        Task<IList<TEntity>> AddRangeAsync(IList<TEntity> t);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        Task<T> EditAsync(T t);
+        TEntity Edit(TEntity t);
         /// <summary>
         /// 移除
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<T> DeleteAsync(MID Id);
+        TEntity Delete(TKey Id);
         /// <summary>
         /// 批量删除
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<bool> DeleteRangeAsync(MID[] Id);
+        bool DeleteRange(TKey[] Id);
         /// <summary>
         /// 获取单个数据
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        Task<T> GetSingle(MID Id);
+        Task<TEntity> SingleAsync(TKey Id);
+
+        /// <summary>
+        /// 获取单个
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        TEntity Single(TKey Id);
+
         /// <summary>
         /// 查询全部数据
         /// </summary>
         /// <returns></returns>
-        Task<IList<T>> AllAsync();
+        Task<IList<TEntity>> AllAsync();
         /// <summary>
         /// 分页查询
         /// </summary>
         /// <param name="PageNum"></param>
         /// <param name="PageSize"></param>
         /// <returns></returns>
-        Task<IList<T>> Page(int PageNum = 0, int PageSize = 10);
+        Task<IList<TEntity>> Page(int PageNum = 0, int PageSize = 10);
 
         /// <summary>
         /// 总数量
         /// </summary>
         /// <returns></returns>
-        Task<int> TotalAsync(Func<T, bool> Func = null);
-
-        /// <summary>
-        /// 忽略过滤查询
-        /// </summary>
-        /// <param name="Func"></param>
-        /// <returns></returns>
-        IList<T> FindIngoreFilter(Func<T, bool> Func);
-
+        Task<int> TotalAsync(Func<TEntity, bool> Func = null);
 
         #endregion
         #region 同步 数据
@@ -85,108 +86,61 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        List<T> Find(Func<T, bool> Func);
+        List<TEntity> Find(Func<TEntity, bool> Func);
         /// <summary>
         /// 添加同步
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        T Add(T t);
+        TEntity Add(TEntity t);
 
         /// <summary>
         /// 移除 同步 软删除
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        T SoftDelete(MID Id);
+        TEntity SoftDelete(TKey Id);
         /// <summary>
         /// 批量添加同步
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        List<T> AddRange(IList<T> t);
+        List<TEntity> AddRange(IList<TEntity> t);
         /// <summary>
         /// 全部数据同步
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        List<T> All();
-        /// <summary>
-        /// 删除
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <returns></returns>
-        T Delete(MID Id);
+        List<TEntity> All();
 
         /// <summary>
         /// 是否存在
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        bool Exist(Func<T, bool> Func);
+        bool Exist(Func<TEntity, bool> Func);
 
         /// <summary>
         /// 总数
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        int Count(Func<T, bool> Func);
+        int Count(Func<TEntity, bool> Func);
 
         /// <summary>
         /// 根据条件查询
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        IList<T> FindAsNoTracking(Func<T, bool> Func);
+        IList<TEntity> FindAsNoTracking(Func<TEntity, bool> Func);
 
         /// <summary>
         /// 查询异步
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        Task<IList<T>> FindAsNoTracKing(Func<T, bool> Func);
+        Task<IList<TEntity>> FindAsNoTracKingAsync(Func<TEntity, bool> Func);
 
         #endregion
-        #region 无保存
-        /// <summary>
-        /// 添加无保存
-        /// </summary>
-        /// <returns></returns>
-        T AddIngoreSave(T t);
-
-        /// <summary>
-        /// 修改无保存
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        T EditIngoreSave(T t);
-
-        /// <summary>
-        /// 删除无保存
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <returns></returns>
-        T DeleteIngoreSave(MID Id);
-
-        /// <summary>
-        /// 添加无保存异步
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        Task<T> AddIngoreSaveAsync(T t);
-
-        #endregion
-        #region 初始化
-        /// <summary>
-        /// 初始化数据库
-        /// </summary>
-        /// <param name="DB"></param>
-        void InitDb(DbContext DB);
-        #endregion
-
-        /// <summary>
-        /// 保存
-        /// </summary>
-        void SaveChange();
     }
 }

@@ -3,7 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JoreNoe.DB.Models
 {
-    public class BaseModel<MID>
+    public interface Entity<TKey>
+    {
+
+    }
+    public class BaseModel<MID>: Entity<MID>
     {
         public BaseModel()
         {

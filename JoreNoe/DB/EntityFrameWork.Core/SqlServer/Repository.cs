@@ -1,4 +1,5 @@
 ﻿using JoreNoe.DB.Models;
+using JoreNoe.DB.TEntityFrameWork.Core.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
     public class Repository<MID, T> : IRepository<MID, T> where T : BaseModel<MID>, new()
     {
+
+        // public class Repository<TEntity, TKey, TDbContext> : Repository<TEntity, TDbContext>, IRepository<TEntity, TKey> where TEntity : Entity<TKey> where TDbContext : EFContext
+
         /// <summary>
         /// 基类
         /// </summary>
@@ -34,7 +38,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         }
 
         /// <summary>
-        /// 添加
+        /// 添加异步
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
@@ -42,13 +46,13 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (t == default || t == null)
                 throw new ArgumentNullException("实体为空");
-
             await this.Db.Set<T>().AddAsync(t);
-
             return t;
         }
+
+
         /// <summary>
-        /// 添加同步
+        /// 批量添加
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
@@ -56,25 +60,20 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (t == default || t == null || t.Count == 0)
                 throw new ArgumentNullException("实体为空");
-
             this.Db.Set<T>().AddRange(t);
-
             return t.ToList();
         }
 
         /// <summary>
-        /// 批量添加
+        /// 批量添加异步
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
         public async Task<IList<T>> AddRangeAsync(IList<T> t)
         {
-
             if (t == default || t == null || t.Count == 0)
                 throw new ArgumentNullException("实体为空");
-
             await this.Db.Set<T>().AddRangeAsync(t);
-
             return t;
         }
 
@@ -87,9 +86,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             var Result = this.Db.Set<T>().Where(d => true);
             if (Result == null)
                 return new List<T>();
-
             return await Result.ToListAsync().ConfigureAwait(false);
         }
+
         /// <summary>
         /// 删除同步
         /// </summary>
@@ -99,20 +98,12 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (!this.Exists(Id))
                 return null;
-
-            var Re = new T();
-            if (!this.Db.Set<T>().Any(d => d.Id.ToString() == Id.ToString()))
+            var Result = this.Single(Id);
+            if (Result == null)
                 return null;
-            Re = this.GetSingle(Id).Result;
-
-            if (Re == null)
-            {
-                return null;
-            }
-            Re.IsDelete = true;
-            var Result = this.Db.Set<T>().Update(Re);
-
-            return Result.Entity;
+            Result.IsDelete = true;
+            this.Db.Set<T>().Update(Result);
+            return Result;
         }
 
         /// <summary>
@@ -120,32 +111,25 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public Task<T> DeleteAsync(MID Id)
+        public T Delete(MID Id)
         {
             if (!this.Exists(Id))
                 return null;
-            var Result = this.Db.Set<T>().Remove(new T { Id = Id }); ;
-
-            return Task.Run(() => { return Result.Entity; });
+            var Result = this.Db.Set<T>().Remove(new T { Id = Id });
+            return Result.Entity;
         }
         /// <summary>
         /// 批量删除
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteRangeAsync(MID[] Id)
+        public bool DeleteRange(MID[] Ids)
         {
-            var Find = this.Db.Set<T>().Where(d => Id.Contains(d.Id));
+            var Find = this.Db.Set<T>().Where(d => Ids.Contains(d.Id));
             if (Find == null)
-                return await Task.Run(() =>
-                {
-                    return false;
-                });
+                return false;
             this.Db.Set<T>().RemoveRange(Find);
-            return await Task.Run(() =>
-            {
-                return true;
-            }).ConfigureAwait(false);
+            return true;
         }
 
         /// <summary>
@@ -153,27 +137,39 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public Task<T> EditAsync(T t)
+        public T Edit(T t)
         {
-
             if (!this.Exists(t.Id))
                 return null;
 
             var Result = this.Db.Set<T>().Update(t);
-
-            return Task.Run(() => { return Result.Entity; });
+            return Result.Entity;
         }
         /// <summary>
         /// 查询单个
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<T> GetSingle(MID Id)
+        public async Task<T> SingleAsync(MID Id)
         {
             if (!this.Exists(Id))
                 return null;
             return await this.Db.Set<T>().SingleAsync(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
         }
+
+        /// <summary>
+        /// 同步获取单个
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public T Single(MID Id)
+        {
+            if (!this.Exists(Id))
+                return null;
+            return this.Db.Set<T>().Single(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
+        }
+
+
         /// <summary>
         /// 分页查询
         /// </summary>
@@ -192,44 +188,14 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// 同步获取数据
         /// </summary>
         /// <returns></returns>
-        public List<T> All()
+        public List<T> AllNoTracking()
         {
             var Result = this.Db.Set<T>().AsNoTracking().Where(d => true && !d.IsDelete);
-
             if (Result == null)
                 return new List<T>();
             return Result.ToList();
         }
 
-        /// <summary>
-        /// 忽略过滤查询
-        /// </summary>
-        /// <param name="Func"></param>
-        /// <returns></returns>
-        public IList<T> FindIngoreFilter(Func<T, bool> Func)
-        {
-            return this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
-        }
-
-
-        /// <summary>
-        /// 硬删除
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <returns></returns>
-        public T Delete(MID Id)
-        {
-            if (!this.Exists(Id))
-                return null;
-
-            var Re = new T();
-            if (!this.Db.Set<T>().Any(d => d.Id + string.Empty == Id + string.Empty))
-                return null;
-            Re = this.GetSingle(Id).Result;
-            this.Db.Set<T>().Remove(Re);
-
-            return Re;
-        }
         /// <summary>
         /// 自定义查询数据
         /// </summary>
@@ -246,6 +212,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             }).ConfigureAwait(false);
 
         }
+
         /// <summary>
         /// 自定义查询内容 同步
         /// </summary>
@@ -270,9 +237,14 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             return ExistsResult == null ? false : true;
         }
 
+        /// <summary>
+        /// 查询是否存在
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public bool Exists(MID Id)
         {
-            return this.Db.Set<T>().Any(d => d.Id.ToString() == Id.ToString());
+            return this.Db.Set<T>().Find(Id) == null ? false : true;
         }
 
         /// <summary>
@@ -302,7 +274,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        public async Task<IList<T>> FindAsNoTracKing(Func<T, bool> Func)
+        public async Task<IList<T>> FindAsNoTracKingAsync(Func<T, bool> Func)
         {
             var Find = this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
             if (Find == null || Find.Count == 0)
@@ -313,70 +285,14 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             }).ConfigureAwait(false);
         }
 
-
-
-
-        #region 初始化
-        /// <summary>
-        /// 初始化数据库
-        /// </summary>
-        /// <param name="DB"></param>
-        public void InitDb(DbContext DB)
+        public IList<T> All()
         {
-            this.Db = DB;
+            return this.Db.Set<T>().Where(d=>true).ToList();
         }
 
-        /// <summary>
-        /// 保存
-        /// </summary>
-        public void SaveChange()
-        {
-            this.Db.SaveChanges();
-        }
-
-        /// <summary>
-        /// 释放
-        /// </summary>
-        public void Dispose()
-        {
-            this.Db.Dispose();
-        }
-        #endregion
-
-        #region 无保存 
-        public T AddIngoreSave(T t)
-        {
-            this.Db.Set<T>().Add(t);
-            return t;
-        }
-
-        public T EditIngoreSave(T t)
-        {
-            this.Db.Set<T>().Update(t);
-            return t;
-        }
-
-        public T DeleteIngoreSave(MID Id)
-        {
-            var Entity = this.Db.Set<T>().SingleOrDefault(d => d.Id + string.Empty == Id + String.Empty);
-            if (Entity != null)
-                this.Db.Set<T>().Remove(Entity);
-            return null;
-        }
-
-        /// 总数
-        /// </summary>
-        /// <param name="Func"></param>
-        /// <returns></returns>
         public int Count(Func<T, bool> Func)
         {
-            return this.Db.Set<T>().Count(Func);
+            return this.Db.Set<T>().Count();
         }
-        public async Task<T> AddIngoreSaveAsync(T t)
-        {
-            await this.Db.Set<T>().AddAsync(t);
-            return t;
-        }
-        #endregion
     }
 }
