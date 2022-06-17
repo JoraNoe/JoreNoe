@@ -1,5 +1,5 @@
 ﻿using JoreNoe.DB.Models;
-using JoreNoe.DB.TEntityFrameWork.Core.SqlServer;
+using JoreNoe.DB.EntityFrameWork.Core.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace JoreNoe.DB.TEntityFrameWork.Core.SqlServer
+namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
     public interface IRepository<TKey, TEntity> where TEntity : class
     {
