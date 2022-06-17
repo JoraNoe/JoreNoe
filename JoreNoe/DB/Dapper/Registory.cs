@@ -49,7 +49,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="Services"></param>
         public static void AddJoreNoeDpper(IServiceCollection Services)
         {
-            _ = Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+            _ = Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
     }
 }

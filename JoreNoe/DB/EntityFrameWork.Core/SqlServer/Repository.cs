@@ -56,7 +56,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public List<T> AddRange(IList<T> t)
+        public IList<T> AddRange(IList<T> t)
         {
             if (t == default || t == null || t.Count == 0)
                 throw new ArgumentNullException("实体为空");
@@ -292,7 +292,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 
         public int Count(Func<T, bool> Func)
         {
-            return this.Db.Set<T>().Count();
+            return this.Db.Set<T>().Count(Func);
         }
     }
 }
