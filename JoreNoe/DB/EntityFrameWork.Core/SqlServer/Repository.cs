@@ -10,9 +10,6 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
     public class Repository<MID, T> : IRepository<MID, T> where T : BaseModel<MID>, new()
     {
-
-        // public class Repository<TEntity, TKey, TDbContext> : Repository<TEntity, TDbContext>, IRepository<TEntity, TKey> where TEntity : Entity<TKey> where TDbContext : EFContext
-
         /// <summary>
         /// 基类
         /// </summary>
