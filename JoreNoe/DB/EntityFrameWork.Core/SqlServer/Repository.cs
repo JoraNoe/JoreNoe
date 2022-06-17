@@ -14,9 +14,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         private DbContext Db { get; set; }
 
-        public Repository()
+        public Repository(ICurrencyRegister Currency)
         {
-            this.Db = Register._Dbcontext;
+            this.Db = Currency.Dbcontext;
         }
 
         /// <summary>

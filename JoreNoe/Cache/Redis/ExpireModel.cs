@@ -24,5 +24,10 @@
         /// 持久缓存
         /// </summary>
         public const int PersistentCache = 7200;
+
+        /// <summary>
+        /// 长久缓存
+        /// </summary>
+        public const int MaxLogCache = 6048000;
     }
 }

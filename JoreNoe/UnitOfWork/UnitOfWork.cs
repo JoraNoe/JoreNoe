@@ -1,5 +1,4 @@
-﻿using JoreNoe.DB.EntityFrameWork.Core.SqlServer;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace JoreNoe
@@ -14,7 +13,6 @@ namespace JoreNoe
         public UnitOfWork(ICurrencyRegister CurrentyRegister)
         {
             this.Dbcontext = CurrentyRegister.Dbcontext;
-            this.Dbcontext = Register._Dbcontext;
         }
 
         /// <summary>
@@ -25,6 +23,9 @@ namespace JoreNoe
             this.Dbcontext.SaveChanges();
         }
 
+        /// <summary>
+        /// 释放
+        /// </summary>
         public void Dispose()
         {
             this.Dbcontext.Dispose();
