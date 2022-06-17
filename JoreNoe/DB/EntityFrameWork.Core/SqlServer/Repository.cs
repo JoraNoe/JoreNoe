@@ -151,7 +151,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (!this.Exists(Id))
                 return null;
-            return await this.Db.Set<T>().SingleAsync(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
+            return await this.Db.Set<T>().SingleOrDefaultAsync(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (!this.Exists(Id))
                 return null;
-            return this.Db.Set<T>().Single(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
+            return this.Db.Set<T>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete);
         }
 
 
@@ -241,7 +241,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool Exists(MID Id)
         {
-            return this.Db.Set<T>().Find(Id) == null ? false : true;
+            return this.Db.Set<T>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty) == null ? false : true;
         }
 
         /// <summary>
@@ -284,15 +284,53 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 
         public IList<T> All()
         {
-            return this.Db.Set<T>().Where(d=>true).ToList();
+            return this.Db.Set<T>().Where(d => true).ToList();
         }
 
         public int Count(Func<T, bool> Func = null)
         {
-            if(Func == null)
+            if (Func == null)
                 return this.Db.Set<T>().Count();
 
             return this.Db.Set<T>().Count(Func);
+        }
+
+        public async Task<T> EditAsync(T t)
+        {
+            if (t == null)
+                throw new ArgumentNullException(nameof(t));
+            this.Db.Set<T>().Update(t);
+            return await Task.Run(() =>
+            {
+                return t;
+            }).ConfigureAwait(false);
+        }
+
+
+        public T Update(MID Id, Action<T> ActionRever)
+        {
+            if(ActionRever == null)
+                throw new ArgumentNullException(nameof(ActionRever));
+            var Single = this.Single(Id);
+            if (Single == null)
+                return null;
+
+            ActionRever(Single);
+            this.Db.Set<T>().Update(Single);
+            return Single;
+        }
+
+        public async Task<T> UpdateAsync(MID Id, Action<T> ActionRever)
+        {
+            if (ActionRever == null)
+                throw new ArgumentNullException(nameof(ActionRever));
+            var Single = await this.SingleAsync(Id).ConfigureAwait(false);
+            if (Single == null)
+                return null;
+
+            ActionRever(Single);
+            this.Db.Set<T>().Update(Single);
+            return Single;
         }
     }
 }

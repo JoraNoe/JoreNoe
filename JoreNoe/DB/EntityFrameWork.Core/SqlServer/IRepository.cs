@@ -13,6 +13,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         Task<TEntity> AddAsync(TEntity t);
         Task<IList<TEntity>> AddRangeAsync(IList<TEntity> t);
         TEntity Edit(TEntity t);
+        Task<TEntity> EditAsync(TEntity t);
+        TEntity Update(TKey Id, Action<TEntity> t);
+        Task<TEntity> UpdateAsync(TKey Id, Action<TEntity> t);
         TEntity Delete(TKey Id);
         bool DeleteRange(TKey[] Id);
         Task<TEntity> SingleAsync(TKey Id);
