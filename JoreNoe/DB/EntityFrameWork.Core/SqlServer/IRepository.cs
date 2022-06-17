@@ -22,7 +22,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         TEntity Single(TKey Id);
         Task<IList<TEntity>> AllAsync();
         Task<IList<TEntity>> Page(int PageNum = 0, int PageSize = 10);
-        Task<int> TotalAsync(Func<TEntity, bool> Func = null);
+        Task<int> TotalAsync();
         List<TEntity> Find(Func<TEntity, bool> Func);
         TEntity Add(TEntity t);
         TEntity SoftDelete(TKey Id);

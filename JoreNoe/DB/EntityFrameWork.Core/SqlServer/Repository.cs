@@ -95,11 +95,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (!this.Exists(Id))
                 return null;
-            var Result = this.Single(Id);
-            if (Result == null)
-                return null;
-            Result.IsDelete = true;
-            this.Db.Set<T>().Update(Result);
+            var Result = this.Update(Id, e => { e.IsDelete = true; });
             return Result;
         }
 
@@ -112,7 +108,11 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (!this.Exists(Id))
                 return null;
-            var Result = this.Db.Set<T>().Remove(new T { Id = Id });
+            var Entity = this.Single(Id);
+            if (Entity == null)
+                return null;
+
+            var Result = this.Db.Set<T>().Remove(Entity);
             return Result.Entity;
         }
         /// <summary>
@@ -122,7 +122,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool DeleteRange(MID[] Ids)
         {
-            var Find = this.Db.Set<T>().Where(d => Ids.Contains(d.Id));
+            var Find = this.Db.Set<T>().Where(d => !d.IsDelete).Where(d => Ids.Contains(d.Id));
             if (Find == null)
                 return false;
             this.Db.Set<T>().RemoveRange(Find);
@@ -187,7 +187,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public List<T> AllNoTracking()
         {
-            var Result = this.Db.Set<T>().AsNoTracking().Where(d => true && !d.IsDelete);
+            var Result = this.Db.Set<T>().Where(d => !d.IsDelete).AsNoTracking();
             if (Result == null)
                 return new List<T>();
             return Result.ToList();
@@ -202,7 +202,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             return await Task.Run(() =>
             {
-                var Result = this.Db.Set<T>().Where(Func);
+                var Result = this.Db.Set<T>().Where(Func).Where(d=>!d.IsDelete);
                 if (Result == null)
                     return new List<T>();
                 return Result.ToList();
@@ -217,7 +217,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public List<T> Find(Func<T, bool> Func)
         {
-            var Result = this.Db.Set<T>().Where(Func);
+            var Result = this.Db.Set<T>().Where(Func).Where(d => !d.IsDelete);
             if (Result == null)
                 return new List<T>();
             return Result.ToList();
@@ -230,7 +230,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool Exist(Func<T, bool> Func)
         {
-            var ExistsResult = this.Db.Set<T>().Where(Func).FirstOrDefault();
+            var ExistsResult = this.Db.Set<T>().Where(Func).Where(d => !d.IsDelete).FirstOrDefault();
             return ExistsResult == null ? false : true;
         }
 
@@ -241,7 +241,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool Exists(MID Id)
         {
-            return this.Db.Set<T>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty) == null ? false : true;
+            return this.Db.Set<T>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty && !d.IsDelete) == null ? false : true;
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// </summary>
         /// <param name="Func"></param>
         /// <returns></returns>
-        public async Task<int> TotalAsync(Func<T, bool> Func = null)
+        public async Task<int> TotalAsync()
         {
             return await this.Db.Set<T>().CountAsync();
         }
@@ -262,7 +262,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public IList<T> FindAsNoTracking(Func<T, bool> Func)
         {
-            return this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
+            return this.Db.Set<T>().AsNoTracking().Where(Func).Where(d => !d.IsDelete).ToList();
         }
 
 
@@ -273,7 +273,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<IList<T>> FindAsNoTracKingAsync(Func<T, bool> Func)
         {
-            var Find = this.Db.Set<T>().AsNoTracking().Where(Func).ToList();
+            var Find = this.Db.Set<T>().AsNoTracking().Where(Func).Where(d => !d.IsDelete).ToList();
             if (Find == null || Find.Count == 0)
                 return null;
             return await Task.Run(() =>
@@ -284,7 +284,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 
         public IList<T> All()
         {
-            return this.Db.Set<T>().Where(d => true).ToList();
+            return this.Db.Set<T>().Where(d => !d.IsDelete).ToList();
         }
 
         public int Count(Func<T, bool> Func = null)
@@ -292,7 +292,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Func == null)
                 return this.Db.Set<T>().Count();
 
-            return this.Db.Set<T>().Count(Func);
+            return this.Db.Set<T>().Where(d => !d.IsDelete).Count(Func);
         }
 
         public async Task<T> EditAsync(T t)
