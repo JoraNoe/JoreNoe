@@ -17,6 +17,8 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         TEntity Update(TKey Id, Action<TEntity> t);
         Task<TEntity> UpdateAsync(TKey Id, Action<TEntity> t);
         TEntity Delete(TKey Id);
+        Task<TEntity> DeleteAsync(TKey Id);
+        TEntity Remove(TKey Id);
         bool DeleteRange(TKey[] Id);
         Task<TEntity> SingleAsync(TKey Id);
         TEntity Single(TKey Id);

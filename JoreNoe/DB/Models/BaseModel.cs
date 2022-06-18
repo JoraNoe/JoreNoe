@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JoreNoe.DB.Models
 {
-    public class BaseModel<MID>
+    public class BaseModel<TKey>
     {
         /// <summary>
         /// 主键Id
         /// </summary>
         [Key]
-        public MID Id { get; set; }
+        public TKey Id { get; set; }
 
         /// <summary>
         /// 是否删除 软删除

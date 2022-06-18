@@ -21,6 +21,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Add(string KeyName, string Context, int Expire = 180)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             var Result = this.RedisDataBase.StringSet(KeyName, Context);
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             return Result;
@@ -32,6 +35,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Remove(string KeyName)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (this.RedisDataBase.KeyExists(KeyName))
                 return false;
 
@@ -47,6 +53,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Add<T>(string KeyName, T Context, int Expire = 180)
         {
+
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             if (!Result)
@@ -65,6 +75,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T AddOrGet<T>(string KeyName, T Context, int Expire = 180)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (this.RedisDataBase.KeyExists(KeyName))
                 return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
 
@@ -84,6 +97,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Find<T>(string KeyName)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (!this.Exists(KeyName))
                 return new List<T>();
 
@@ -97,6 +113,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Single<T>(string KeyName)
         {
+
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (!this.Exists(KeyName))
                 return default(T);
 
@@ -113,6 +133,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180)
         {
+
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (this.RedisDataBase.KeyExists(KeyName))
                 return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(KeyName, FolderName));
 
@@ -158,6 +182,9 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string AddOrGet(string KeyName, string Context, int Expire = 180)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (this.RedisDataBase.KeyExists(KeyName))
                 return this.RedisDataBase.StringGet(KeyName);
 
@@ -178,6 +205,9 @@ namespace JoreNoe.Cache.Redis
         public string Get(string KeyName)
         {
 
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (!this.Exists(KeyName))
                 return String.Empty;
 
@@ -192,6 +222,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public string Update(string KeyName, string Context)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
+
             if (!this.Exists(KeyName))
                 return String.Empty;
 
@@ -214,6 +248,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Update<T>(string KeyName, T Context)
         {
+
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (!this.Exists(KeyName))
                 return default(T);
 
@@ -236,6 +274,9 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Update<T>(string KeyName, IList<T> Contexts)
         {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
             if (!this.Exists(KeyName))
                 return default;
 
@@ -248,6 +289,5 @@ namespace JoreNoe.Cache.Redis
             }
             return Contexts;
         }
-
     }
 }
