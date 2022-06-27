@@ -34,5 +34,18 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         int Count(Func<TEntity, bool> Func = null);
         IList<TEntity> FindAsNoTracking(Func<TEntity, bool> Func);
         Task<IList<TEntity>> FindAsNoTracKingAsync(Func<TEntity, bool> Func);
+
+        bool BulkInsert(IList<TEntity> Entitys);
+
+        Task<bool> BulkInsertAsync(IList<TEntity> Entitys);
+
+        bool BulkDelete(IList<TEntity> Entitys);
+
+        Task<bool> BulkDeleteAsync(IList<TEntity> Entitys);
+
+        bool BulkUpdate(IList<TEntity> Entitys);
+
+        Task<bool> BulkUpdateAsync(IList<TEntity> Entitys);
+
     }
 }

@@ -352,5 +352,60 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             var RemoveInfo = this.EFContent.Remove(Single);
             return RemoveInfo.Entity;
         }
+
+        public bool BulkInsert(IList<TEntity> Entitys)
+        {
+            if (Entitys == null || Entitys.Count == 0)
+                return false;
+
+            this.EFContent.BulkInsert<TEntity>(Entitys);
+
+            return true;
+        }
+
+        public async Task<bool> BulkInsertAsync(IList<TEntity> Entitys)
+        {
+            if (Entitys == null || Entitys.Count == 0)
+                return false;
+            await this.EFContent.BulkInsertAsync<TEntity>(Entitys).ConfigureAwait(false);
+            return true;
+        }
+
+        public bool BulkDelete(IList<TEntity> Entitys)
+        {
+            if (Entitys == null || Entitys.Count == 0)
+                return false;
+
+            this.EFContent.BulkDelete<TEntity>(Entitys);
+
+            return true;
+        }
+
+        public async Task<bool> BulkDeleteAsync(IList<TEntity> Entitys)
+        {
+            if (Entitys == null || Entitys.Count == 0)
+                return false;
+
+            await this.EFContent.BulkDeleteAsync<TEntity>(Entitys).ConfigureAwait(false);
+
+            return true;
+        }
+
+        public bool BulkUpdate(IList<TEntity> Entitys)
+        {
+            if (Entitys == null || Entitys.Count == 0)
+                return false;
+            this.EFContent.BulkUpdate<TEntity>(Entitys);
+            return true;
+        }
+
+        public async Task<bool> BulkUpdateAsync(IList<TEntity> Entitys)
+        {
+            if (Entitys == null || Entitys.Count == 0)
+                return false;
+            await this.EFContent.BulkUpdateAsync<TEntity>(Entitys).ConfigureAwait(false);
+
+            return true;
+        }
     }
 }
