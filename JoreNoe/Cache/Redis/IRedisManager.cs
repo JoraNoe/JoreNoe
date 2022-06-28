@@ -19,6 +19,7 @@ namespace JoreNoe.Cache.Redis
         IList<T> Find<T>(string KeyName);
 
         T Single<T>(string KeyName);
+        string Single(string KeyName);
 
         IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180);
 

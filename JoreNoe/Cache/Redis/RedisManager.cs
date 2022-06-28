@@ -106,11 +106,6 @@ namespace JoreNoe.Cache.Redis
             return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
         }
 
-        /// <summary>
-        /// 查询
-        /// </summary>
-        /// <param name="KeyName"></param>
-        /// <returns></returns>
         public T Single<T>(string KeyName)
         {
 
@@ -122,6 +117,20 @@ namespace JoreNoe.Cache.Redis
 
             return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
         }
+
+
+        public string Single(string KeyName)
+        {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
+            if (!this.Exists(KeyName))
+                return string.Empty;
+
+            return this.RedisDataBase.StringGet(KeyName);
+        }
+
+
 
         /// <summary>
         /// 添加或者获取
@@ -196,6 +205,28 @@ namespace JoreNoe.Cache.Redis
             return Context;
         }
 
+        public IList<T> AddOrGet<T>(string KeyName, IList<T> Context, int Expire = 180)
+        {
+            if (string.IsNullOrEmpty(KeyName))
+                throw new ArgumentNullException(nameof(KeyName));
+
+            if (this.RedisDataBase.KeyExists(KeyName))
+            {
+                var GetContext = this.RedisDataBase.StringGet(KeyName);
+                if (string.IsNullOrEmpty(GetContext))
+                    return default;
+                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
+            }
+
+            var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
+            this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
+            if (!Result)
+                throw new Exception("存储失败");
+
+            return Context;
+        }
+
+
         /// <summary>
         /// 获取单个
         /// </summary>
@@ -204,7 +235,6 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string Get(string KeyName)
         {
-
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 

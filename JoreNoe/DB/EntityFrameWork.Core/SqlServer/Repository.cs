@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JoreNoe.AutoMapperExtend;
 
 namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 {
