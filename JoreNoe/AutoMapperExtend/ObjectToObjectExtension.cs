@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,36 +7,61 @@ namespace JoreNoe.AutoMapperExtend
 {
     public static class ObjectToObjectExtension
     {
-        public static TTO Map<TFrom, TTO>(this TFrom Source)
+        public static TDestination Map<TSource, TDestination>(this TSource Source)
+            where TDestination : class
+            where TSource : class
         {
-            if (Source == null)
-                return default;
+            if (Source == null) return default(TDestination);
 
-            return ObjectStore.Mapper.Map<TTO>(Source);
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
+            var mapper = config.CreateMapper();
+
+            return mapper.Map<TDestination>(Source);
         }
 
-        public static TTO Map<TFrom, TTO>(this TFrom Source, TTO Target)
+        public static TDestination Map<TSource, TDestination>(this TSource Source, TDestination Target)
+            where TDestination : class
+            where TSource : class
         {
             if (Source == null || Target == null)
                 return default;
-            return ObjectStore.Mapper.Map(Source, Target);
+
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
+            var mapper = config.CreateMapper();
+
+            return mapper.Map(Source, Target);
         }
 
-        public static TTO Map<TTO>(this object Source)
+        public static TDestination Map<TDestination>(this object Source)
+            where TDestination : class, new()
         {
-            if (Source == null)
-                return default;
+            if (Source == null) return default(TDestination);
+            var Tde = new TDestination();
+            var config = new MapperConfiguration(cfg => cfg.CreateMap(Source.GetType(), Tde.GetType()));
+            var mapper = config.CreateMapper();
 
-            return ObjectStore.Mapper.Map<TTO>(Source);
+            return mapper.Map<TDestination>(Source);
         }
 
-        public static IList<TTO> Map<TTO>(this IList<TTO> source)
+        public static IEnumerable<TDestination> Map<TDestination, TSource>(this IEnumerable<TSource> source)
+            where TDestination : class
+            where TSource : class
         {
-            if (source == null)
-                return default;
-
-            return ObjectStore.Mapper.Map<IList<TTO>>(source);
+            if (source == null) return new List<TDestination>();
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
+            var mapper = config.CreateMapper();
+            return mapper.Map<List<TDestination>>(source);
         }
+
+        public static IEnumerable<TDestination> MapList<TDestination>(this object source)
+          where TDestination : class, new()
+        {
+            if (source == null) return new List<TDestination>();
+            var config = new MapperConfiguration(cfg => cfg.CreateMap(source.GetType(), new TDestination().GetType()));
+            var mapper = config.CreateMapper();
+            return mapper.Map<List<TDestination>>(source);
+        }
+
 
     }
 }
