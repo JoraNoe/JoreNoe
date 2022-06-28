@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using System;
+using Microsoft.AspNetCore.Builder;
 using System.Collections.Generic;
-using System.Text;
 
 namespace JoreNoe.AutoMapperExtend
 {
@@ -10,7 +9,7 @@ namespace JoreNoe.AutoMapperExtend
 
         private static IConfigurationProvider ConfigurationProvider;
 
-        public static void UseAutoMapperExtend(IConfigurationProvider Configuration)
+        public static void UseAutoMapperExtend(this IApplicationBuilder thant, IConfigurationProvider Configuration)
         {
             ConfigurationProvider = Configuration;
         }

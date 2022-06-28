@@ -1,5 +1,4 @@
-﻿using JoreNoe.DB.EntityFrameWork.Core.SqlServer;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
