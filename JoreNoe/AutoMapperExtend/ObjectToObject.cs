@@ -27,5 +27,7 @@ namespace JoreNoe.AutoMapperExtend
                 return default;
             return Mapper.Map(Source, Target);
         }
+
+      
     }
 }

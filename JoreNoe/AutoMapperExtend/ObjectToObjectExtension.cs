@@ -20,5 +20,22 @@ namespace JoreNoe.AutoMapperExtend
                 return default;
             return ObjectStore.Mapper.Map(Source, Target);
         }
+
+        public static TTO Map<TTO>(this object Source)
+        {
+            if (Source == null)
+                return default;
+
+            return ObjectStore.Mapper.Map<TTO>(Source);
+        }
+
+        public static IList<TTO> Map<TTO>(this IList<TTO> source)
+        {
+            if (source == null)
+                return default;
+
+            return ObjectStore.Mapper.Map<IList<TTO>>(source);
+        }
+
     }
 }
