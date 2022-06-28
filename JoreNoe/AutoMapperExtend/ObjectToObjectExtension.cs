@@ -7,14 +7,21 @@ namespace JoreNoe.AutoMapperExtend
 {
     public static class ObjectToObjectExtension
     {
+
+        private static IConfigurationProvider ConfigurationProvider;
+
+        public static void UseAutoMapperExtend(IConfigurationProvider Configuration)
+        {
+            ConfigurationProvider = Configuration;
+        }
+
         public static TDestination Map<TSource, TDestination>(this TSource Source)
             where TDestination : class
             where TSource : class
         {
             if (Source == null) return default(TDestination);
 
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
-            var mapper = config.CreateMapper();
+            var mapper = ConfigurationProvider.CreateMapper();
 
             return mapper.Map<TDestination>(Source);
         }
@@ -26,8 +33,8 @@ namespace JoreNoe.AutoMapperExtend
             if (Source == null || Target == null)
                 return default;
 
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
-            var mapper = config.CreateMapper();
+
+            var mapper = ConfigurationProvider.CreateMapper();
 
             return mapper.Map(Source, Target);
         }
@@ -37,8 +44,8 @@ namespace JoreNoe.AutoMapperExtend
         {
             if (Source == null) return default(TDestination);
             var Tde = new TDestination();
-            var config = new MapperConfiguration(cfg => cfg.CreateMap(Source.GetType(), Tde.GetType()));
-            var mapper = config.CreateMapper();
+
+            var mapper = ConfigurationProvider.CreateMapper();
 
             return mapper.Map<TDestination>(Source);
         }
@@ -48,8 +55,7 @@ namespace JoreNoe.AutoMapperExtend
             where TSource : class
         {
             if (source == null) return new List<TDestination>();
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
-            var mapper = config.CreateMapper();
+            var mapper = ConfigurationProvider.CreateMapper();
             return mapper.Map<List<TDestination>>(source);
         }
 
@@ -57,8 +63,8 @@ namespace JoreNoe.AutoMapperExtend
           where TDestination : class, new()
         {
             if (source == null) return new List<TDestination>();
-            var config = new MapperConfiguration(cfg => cfg.CreateMap(source.GetType(), new TDestination().GetType()));
-            var mapper = config.CreateMapper();
+
+            var mapper = ConfigurationProvider.CreateMapper();
             return mapper.Map<List<TDestination>>(source);
         }
 

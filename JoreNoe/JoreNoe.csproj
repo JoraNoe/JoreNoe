@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>6.5.2</Version>
+    <Version>6.5.3</Version>
     <Description>增加AutoMapper扩展方法</Description>
     <Authors>Jth.JoreNoe</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

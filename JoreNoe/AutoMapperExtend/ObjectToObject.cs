@@ -11,7 +11,7 @@ namespace JoreNoe.AutoMapperExtend
         public ObjectToObject(IMapper Mapper)
         {
             this.Mapper = Mapper;
-            ObjectStore.ObjectSingleInstance(Mapper);
+            ObjectStore.Mapper = Mapper;
         }
         public TTO Map<TFrom, TTO>(TFrom Source)
         {
@@ -28,6 +28,6 @@ namespace JoreNoe.AutoMapperExtend
             return Mapper.Map(Source, Target);
         }
 
-      
+
     }
 }
