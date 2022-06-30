@@ -7,13 +7,8 @@ namespace JoreNoe.Queue.RBMQ
 {
     public class QueueManager
     {
-        private static ConnectionFactory ConectionFactory;
+        private static ConnectionFactory ConectionFactory = Register.ConectionFactory;
         private static string QueueName = Register._ChannelName;
-        public QueueManager()
-        {
-            ConectionFactory = Register.ConectionFactory;
-        }
-
 
         /// <summary>
         /// 推送消息
