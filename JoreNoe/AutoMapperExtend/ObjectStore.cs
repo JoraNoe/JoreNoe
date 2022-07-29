@@ -2,13 +2,16 @@
 
 namespace JoreNoe.AutoMapperExtend
 {
-    public class ObjectStore
+    public class ObjectStore:IObjectStore
     {
-        public static void ObjectSingleInstance(IMapper Mapper)
+        public IMapper Mapper;
+        public ObjectStore(IMapper Mapper)
         {
-            ObjectStore.Mapper = Mapper;
+            this.Mapper = Mapper;
+            GetUseMapper = Mapper;
         }
 
-        public static IMapper Mapper;
+        public static IMapper GetUseMapper { get; set; }
+        public IMapper UseMapper { get => this.Mapper; set { this.Mapper = value; } }
     }
 }

@@ -7,12 +7,7 @@ namespace JoreNoe.AutoMapperExtend
     public static class ObjectToObjectExtension
     {
 
-        private static IConfigurationProvider ConfigurationProvider;
-
-        public static void UseAutoMapperExtend(this IServiceCollection thant, IConfigurationProvider Configuration)
-        {
-            ConfigurationProvider = Configuration;
-        }
+        private static IMapper UseMapper = ObjectStore.GetUseMapper;
 
         public static TDestination Map<TSource, TDestination>(this TSource Source)
             where TDestination : class
@@ -20,9 +15,9 @@ namespace JoreNoe.AutoMapperExtend
         {
             if (Source == null) return default(TDestination);
 
-            var mapper = ConfigurationProvider.CreateMapper();
+            //var mapper = ConfigurationProvider.CreateMapper();
 
-            return mapper.Map<TDestination>(Source);
+            return UseMapper.Map<TDestination>(Source);
         }
 
         public static TDestination Map<TSource, TDestination>(this TSource Source, TDestination Target)
@@ -33,9 +28,9 @@ namespace JoreNoe.AutoMapperExtend
                 return default;
 
 
-            var mapper = ConfigurationProvider.CreateMapper();
+            //var mapper = ConfigurationProvider.CreateMapper();
 
-            return mapper.Map(Source, Target);
+            return UseMapper.Map(Source, Target);
         }
 
         public static TDestination Map<TDestination>(this object Source)
@@ -44,9 +39,9 @@ namespace JoreNoe.AutoMapperExtend
             if (Source == null) return default(TDestination);
             var Tde = new TDestination();
 
-            var mapper = ConfigurationProvider.CreateMapper();
+            //var mapper = ConfigurationProvider.CreateMapper();
 
-            return mapper.Map<TDestination>(Source);
+            return UseMapper.Map<TDestination>(Source);
         }
 
         public static IEnumerable<TDestination> Map<TDestination, TSource>(this IEnumerable<TSource> source)
@@ -54,8 +49,8 @@ namespace JoreNoe.AutoMapperExtend
             where TSource : class
         {
             if (source == null) return new List<TDestination>();
-            var mapper = ConfigurationProvider.CreateMapper();
-            return mapper.Map<List<TDestination>>(source);
+            //var mapper = ConfigurationProvider.CreateMapper();
+            return UseMapper.Map<List<TDestination>>(source);
         }
 
         public static IEnumerable<TDestination> MapList<TDestination>(this object source)
@@ -63,8 +58,8 @@ namespace JoreNoe.AutoMapperExtend
         {
             if (source == null) return new List<TDestination>();
 
-            var mapper = ConfigurationProvider.CreateMapper();
-            return mapper.Map<List<TDestination>>(source);
+            //var mapper = ConfigurationProvider.CreateMapper();
+            return UseMapper.Map<List<TDestination>>(source);
         }
 
 
