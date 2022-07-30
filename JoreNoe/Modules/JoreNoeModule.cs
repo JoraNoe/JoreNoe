@@ -1,9 +1,5 @@
 ﻿using Autofac;
 using AutoMapper;
-using JoreNoe.AutoMapperExtend;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JoreNoe.Modules
 {

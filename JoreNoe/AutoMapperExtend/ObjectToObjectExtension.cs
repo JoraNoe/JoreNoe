@@ -21,8 +21,6 @@ namespace JoreNoe.AutoMapperExtend
         {
             if (Source == null) return default(TDestination);
 
-            //var mapper = ConfigurationProvider.CreateMapper();
-
             return UseMapper.Map<TDestination>(Source);
         }
 
@@ -33,9 +31,6 @@ namespace JoreNoe.AutoMapperExtend
             if (Source == null || Target == null)
                 return default;
 
-
-            //var mapper = ConfigurationProvider.CreateMapper();
-
             return UseMapper.Map(Source, Target);
         }
 
@@ -43,9 +38,6 @@ namespace JoreNoe.AutoMapperExtend
             where TDestination : class, new()
         {
             if (Source == null) return default(TDestination);
-            var Tde = new TDestination();
-
-            //var mapper = ConfigurationProvider.CreateMapper();
 
             return UseMapper.Map<TDestination>(Source);
         }
@@ -55,7 +47,6 @@ namespace JoreNoe.AutoMapperExtend
             where TSource : class
         {
             if (source == null) return new List<TDestination>();
-            //var mapper = ConfigurationProvider.CreateMapper();
             return UseMapper.Map<List<TDestination>>(source);
         }
 
@@ -63,8 +54,6 @@ namespace JoreNoe.AutoMapperExtend
           where TDestination : class, new()
         {
             if (source == null) return new List<TDestination>();
-
-            //var mapper = ConfigurationProvider.CreateMapper();
             return UseMapper.Map<List<TDestination>>(source);
         }
 
