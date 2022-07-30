@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
@@ -7,7 +8,12 @@ namespace JoreNoe.AutoMapperExtend
     public static class ObjectToObjectExtension
     {
 
-        private static IMapper UseMapper = ObjectStore.GetUseMapper;
+        public static void UseObjectToOBjectExtension(this IApplicationBuilder Builder)
+        {
+            UseMapper = Builder.ApplicationServices.GetService<IMapper>();
+        }
+
+        private static IMapper UseMapper { get; set; }
 
         public static TDestination Map<TSource, TDestination>(this TSource Source)
             where TDestination : class

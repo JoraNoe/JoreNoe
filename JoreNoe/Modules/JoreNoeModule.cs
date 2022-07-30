@@ -13,7 +13,13 @@ namespace JoreNoe.Modules
         {
             ///注入Mapper
             builder.RegisterType<Mapper>().As<IMapper>().InstancePerLifetimeScope();
-            builder.RegisterType<ObjectStore>().As<IObjectStore>().InstancePerLifetimeScope();
+
+            var containner = builder.Build();
+            using (var scope = containner.BeginLifetimeScope())
+            {
+                //用生命周期作用域解析获取IDateWriter对应的依赖对象实例
+                var writer = scope.Resolve<Mapper>();
+            }
         }
     }
 }
