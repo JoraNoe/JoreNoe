@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace JoreNoe.CommonInterFaces
+namespace JoreNoe
 {
     /// <summary>
     /// 分页

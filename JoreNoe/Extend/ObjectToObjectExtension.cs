@@ -3,11 +3,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
-namespace JoreNoe.AutoMapperExtend
+namespace JoreNoe.Extend
 {
+    /// <summary>
+    /// AutoMapper 扩展
+    /// </summary>
     public static class ObjectToObjectExtension
     {
-
+        /// <summary>
+        /// 使用JoreNoeAutoMapper
+        /// </summary>
+        /// <param name="Builder"></param>
         public static void UseObjectToOBjectExtension(this IApplicationBuilder Builder)
         {
             UseMapper = Builder.ApplicationServices.GetService<IMapper>();

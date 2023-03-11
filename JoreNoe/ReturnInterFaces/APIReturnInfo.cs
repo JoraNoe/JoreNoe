@@ -1,4 +1,4 @@
-﻿namespace JoreNoe.CommonInterFaces
+﻿namespace JoreNoe
 {
     /// <summary>
     /// Api返回信息
