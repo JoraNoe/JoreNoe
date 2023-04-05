@@ -38,7 +38,7 @@ namespace JoreNoe.Cache.Redis
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
-            if (this.RedisDataBase.KeyExists(KeyName))
+            if (!this.RedisDataBase.KeyExists(KeyName))
                 return false;
 
             return this.RedisDataBase.KeyDelete(KeyName);
