@@ -236,8 +236,8 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool Exist(Func<TEntity, bool> Func)
         {
-            var ExistsResult = this.EFContent.Set<TEntity>().Where(Func).FirstOrDefault();
-            return ExistsResult == null ? false : true;
+            var ExistsResult = this.EFContent.Set<TEntity>().AsNoTracking().Any(Func);
+            return ExistsResult;
         }
 
         /// <summary>
