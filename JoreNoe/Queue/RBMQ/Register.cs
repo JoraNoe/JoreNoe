@@ -7,7 +7,7 @@ namespace JoreNoe.Queue.RBMQ
     {
         Direct = 1,   //推送模式
         Fanout = 2,   //订阅模式
-        Topic = 3     //主题路由模式
+        Topic = 3     //主题路由模式  
     }
 
 
@@ -22,7 +22,7 @@ namespace JoreNoe.Queue.RBMQ
         public static string _ChannelName = "";
 
         /// <summary>
-        /// 注册消息队列
+        /// 注册消息 队列 
         /// </summary>
         /// <param name="HostName"></param>
         /// <param name="UserName"></param>
