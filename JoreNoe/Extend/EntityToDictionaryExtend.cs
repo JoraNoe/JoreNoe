@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Tls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -30,6 +31,51 @@ namespace JoreNoe.Extend
                 dictionary[key] = value;
             }
             return dictionary;
+        }
+
+        /// <summary>
+        /// 将实体转换为插入SQL参数列
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="IgnoreFields"></param>
+        /// <returns></returns>
+        public static Tuple<string, string> EntityToSQLParams<T>(string[] IgnoreFields = null)
+        {
+            // 使用反射获取实体的属性名称
+            PropertyInfo[] properties = typeof(T).GetProperties();
+            List<string> NoLatterParams = new List<string>();
+            List<string> LatterParams = new List<string>();
+            foreach (var property in properties)
+            {
+                if (IgnoreFields != null && IgnoreFields.Contains(property.Name)) continue;
+                NoLatterParams.Add(property.Name);
+                LatterParams.Add(string.Concat("@", property.Name));
+            }
+            // 将属性名称连接成一个逗号分隔的字符串
+            string columnNamesNoLatter = string.Join(",", NoLatterParams.ToArray());
+            string columnNamesLatter = string.Join(",", LatterParams.ToArray());
+            return new Tuple<string, string>(columnNamesNoLatter, columnNamesLatter);
+        }
+
+        /// <summary>
+        /// 将实体转换为插入SQL参数列 带 @ 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="IgnoreFields"></param>
+        /// <returns></returns>
+        public static string EntityToSQLParamsLatter<T>(string[] IgnoreFields = null)
+        {
+            // 使用反射获取实体的属性名称
+            PropertyInfo[] properties = typeof(T).GetProperties();
+            List<string> list = new List<string>();
+            foreach (var property in properties)
+            {
+                if (IgnoreFields != null && IgnoreFields.Contains(property.Name)) continue;
+                list.Add(string.Concat("@", property.Name));
+            }
+            // 将属性名称连接成一个逗号分隔的字符串
+            string columnNames = string.Join(",", list.ToArray());
+            return columnNames;
         }
 
     }

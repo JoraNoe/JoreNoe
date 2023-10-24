@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace JoreNoe.DB.Dapper
 {
@@ -30,6 +31,13 @@ namespace JoreNoe.DB.Dapper
         T Remove(string ParamsValue, string ParamsKeyName = "Id");
 
         /// <summary>
+        /// 批量删除数据
+        /// </summary>
+        /// <param name="ParamsValues"></param>
+        /// <param name="ParamsKeyName"></param>
+        void Removes(IEnumerable<object> ParamsValues, string ParamsKeyName = "Id");
+
+        /// <summary>
         /// 修改数据
         /// </summary>
         /// <param name="ParamsValue"></param>
@@ -39,5 +47,21 @@ namespace JoreNoe.DB.Dapper
         /// <exception cref="System.Exception"></exception>
         T Update(string ParamsValue, T Entity, string ParamsKeyName = "Id");
 
+        /// <summary>
+        /// 添加单条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        Task<T> AddAsync<T>(T entity);
+
+        /// <summary>
+        /// 添加单条数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        T Add<T>(T entity);
     }
 }

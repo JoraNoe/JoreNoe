@@ -15,31 +15,50 @@ namespace JoreNoe.DB.Dapper
         /// </summary>
         public static IDbConnection _Connection { get; set; }
 
+        /// <summary>
+        /// 类型
+        /// </summary>
         public static IDBType ConnectionDbType { get; set; }
 
         /// <summary>
-        /// 设置上下文方法
+        /// 链接字符串
         /// </summary>
-        /// <param name="DB"></param>
+        public static string ConnectionString { get; set; }
+
+        /// <summary>
+        /// 创建链接
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="dbType"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="Exception"></exception>
+        private static IDbConnection CreateDbConnection(string connectionString, IDBType dbType)
+        {
+            if (string.IsNullOrEmpty(connectionString))
+                throw new ArgumentNullException(nameof(connectionString));
+
+            switch (dbType)
+            {
+                case IDBType.MySql:
+                    return new MySqlConnection(connectionString);
+                case IDBType.SqlServer:
+                    return new SqlConnection(connectionString);
+                default:
+                    throw new Exception("未知类型");
+            }
+        }
+
+        /// <summary>
+        /// 初始化Dapper链接
+        /// </summary>
+        /// <param name="DBConnectionString"></param>
+        /// <param name="DBType"></param>
         public static void SetInitDbContext(string DBConnectionString, IDBType DBType)
         {
-            if (string.IsNullOrEmpty(DBConnectionString))
-                throw new ArgumentNullException(nameof(DBConnectionString));
-
             ConnectionDbType = DBType;
-
-            if (DBType == IDBType.MySql)
-            {
-                _Connection = new MySqlConnection(DBConnectionString);
-            }
-            else if (DBType == IDBType.SqlServer)
-            {
-                _Connection = new SqlConnection(DBConnectionString);
-            }
-            else
-            {
-                throw new Exception("未知类型");
-            }
+            ConnectionString = DBConnectionString;
+            _Connection = CreateDbConnection(DBConnectionString, DBType);
         }
 
         /// <summary>
