@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -82,5 +84,18 @@ namespace JoreNoe.DB.Dapper
             return result;
         }
 
+        /// <summary>
+        /// 获取批次数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<T>> GetBatchData<T>(this IEnumerable<T> data,long BatchCount)
+        {
+            return data
+            .Select((value, index) => new { Value = value, Index = index })
+            .GroupBy(x => x.Index / BatchCount)
+            .Select(g => g.Select(x => x.Value).ToList());
+        }
     }
 }

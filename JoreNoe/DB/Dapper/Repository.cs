@@ -30,10 +30,6 @@ namespace JoreNoe.DB.Dapper
         /// </summary>
         public readonly IDbConnection DBConnection;
 
-        /// <summary>
-        /// 批次数量
-        /// </summary>
-        public int BatchCount { get; set; } = 2000;
 
         public Repository()
         {
@@ -161,8 +157,9 @@ namespace JoreNoe.DB.Dapper
             var GetTableName = typeof(T).Name;
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-           
-            this.InsertBatchNew(data, GetTableName, GetColumns.Item1);
+
+            var BatchData = data.GetBatchData(Registory.BatchCount);
+            foreach (var batch in BatchData) this.InsertBatchNew(batch, GetTableName, GetColumns.Item1);
             //Parallel.ForEach(batches, batch => { this.InsertBatch(batch, GetTableName, GetColumns.Item1, GetColumns.Item2); });
         }
 
@@ -181,7 +178,9 @@ namespace JoreNoe.DB.Dapper
             //var batches = data.Batch(this.BatchCount); // 自定义批量扩展方法
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-            await this.InsertBatchAsync(data, GetTableName, GetColumns.Item1, GetColumns.Item2).ConfigureAwait(false);
+            var BatchData = data.GetBatchData(Registory.BatchCount);
+            foreach (var batch in BatchData) await this.InsertBatchAsyncNew(batch, GetTableName, GetColumns.Item1).ConfigureAwait(false);
+
             //await Task.WhenAll(batches.Select(batch => this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1, GetColumns.Item2)));
         }
 
@@ -252,6 +251,44 @@ namespace JoreNoe.DB.Dapper
         }
 
         /// <summary>
+        /// 批量插入数据
+        /// </summary>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="tableName"></param>
+        /// <param name="InsertColumns"></param>
+        /// <param name="InsertColumnValues"></param>
+        /// <returns></returns>
+        private async Task InsertBatchAsyncNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
+        {
+            using (IDbConnection dbConnection = this.DBConnection)
+            {
+                dbConnection.Open();
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var insertQueue = new ConcurrentQueue<string>();
+
+                    // 使用并行循环将数据插入队列
+                    Parallel.ForEach(data, item =>
+                    {
+                        string insertValues = GetEntityFiledParams(item);
+                        insertQueue.Enqueue(insertValues);
+                    });
+
+                    // 顺序处理队列中的数据并插入
+                    StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
+                    while (insertQueue.TryDequeue(out string insertValues))
+                    {
+                        InsertSQL.Append($"({insertValues}),");
+                    }
+
+                    await dbConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
+                    scope.Complete();
+                }
+            }
+        }
+
+        /// <summary>
         /// 批量插入数据同步
         /// </summary>
         /// <typeparam name="TData"></typeparam>
@@ -275,6 +312,7 @@ namespace JoreNoe.DB.Dapper
                 }
             }
         }
+
         /// <summary>
         /// 批量插入 高性能
         /// </summary>
@@ -310,7 +348,6 @@ namespace JoreNoe.DB.Dapper
                     scope.Complete();
                 }
             }
-
         }
 
         /// <summary>

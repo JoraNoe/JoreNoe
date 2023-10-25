@@ -12,7 +12,7 @@ namespace Test
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             //Registory.SetInitDbContext("Server=mysql.sqlpub.com;Database=mydbcloud;User Id=jorenoe;Password=48db25c68757687a;", IDBType.MySql);
 
@@ -31,7 +31,7 @@ namespace Test
                 // 创建 Stopwatch 对象
                 Stopwatch stopwatch1 = new Stopwatch();
                 stopwatch1.Start();
-                database.BulkInsert(lists);
+                await database.BulkInsertAsync(lists);
                 // 停止计时
                 stopwatch1.Stop();
                 // 获取经过的时间
