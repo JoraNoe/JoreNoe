@@ -54,7 +54,7 @@ namespace JoreNoe.Cache.Redis
         /// 服务
         /// </summary>
         /// <param name="Services"></param>
-        public static void AddJoreNoeRedis(IServiceCollection Services)
+        public static void AddJoreNoeRedis(this IServiceCollection Services)
         {
             _ = Services.AddSingleton<IRedisManager, RedisManager>();
         }

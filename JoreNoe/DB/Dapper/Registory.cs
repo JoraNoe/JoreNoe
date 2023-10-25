@@ -8,7 +8,7 @@ namespace JoreNoe.DB.Dapper
 {
     public enum IDBType { SqlServer = 0, MySql = 1 };
 
-    public class Registory
+    public static class Registory
     {
         /// <summary>
         /// 链接
@@ -71,7 +71,7 @@ namespace JoreNoe.DB.Dapper
         /// 服务注入
         /// </summary>
         /// <param name="Services"></param>
-        public static void AddJoreNoeDpper(IServiceCollection Services)
+        public static void AddJoreNoeDpper(this IServiceCollection Services)
         {
             _ = Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
