@@ -26,6 +26,11 @@ namespace JoreNoe.DB.Dapper
         public static string ConnectionString { get; set; }
 
         /// <summary>
+        /// 数据库可创建链接数量
+        /// </summary>
+        public static int ConnectionMaxCount { get; set; }
+
+        /// <summary>
         /// 创建链接
         /// </summary>
         /// <param name="connectionString"></param>
@@ -54,10 +59,11 @@ namespace JoreNoe.DB.Dapper
         /// </summary>
         /// <param name="DBConnectionString"></param>
         /// <param name="DBType"></param>
-        public static void SetInitDbContext(string DBConnectionString, IDBType DBType)
+        public static void SetInitDbContext(string DBConnectionString, IDBType DBType, int _ConnectionMaxCount = 100)
         {
             ConnectionDbType = DBType;
             ConnectionString = DBConnectionString;
+            ConnectionMaxCount = _ConnectionMaxCount;
             _Connection = CreateDbConnection(DBConnectionString, DBType);
         }
 

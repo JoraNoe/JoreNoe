@@ -19,49 +19,61 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName">主键名称 默认为 Id </param>
         /// <param name="ParamsColumns">输出的列名,默认为 * 全部</param>
         /// <returns></returns>
-        T Single(string ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
+        T Single<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
 
         /// <summary>
-        /// 删除单条数据，物理删除
+        /// 删除单条数据 物理删除
         /// </summary>
-        /// <param name="ParamsValue"></param>
-        /// <param name="ParamsKeyName"></param>
+        /// <typeparam name="TKey">主键类型</typeparam>
+        /// <param name="ParamsValue">主键值</param>
+        /// <param name="ParamsKeyName">主键名称</param>
         /// <returns></returns>
-        /// <exception cref="System.Exception"></exception>
-        T Remove(string ParamsValue, string ParamsKeyName = "Id");
+        T Remove<TKey>(TKey ParamsValue, string ParamsKeyName = "Id");
 
         /// <summary>
-        /// 批量删除数据
+        /// 批量删除
         /// </summary>
-        /// <param name="ParamsValues"></param>
-        /// <param name="ParamsKeyName"></param>
-        void Removes(IEnumerable<object> ParamsValues, string ParamsKeyName = "Id");
+        /// <typeparam name="TKey">主键类型</typeparam>
+        /// <param name="ParamsValues">主键值</param>
+        /// <param name="ParamsKeyName">主键名称</param>
+        void Removes<TKey>(TKey[] ParamsValues, string ParamsKeyName = "Id");
+
+        /// <summary>
+        /// 批量插入数据
+        /// </summary>
+        /// <param name="data"></param>
+        void BulkInsert(IEnumerable<T> data);
+
+        /// <summary>
+        /// 批量插入数据异步
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task BulkInsertAsync(IEnumerable<T> data);
 
         /// <summary>
         /// 修改数据
         /// </summary>
-        /// <param name="ParamsValue"></param>
-        /// <param name="Entity"></param>
-        /// <param name="ParamsKeyName"></param>
+        /// <typeparam name="TKey">主键类型</typeparam>
+        /// <param name="ParamsValue">主键值</param>
+        /// <param name="Entity">修改的实体</param>
+        /// <param name="ParamsKeyName">主键名称</param>
         /// <returns></returns>
-        /// <exception cref="System.Exception"></exception>
-        T Update(string ParamsValue, T Entity, string ParamsKeyName = "Id");
+        T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id");
 
         /// <summary>
         /// 添加单条数据
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        Task<T> AddAsync<T>(T entity);
+        Task<T> AddAsync(T entity);
 
         /// <summary>
         /// 添加单条数据
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
+        /// <param name="entity">数据</param>
         /// <returns></returns>
-        T Add<T>(T entity);
+        T Add(T entity);
     }
 }

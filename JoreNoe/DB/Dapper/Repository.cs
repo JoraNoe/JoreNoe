@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Dapper.Contrib.Extensions;
 using JoreNoe.Extend;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -7,10 +8,13 @@ using MySql.Data.MySqlClient;
 using NPOI.POIFS.FileSystem;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows.Media.TextFormatting;
@@ -21,7 +25,15 @@ namespace JoreNoe.DB.Dapper
 {
     public class Repository<T> : IRepository<T>
     {
+        /// <summary>
+        /// 数据库上下文
+        /// </summary>
         public readonly IDbConnection DBConnection;
+
+        /// <summary>
+        /// 批次数量
+        /// </summary>
+        public int BatchCount { get; set; } = 2000;
 
         public Repository()
         {
@@ -45,9 +57,9 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName">主键名称 默认为 Id </param>
         /// <param name="ParamsColumns">输出的列名,默认为 * 全部</param>
         /// <returns></returns>
-        public T Single(string ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null)
+        public T Single<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null)
         {
-            if (string.IsNullOrEmpty(ParamsValue))
+            if (DapperExtend.IsNullOrEmpty(ParamsValue))
                 throw new System.Exception("ParamsValue为空,请传递参数。");
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
@@ -66,9 +78,9 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName">匹配的健</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public T Remove(string ParamsValue, string ParamsKeyName = "Id")
+        public T Remove<TKey>(TKey ParamsValue, string ParamsKeyName = "Id")
         {
-            if (string.IsNullOrEmpty(ParamsValue))
+            if (IsNullOrEmpty(ParamsValue))
                 throw new System.Exception("ParamsValue为空,请传递参数。");
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
@@ -91,17 +103,18 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsValues"></param>
         /// <param name="ParamsKeyName"></param>
         /// <exception cref="System.Exception"></exception>
-        public void Removes(IEnumerable<object> ParamsValues, string ParamsKeyName = "Id")
+        public void Removes<Tkey>(Tkey[] ParamsValues, string ParamsKeyName = "Id")
         {
+            if (IsNullOrEmpty(ParamsValues))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
             if (ParamsValues == null || ParamsValues.Count() == 0)
                 throw new System.Exception("ParamsValue为空,请传递参数。");
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
+
             var GetTableName = typeof(T).Name;
-            Parallel.ForEach(ParamsValues, Value =>
-            {
-                this.DeleteBatch(Value, GetTableName, ParamsKeyName);
-            });
+            //var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
+            this.DeleteBatch<Tkey>(ParamsValues, GetTableName, ParamsKeyName);
         }
 
         /// <summary>
@@ -112,9 +125,9 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName"></param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public T Update(string ParamsValue, T Entity, string ParamsKeyName = "Id")
+        public T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id")
         {
-            if (string.IsNullOrEmpty(ParamsValue))
+            if (IsNullOrEmpty(ParamsValue))
                 throw new System.Exception("ParamsValue为空,请传递参数。");
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
@@ -139,23 +152,19 @@ namespace JoreNoe.DB.Dapper
         /// <summary>
         /// 批量插入数据
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <exception cref="System.Exception"></exception>
-        public void BulkInsert<T>(IEnumerable<T> data)
+        public void BulkInsert(IEnumerable<T> data)
         {
             if (data == null || !data.Any())
                 throw new System.Exception("数据为空,请传递参数。");
-
-            int batchSize = 20000; // 定义每个批次的大小
             var GetTableName = typeof(T).Name;
-            var batches = data.Batch(batchSize); // 自定义批量扩展方法
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-
-            Parallel.ForEach(batches, batch => { this.InsertBatch(batch, GetTableName, GetColumns.Item1, GetColumns.Item2); });
+           
+            this.InsertBatchNew(data, GetTableName, GetColumns.Item1);
+            //Parallel.ForEach(batches, batch => { this.InsertBatch(batch, GetTableName, GetColumns.Item1, GetColumns.Item2); });
         }
-
 
         /// <summary>
         /// 异步批量插入数据
@@ -164,18 +173,16 @@ namespace JoreNoe.DB.Dapper
         /// <param name="data"></param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public async Task BulkInsertAsync<T>(IEnumerable<T> data)
+        public async Task BulkInsertAsync(IEnumerable<T> data)
         {
             if (data == null || !data.Any())
                 throw new System.Exception("数据为空,请传递参数。");
-
-            int batchSize = 20000; // 定义每个批次的大小
             var GetTableName = typeof(T).Name;
-            var batches = data.Batch(batchSize); // 自定义批量扩展方法
+            //var batches = data.Batch(this.BatchCount); // 自定义批量扩展方法
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-
-            await Task.WhenAll(batches.Select(batch => this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1, GetColumns.Item2)));
+            await this.InsertBatchAsync(data, GetTableName, GetColumns.Item1, GetColumns.Item2).ConfigureAwait(false);
+            //await Task.WhenAll(batches.Select(batch => this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1, GetColumns.Item2)));
         }
 
         /// <summary>
@@ -185,7 +192,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<T> AddAsync<T>(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -204,7 +211,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public T Add<T>(T entity)
+        public T Add(T entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -230,15 +237,16 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private async Task InsertBatchAsync<TData>(IEnumerable<TData> data, string tableName, string InsertColumns, string InsertColumnValues)
         {
-            using (IDbConnection dbConnection = this.CreateDbConnection(Registory.ConnectionDbType, Registory.ConnectionString))
+            using (IDbConnection dbConnection = this.DBConnection)
             {
                 dbConnection.Open();
                 using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    await dbConnection.ExecuteAsync(
-                        $"INSERT INTO {tableName} ({InsertColumns}) VALUES ({InsertColumnValues})",
-                        data
-                    ).ConfigureAwait(false);
+                    var insertQuery = $"INSERT INTO {tableName} " +
+                                 $"({InsertColumns}) " +
+                                 $"VALUES ({InsertColumnValues})";
+                    await dbConnection.ExecuteAsync(insertQuery, data).ConfigureAwait(false);
+                    transactionScope.Complete();
                 }
             }
         }
@@ -254,43 +262,77 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private void InsertBatch<TData>(IEnumerable<TData> data, string tableName, string InsertColumns, string InsertColumnValues)
         {
-            using (IDbConnection dbConnection = this.CreateDbConnection(Registory.ConnectionDbType, Registory.ConnectionString))
+            using (IDbConnection dbConnection = this.DBConnection)
             {
                 dbConnection.Open();
                 using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    dbConnection.Execute(
-                        $"INSERT INTO {tableName} ({InsertColumns}) VALUES ({InsertColumnValues})",
-                        data
-                    );
+                    var insertQuery = $"INSERT INTO {tableName} " +
+                                 $"({InsertColumns}) " +
+                                 $"VALUES ({InsertColumnValues})";
+                    dbConnection.Execute(insertQuery, data);
+                    transactionScope.Complete();
                 }
             }
         }
-
         /// <summary>
-        /// 批量删除
+        /// 批量插入 高性能
         /// </summary>
         /// <typeparam name="TData"></typeparam>
         /// <param name="data"></param>
         /// <param name="tableName"></param>
         /// <param name="InsertColumns"></param>
         /// <param name="InsertColumnValues"></param>
-        private void DeleteBatch<TData>(object Value, string tableName, string ParamsKeyName)
+        private void InsertBatchNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
-            using (IDbConnection dbConnection = this.CreateDbConnection(Registory.ConnectionDbType, Registory.ConnectionString))
+            using (IDbConnection dbConnection = this.DBConnection)
             {
                 dbConnection.Open();
-                using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    var Params = new Dictionary<string, object>
+                    var insertQueue = new ConcurrentQueue<string>();
+
+                    // 使用并行循环将数据插入队列
+                    Parallel.ForEach(data, item =>
                     {
-                        { ParamsKeyName, Value }
-                    };
-                    dbConnection.Execute(
-                        $"DELETE FROM {tableName} WHERE {ParamsKeyName} = @{ParamsKeyName}",
-                        Params
-                    );
+                        string insertValues = GetEntityFiledParams(item);
+                        insertQueue.Enqueue(insertValues);
+                    });
+
+                    // 顺序处理队列中的数据并插入
+                    StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
+                    while (insertQueue.TryDequeue(out string insertValues))
+                    {
+                        InsertSQL.Append($"({insertValues}),");
+                    }
+
+                    dbConnection.Execute(InsertSQL.ToString().TrimEnd(','));
+                    scope.Complete();
                 }
+            }
+
+        }
+
+        /// <summary>
+        /// 批量删除
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="tableName"></param>
+        /// <param name="InsertColumns"></param>
+        /// <param name="InsertColumnValues"></param>
+        private void DeleteBatch<TKey>(TKey[] Value, string tableName, string ParamsKeyName)
+        {
+            using (IDbConnection dbConnection = this.DBConnection)
+            using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                dbConnection.Open();
+                // 使用 IN 子句
+                string inClause = string.Join(",", Value.Select(param => $"{param}"));
+                string sql = $"DELETE FROM {tableName} WHERE {ParamsKeyName} IN ({inClause})";
+
+                dbConnection.Execute(sql);
+                transactionScope.Complete();
             }
         }
 
@@ -310,6 +352,17 @@ namespace JoreNoe.DB.Dapper
                 IDBType.SqlServer => new SqlConnection(connectionString),
                 _ => throw new NotSupportedException("Unsupported database type"),
             };
+        }
+
+        /// <summary>
+        /// 获取一个新的数据库链接上下文
+        /// </summary>
+        /// <param name="connectionDbType">链接类型</param>
+        /// <param name="connectionString">链接字符串</param>
+        /// <returns></returns>
+        public IDbConnection GetDbConnection(IDBType connectionDbType, string connectionString)
+        {
+            return this.CreateDbConnection(connectionDbType, connectionString);
         }
 
         #endregion
