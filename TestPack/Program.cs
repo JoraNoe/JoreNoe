@@ -14,6 +14,36 @@ namespace Test
     {
         static async Task Main(string[] args)
         {
+            testExists();
+
+
+            //TestSoftRemove();
+
+
+            //await TestInsert();
+        }
+
+        static void testExists()
+        {
+            Registory.SetInitDbContext("Server=119.3.208.175;Database=ouconline_allinone_datacenter;User ID=ouconline_allinone_datacenter;Password=zeNnwfyD5ue2z81V;", IDBType.MySql);
+            var database = new Repository<Employees>();
+
+            var x = database.IsExists(12000340, "employee_id");
+
+        }
+
+        static void TestSoftRemove()
+        {
+            Registory.SetInitDbContext("Server=119.3.208.175;Database=ouconline_allinone_datacenter;User ID=ouconline_allinone_datacenter;Password=zeNnwfyD5ue2z81V;", IDBType.MySql);
+            var database = new Repository<Employees>();
+
+            database.SoftRemove(1234, "employee_id", "ceshi", false);
+
+        }
+
+        // 测试插入数据 批量 高性能
+        static async Task TestInsert()
+        {
             //Registory.SetInitDbContext("Server=mysql.sqlpub.com;Database=mydbcloud;User Id=jorenoe;Password=48db25c68757687a;", IDBType.MySql);
 
             Registory.SetInitDbContext("Server=119.3.208.175;Database=ouconline_allinone_datacenter;User ID=ouconline_allinone_datacenter;Password=zeNnwfyD5ue2z81V;", IDBType.MySql);
@@ -22,7 +52,7 @@ namespace Test
             var lists = new List<Employees>();
             for (int i = 0; i < 1000000; i++)
             {
-                lists.Add(new Employees { employee_id = 1234 + i, first_name = "asdf", last_name = "123456",hire_date=DateTime.Now,email="12@qq.com",ceshi=true });
+                lists.Add(new Employees { employee_id = 1234 + i, first_name = "asdf", last_name = "123456", hire_date = DateTime.Now, email = "12@qq.com", ceshi = true });
             }
 
             for (int i = 0; i < 10; i++)
@@ -40,11 +70,10 @@ namespace Test
                 // 输出经过的时间
                 Console.WriteLine($"封装2经过的时间: {elapsed1}");
             }
-
-            
-
         }
+
     }
+    // 测试实体
     public class Employees
     {
         public int employee_id { get; set; }

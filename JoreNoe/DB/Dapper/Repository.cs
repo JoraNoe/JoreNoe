@@ -1,23 +1,15 @@
 ﻿using Dapper;
-using Dapper.Contrib.Extensions;
 using JoreNoe.Extend;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.FileSystemGlobbing;
 using MySql.Data.MySqlClient;
-using NPOI.POIFS.FileSystem;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Dynamic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using System.Windows.Media.TextFormatting;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
 
@@ -112,6 +104,63 @@ namespace JoreNoe.DB.Dapper
             //var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
             this.DeleteBatch<Tkey>(ParamsValues, GetTableName, ParamsKeyName);
         }
+
+        /// <summary>
+        /// 软删除 数据
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="ParamsValues">软删除Key</param>
+        /// <param name="ParamsKeyName">软删除Keyname</param>
+        /// <param name="SoftKeyName">软删除字段</param>
+        /// <param name="SoftKeyValue">软删除数据</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public T SoftRemove<TKey>(TKey ParamsValues, string ParamsKeyName = "Id", string SoftKeyName = "IsDelete", bool? SoftKeyValue = null)
+        {
+            if (IsNullOrEmpty(ParamsValues))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
+            if (string.IsNullOrEmpty(ParamsKeyName))
+                throw new System.Exception("ParamsKeyName为空,请传递参数。");
+            if (string.IsNullOrEmpty(SoftKeyName))
+                throw new System.Exception("SoftKeyName为空,请传递参数。");
+
+            //验证数据是否存在
+            var Single = this.Single(ParamsValues, ParamsKeyName);
+            if (Single == null)
+                return default;
+
+            var _SoftKeyValue = SoftKeyValue == null ? true : false;
+            var SoftRemoveSQL = $"Update {typeof(T).Name} SET {SoftKeyName} = @{SoftKeyName} WHERE {ParamsKeyName} = @{ParamsKeyName}";
+            var parameters = new Dictionary<string, object>
+            {
+                { ParamsKeyName, ParamsValues },
+                { SoftKeyName, _SoftKeyValue }
+            };
+
+            return this.Excute(SoftRemoveSQL, parameters) != 0 ? Single : default;
+        }
+
+
+        /// <summary>
+        ///  查询是否存在数据
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="ParamsValues"></param>
+        /// <param name="ParamsKeyName"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public bool IsExists<TKey>(TKey ParamsValues, string ParamsKeyName = "Id")
+        {
+            if (IsNullOrEmpty(ParamsValues))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
+            if (string.IsNullOrEmpty(ParamsKeyName))
+                throw new System.Exception("ParamsKeyName为空,请传递参数。");
+
+            var ExistsSQL = $"SELECT COUNT(*) FROM {typeof(T).Name} WHERE {ParamsKeyName}={ParamsValues}";
+            return this.DBConnection.QueryFirstOrDefault<bool>(ExistsSQL, ParamsKeyName);
+        }
+
+
 
         /// <summary>
         /// 修改数据
@@ -221,6 +270,65 @@ namespace JoreNoe.DB.Dapper
             this.DBConnection.Execute(insertQuery, entity);
             return entity;
         }
+
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        /// <param name="SQLExcute">SQL 语句</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IEnumerable<T> Find(string SQLExcute)
+        {
+            if (string.IsNullOrEmpty(SQLExcute))
+                throw new ArgumentNullException(nameof(SQLExcute));
+
+            return this.DBConnection.Query<T>(SQLExcute);
+        }
+
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        /// <param name="SQLExcute">执行SQL</param>
+        /// <param name="Params">参数</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IEnumerable<T> Find(string SQLExcute, object Params)
+        {
+            if (string.IsNullOrEmpty(SQLExcute))
+                throw new ArgumentNullException(nameof(SQLExcute));
+
+            return this.DBConnection.Query<T>(SQLExcute, Params);
+        }
+
+        /// <summary>
+        /// 执行
+        /// </summary>
+        /// <param name="SQLExcute"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int Excute(string SQLExcute, object Params)
+        {
+            if (string.IsNullOrEmpty(SQLExcute))
+                throw new ArgumentNullException(nameof(SQLExcute));
+
+            return this.DBConnection.Execute(SQLExcute, Params);
+        }
+
+        /// <summary>
+        /// 执行
+        /// </summary>
+        /// <param name="SQLExcute">执行SQL</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int Excute(string SQLExcute)
+        {
+            if (string.IsNullOrEmpty(SQLExcute))
+                throw new ArgumentNullException(nameof(SQLExcute));
+
+            return this.DBConnection.Execute(SQLExcute);
+        }
+
 
 
         #region 公用方法
