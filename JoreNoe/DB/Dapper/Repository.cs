@@ -234,6 +234,25 @@ namespace JoreNoe.DB.Dapper
         }
 
         /// <summary>
+        /// 批量插入
+        /// 如果失败全部失败
+        /// 如果成功全部成功
+        /// 事务
+        /// </summary>
+        /// <param name="data"></param>
+        /// <exception cref="System.Exception"></exception>
+        public void BulkInsertTransaction(IEnumerable<T> data)
+        {
+            if (data == null || !data.Any())
+                throw new System.Exception("数据为空,请传递参数。");
+            var GetTableName = typeof(T).Name;
+            // 获取列
+            var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
+            var BatchData = data.GetBatchData(Registory.BatchCount);
+            foreach (var batch in BatchData) this.InsertBatchTransaction(batch, GetTableName, GetColumns.Item1);
+        }
+
+        /// <summary>
         /// 添加单条数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -369,31 +388,31 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private async Task InsertBatchAsyncNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
-            using (IDbConnection dbConnection = this.DBConnection)
+            //using (IDbConnection dbConnection = this.DBConnection)
+            //{
+            //dbConnection.Open();
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            var insertQueue = new ConcurrentQueue<string>();
+
+            // 使用并行循环将数据插入队列
+            Parallel.ForEach(data, item =>
             {
-                dbConnection.Open();
-                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    var insertQueue = new ConcurrentQueue<string>();
+                string insertValues = GetEntityFiledParams(item);
+                insertQueue.Enqueue(insertValues);
+            });
 
-                    // 使用并行循环将数据插入队列
-                    Parallel.ForEach(data, item =>
-                    {
-                        string insertValues = GetEntityFiledParams(item);
-                        insertQueue.Enqueue(insertValues);
-                    });
-
-                    // 顺序处理队列中的数据并插入
-                    StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
-                    while (insertQueue.TryDequeue(out string insertValues))
-                    {
-                        InsertSQL.Append($"({insertValues}),");
-                    }
-
-                    await dbConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
-                    scope.Complete();
-                }
+            // 顺序处理队列中的数据并插入
+            StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
+            while (insertQueue.TryDequeue(out string insertValues))
+            {
+                InsertSQL.Append($"({insertValues}),");
             }
+
+            await this.DBConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
+            //scope.Complete();
+            //}
+            //}
         }
 
         /// <summary>
@@ -430,6 +449,42 @@ namespace JoreNoe.DB.Dapper
         /// <param name="InsertColumns"></param>
         /// <param name="InsertColumnValues"></param>
         private void InsertBatchNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
+        {
+            //using (IDbConnection dbConnection = this.DBConnection)
+            //{
+            //dbConnection.Open();
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            var insertQueue = new ConcurrentQueue<string>();
+
+            // 使用并行循环将数据插入队列
+            Parallel.ForEach(data, item =>
+            {
+                string insertValues = GetEntityFiledParams(item);
+                insertQueue.Enqueue(insertValues);
+            });
+
+            // 顺序处理队列中的数据并插入
+            StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
+            while (insertQueue.TryDequeue(out string insertValues))
+            {
+                InsertSQL.Append($"({insertValues}),");
+            }
+
+            this.DBConnection.Execute(InsertSQL.ToString().TrimEnd(','));
+            //scope.Complete();
+            //}
+            //}
+        }
+
+        /// <summary>
+        /// 批量插入事务
+        /// </summary>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="tableName"></param>
+        /// <param name="InsertColumns"></param>
+        private void InsertBatchTransaction<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
             using (IDbConnection dbConnection = this.DBConnection)
             {
@@ -468,17 +523,17 @@ namespace JoreNoe.DB.Dapper
         /// <param name="InsertColumnValues"></param>
         private void DeleteBatch<TKey>(TKey[] Value, string tableName, string ParamsKeyName)
         {
-            using (IDbConnection dbConnection = this.DBConnection)
-            using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                dbConnection.Open();
-                // 使用 IN 子句
-                string inClause = string.Join(",", Value.Select(param => $"{param}"));
-                string sql = $"DELETE FROM {tableName} WHERE {ParamsKeyName} IN ({inClause})";
+            //using (IDbConnection dbConnection = this.DBConnection)
+            //using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            //dbConnection.Open();
+            // 使用 IN 子句
+            string inClause = string.Join(",", Value.Select(param => $"{param}"));
+            string sql = $"DELETE FROM {tableName} WHERE {ParamsKeyName} IN ({inClause})";
 
-                dbConnection.Execute(sql);
-                transactionScope.Complete();
-            }
+            this.DBConnection.Execute(sql);
+            //transactionScope.Complete();
+            //}
         }
 
 

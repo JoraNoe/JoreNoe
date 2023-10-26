@@ -71,7 +71,7 @@ namespace JoreNoe.DB.Dapper
         /// 服务注入
         /// </summary>
         /// <param name="Services"></param>
-        public static void AddJoreNoeDpper(this IServiceCollection Services)
+        public static void AddJoreNoeDapper(this IServiceCollection Services)
         {
             _ = Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }

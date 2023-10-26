@@ -74,6 +74,12 @@ namespace JoreNoe.DB.Dapper
         Task BulkInsertAsync(IEnumerable<T> data);
 
         /// <summary>
+        /// 批量插入数据事务
+        /// </summary>
+        /// <param name="data"></param>
+        void BulkInsertTransaction(IEnumerable<T> data);
+
+        /// <summary>
         /// 修改数据
         /// </summary>
         /// <typeparam name="TKey">主键类型</typeparam>
