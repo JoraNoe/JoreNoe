@@ -14,13 +14,13 @@ namespace Test
     {
         static async Task Main(string[] args)
         {
-            testExists();
+            //testExists();
 
 
             //TestSoftRemove();
 
 
-            //await TestInsert();
+            await TestInsert();
         }
 
         static void testExists()
@@ -46,30 +46,43 @@ namespace Test
         {
             //Registory.SetInitDbContext("Server=mysql.sqlpub.com;Database=mydbcloud;User Id=jorenoe;Password=48db25c68757687a;", IDBType.MySql);
 
-            Registory.SetInitDbContext("Server=119.3.208.175;Database=ouconline_allinone_datacenter;User ID=ouconline_allinone_datacenter;Password=zeNnwfyD5ue2z81V;", IDBType.MySql);
+            Registory.SetInitDbContext("Server=localhost;Database=tempdata;User ID=jorenoe;Password=zeNnwfyD5ue2z81V;", IDBType.MySql);
 
             var database = new Repository<Employees>();
             var lists = new List<Employees>();
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < 10000000; i++)
             {
-                lists.Add(new Employees { employee_id = 1234 + i, first_name = "asdf", last_name = "123456", hire_date = DateTime.Now, email = "12@qq.com", ceshi = true });
+                lists.Add(new Employees { employee_id =  i, first_name = "asdf",
+                    last_name = "123456", hire_date = DateTime.Now, email = "12@qq.com", ceshi = true,
+                id_number="123",phone_number="12341234",verification_code="12341"});
             }
 
-            for (int i = 0; i < 10; i++)
-            {
-                database.Removes<int>(lists.Select(d => d.employee_id).ToArray(), "employee_id");
-                // 创建 Stopwatch 对象
-                Stopwatch stopwatch1 = new Stopwatch();
-                stopwatch1.Start();
-                await database.BulkInsertAsync(lists);
-                // 停止计时
-                stopwatch1.Stop();
-                // 获取经过的时间
-                TimeSpan elapsed1 = stopwatch1.Elapsed;
+            // 创建 Stopwatch 对象
+            Stopwatch stopwatch1 = new Stopwatch();
+            stopwatch1.Start();
+            database.BulkInsert(lists);
+            // 停止计时
+            stopwatch1.Stop();
+            // 获取经过的时间
+            TimeSpan elapsed1 = stopwatch1.Elapsed;
 
-                // 输出经过的时间
-                Console.WriteLine($"封装2经过的时间: {elapsed1}");
-            }
+            // 输出经过的时间
+            Console.WriteLine($"封装2经过的时间: {elapsed1}");
+            //for (int i = 0; i < 1; i++)
+            //{
+            //    //database.Removes<string>(lists.Select(d => d.employee_id.ToString()).ToArray(), "employee_id");
+            //    // 创建 Stopwatch 对象
+            //    Stopwatch stopwatch1 = new Stopwatch();
+            //    stopwatch1.Start();
+            //    database.BulkInsert(lists);
+            //    // 停止计时
+            //    stopwatch1.Stop();
+            //    // 获取经过的时间
+            //    TimeSpan elapsed1 = stopwatch1.Elapsed;
+
+            //    // 输出经过的时间
+            //    Console.WriteLine($"封装2经过的时间: {elapsed1}");
+            //}
         }
 
     }
@@ -85,5 +98,11 @@ namespace Test
         public DateTime hire_date { get; set; }
 
         public bool ceshi { get; set; }
+
+        public string phone_number { set; get; }
+
+        public string id_number { set; get; }
+
+        public string verification_code { get; set; }
     }
 }
