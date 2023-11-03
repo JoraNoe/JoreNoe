@@ -35,7 +35,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public IEnumerable<T> All(string[] ParamsColumns = null)
         {
-            return this.DBConnection.Query<T>($"Select {(ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns))} from " + typeof(T).Name);
+            return this.DBConnection.Query<T>($"Select {(ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns))} from " + this.GetTableName<T>());
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace JoreNoe.DB.Dapper
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
 
             // 组装SQL 
-            string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", typeof(T).Name,
+            string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", this.GetTableName<T>(),
                 " where ", ParamsKeyName, " = ", ParamsValue);
 
             return this.DBConnection.QueryFirstOrDefault<T>(QuerySQL);
@@ -100,7 +100,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
 
-            var GetTableName = typeof(T).Name;
+            var GetTableName = this.GetTableName<T>(); //typeof(T).Name.ToLower();
             //var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
             this.DeleteBatch<Tkey>(ParamsValues, GetTableName, ParamsKeyName);
         }
@@ -130,7 +130,7 @@ namespace JoreNoe.DB.Dapper
                 return default;
 
             var _SoftKeyValue = SoftKeyValue == null ? true : false;
-            var SoftRemoveSQL = $"Update {typeof(T).Name} SET {SoftKeyName} = @{SoftKeyName} WHERE {ParamsKeyName} = @{ParamsKeyName}";
+            var SoftRemoveSQL = $"Update {this.GetTableName<T>()} SET {SoftKeyName} = @{SoftKeyName} WHERE {ParamsKeyName} = @{ParamsKeyName}";
             var parameters = new Dictionary<string, object>
             {
                 { ParamsKeyName, ParamsValues },
@@ -156,7 +156,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
 
-            var ExistsSQL = $"SELECT COUNT(*) FROM {typeof(T).Name} WHERE {ParamsKeyName}={ParamsValues}";
+            var ExistsSQL = $"SELECT COUNT(*) FROM {this.GetTableName<T>()} WHERE {ParamsKeyName}={ParamsValues}";
             return this.DBConnection.QueryFirstOrDefault<bool>(ExistsSQL, ParamsKeyName);
         }
 
@@ -188,7 +188,7 @@ namespace JoreNoe.DB.Dapper
             var ConvertToDictionary = EntityToDictionaryExtend.EntityToDictionary(Entity, new string[] { ParamsKeyName });
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
-            string DeleteSQL = $"UPDATE {typeof(T).Name} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
+            string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
             this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
 
             return ExistsValueInfo;
@@ -203,7 +203,7 @@ namespace JoreNoe.DB.Dapper
         {
             if (data == null || !data.Any())
                 throw new System.Exception("数据为空,请传递参数。");
-            var GetTableName = typeof(T).Name;
+            var GetTableName = this.GetTableName<T>();//typeof(T).Name.ToLower();
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
 
@@ -223,7 +223,7 @@ namespace JoreNoe.DB.Dapper
         {
             if (data == null || !data.Any())
                 throw new System.Exception("数据为空,请传递参数。");
-            var GetTableName = typeof(T).Name;
+            var GetTableName = this.GetTableName<T>(); //typeof(T).Name;
             //var batches = data.Batch(this.BatchCount); // 自定义批量扩展方法
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
@@ -245,7 +245,7 @@ namespace JoreNoe.DB.Dapper
         {
             if (data == null || !data.Any())
                 throw new System.Exception("数据为空,请传递参数。");
-            var GetTableName = typeof(T).Name;
+            var GetTableName = this.GetTableName<T>(); //typeof(T).Name;
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
             var BatchData = data.GetBatchData(Registory.BatchCount);
@@ -285,7 +285,7 @@ namespace JoreNoe.DB.Dapper
 
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-            string insertQuery = $"INSERT INTO {typeof(T).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
+            string insertQuery = $"INSERT INTO {this.GetTableName<T>()} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
             this.DBConnection.Execute(insertQuery, entity);
             return entity;
         }
@@ -563,6 +563,17 @@ namespace JoreNoe.DB.Dapper
         public IDbConnection GetDbConnection(IDBType connectionDbType, string connectionString)
         {
             return this.CreateDbConnection(connectionDbType, connectionString);
+        }
+
+        /// <summary>
+        /// 获取名称
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ment"></param>
+        /// <returns></returns>
+        private string GetTableName<TData>()
+        {
+            return typeof(TData).Name.ToLower();
         }
 
         #endregion
