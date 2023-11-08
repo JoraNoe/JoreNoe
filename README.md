@@ -1,13 +1,13 @@
-# JoreNoe Nuget包说明
+# JoreNoe
 
 安装方法
 
-| Build                                   | NuGet                                                        | Downloads                                                    |
-| --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](./assets/NetCore-3.1-green.svg+xml) | [![](./assets/JoreNoe.svg+xml)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="./assets/JoreNoe.svg+xml" alt="NuGet Downloads"></a> |
+| Build                                                     | NuGet                                                        | Downloads                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](https://img.shields.io/badge/NetCore-3.1-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="https://img.shields.io/nuget/dt/JoreNoe?label=Downloads" alt="NuGet Downloads"></a>
 
 ```C
-Install-Package JoreNoe -Version 6.7.5
+Install-Package JoreNoe -Version 5.1.2
 ```
 
 ### ORM使用说明
