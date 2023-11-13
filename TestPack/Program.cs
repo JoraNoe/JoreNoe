@@ -7,7 +7,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Test
@@ -40,12 +42,85 @@ namespace Test
 
             //TestSoftRemove();
 
-
-            await TestInsert();
+            //
+            //calc();
+            //await TestInsert();
 
             //await TestInsert();
+            //caonimade();
+
+            //MakePostRequest("asdf", "https://api.douban.com/v2/movie/top250");
+            ment1();        
         }
         
+        public static void ment1()
+        {
+            var list1 = new List<int>();
+            var list2 = new List<int>();
+
+            list1.Add(1);
+            list1.Add(2);
+
+            list2.Add(2);
+
+            list1 = list1.Where(d=>!list2.Select(s=>s).Contains(d)).ToList();
+            Console.WriteLine(list1);
+        }
+
+        public static string MakePostRequest(string Body, string RequestUrl)
+        {
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(RequestUrl);
+            httpWebRequest.ContentType = "application/json;charset=utf-8";
+            httpWebRequest.Method = "POST";
+            httpWebRequest.Timeout = 15000;
+            httpWebRequest.ReadWriteTimeout = 15000;
+            //判断是否存在Body 数据
+            if (!string.IsNullOrEmpty(Body))
+            {
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    streamWriter.Write(Body);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+            }
+
+            string respContent = "";
+
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        respContent = streamReader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+
+            return respContent == null ? string.Empty : respContent;
+        }
+
+        static void caonimade()
+        {
+            Console.WriteLine(Guid.NewGuid().ToString("N"));
+            Console.WriteLine(Guid.NewGuid());
+        }
+        
+        static void calc()
+        {
+            for (int i = 1; i <= 60 ; i++)
+            {
+                Console.WriteLine((i+(i % 30 == 0).ToString()));
+            }
+        }
         static void ment()
         {
             var ments = new List<int>();
@@ -136,27 +211,32 @@ namespace Test
             //Registory.SetInitDbContext("Server=mysql.sqlpub.com;Database=mydbcloud;User Id=jorenoe;Password=48db25c68757687a;", IDBType.MySql);
 
             Registory.SetInitDbContext("Server=172.26.127.108;Database=JoreNoe;User ID=root;Password=123456;", IDBType.MySql);
-
             var database = new Repository<Employees>();
-            var lists = new ConcurrentQueue <Employees>();
-            for (int i = 0; i < 10000000; i++)
+
+
+
+            for (int s = 0; s < 200000000000; s++)
             {
-                lists.Enqueue(new Employees
-                {
-                    employee_id = i,
-                    first_name = "asdf",
-                    last_name = "123456",
-                    hire_date = DateTime.Now,
-                    email = "12@qq.com",
-                    ceshi = true,
-                    id_number = "123",
-                    phone_number = "12341234",
-                    verification_code = "12341"
-                });
-                Console.WriteLine(i);
-            }
                 
-         
+                var lists = new ConcurrentQueue<Employees>();
+                for (int i = 0; i < 2000; i++)
+                {
+                    lists.Enqueue(new Employees
+                    {
+                        employee_id = Guid.NewGuid().ToString().Replace("-", ""),
+                        first_name = "asdf",
+                        last_name = "123456",
+                        hire_date = DateTime.Now,
+                        email = "12@qq.com",
+                        ceshi = true,
+                        id_number = "123",
+                        phone_number = "12341234",
+                        verification_code = "12341"
+                    });
+                   // Console.WriteLine(i);
+                }
+
+
 
                 // 创建 Stopwatch 对象
                 Stopwatch stopwatch1 = new Stopwatch();
@@ -169,6 +249,8 @@ namespace Test
 
                 //输出经过的时间
                 Console.WriteLine($"封装2经过的时间: {elapsed1}");
+            }
+            
             
 
             
@@ -193,7 +275,7 @@ namespace Test
     // 测试实体
     public class Employees
     {
-        public int employee_id { get; set; }
+        public string employee_id { get; set; }
         public string first_name { get; set; }
         public string last_name { get; set; }
 

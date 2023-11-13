@@ -450,11 +450,6 @@ namespace JoreNoe.DB.Dapper
         /// <param name="InsertColumnValues"></param>
         private void InsertBatchNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
-            //using (IDbConnection dbConnection = this.DBConnection)
-            //{
-            //dbConnection.Open();
-            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
             var insertQueue = new ConcurrentQueue<string>();
 
             // 使用并行循环将数据插入队列
@@ -472,9 +467,6 @@ namespace JoreNoe.DB.Dapper
             }
 
             this.DBConnection.Execute(InsertSQL.ToString().TrimEnd(','));
-            //scope.Complete();
-            //}
-            //}
         }
 
         /// <summary>
