@@ -1,6 +1,7 @@
 ﻿
 using Dapper.Contrib.Extensions;
 using JoreNoe.DB.Dapper;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using NPOI.Util;
 using Org.BouncyCastle.Bcpg.Sig;
 using System;
@@ -10,6 +11,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
 namespace Test
@@ -50,7 +53,32 @@ namespace Test
             //caonimade();
 
             //MakePostRequest("asdf", "https://api.douban.com/v2/movie/top250");
-            ment1();        
+            //ment1();        
+
+            // test111();
+            for (int i = 0;i<100000;i++)
+            {
+                Sendemail();
+                await Task.Delay(1000);
+            }
+            Sendemail();
+            Console.ReadKey();
+        }
+
+        public async static void Sendemail()
+        {
+
+            JoreNoe.Message.EmailMessageAPI message =
+                new JoreNoe.Message.EmailMessageAPI("jorenoe@yeah.net", "smtp.yeah.net", 25, "WSMWUPMFXDXIAGAR");
+
+            await message.SendAsync("jth_net@163.com", "你好牛米好", "库你洗哇", true);
+
+        }
+        public static void test111()
+        {
+            var ment = new List<string>();
+            ment.Add("asd");
+            Console.WriteLine(ment.Any());
         }
         
         public static void ment1()
