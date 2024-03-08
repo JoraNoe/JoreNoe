@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JoreNoe\JoreNoe.csproj" />
+    <PackageReference Include="JoreNoe" Version="6.7.6" />
   </ItemGroup>
+
 
 </Project>

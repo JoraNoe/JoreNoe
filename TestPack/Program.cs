@@ -49,29 +49,55 @@ namespace Test
             //calc();
             //await TestInsert();
 
-            //await TestInsert();
+            // await TestInsert();
             //caonimade();
 
             //MakePostRequest("asdf", "https://api.douban.com/v2/movie/top250");
             //ment1();        
 
             // test111();
-            for (int i = 0;i<100000;i++)
-            {
-                Sendemail();
-                await Task.Delay(1000);
-            }
+            //for (int i = 0;i<100000;i++)
+            //{
+            //    Sendemail();
+            //    await Task.Delay(1000);
+            //}
             Sendemail();
+
+            //Parallel.For(0, 10000, i =>
+            //{
+            //    var List = new List<testClass>() {
+            //        new testClass{ Name="张三",Time = DateTime.Parse("2023-11-12 11:11:20") },
+            //        new testClass{ Name="帅哥",Time = DateTime.Parse("2024-11-12 11:11:20") }
+            //    };
+
+            //    if(List.Any())
+            //    {
+            //        var Laster = List.OrderByDescending(d => d.Time).FirstOrDefault();
+            //        List.Clear();
+            //        List.Add(Laster);
+
+            //        Console.WriteLine(List.First().Name + " -- " + List.Count);
+            //    }
+
+               
+            //});
+
             Console.ReadKey();
+        }
+
+        public class testClass
+        {
+            public string Name { get; set; }
+            public DateTime Time { get; set; }
         }
 
         public async static void Sendemail()
         {
 
             JoreNoe.Message.EmailMessageAPI message =
-                new JoreNoe.Message.EmailMessageAPI("jorenoe@yeah.net", "smtp.yeah.net", 25, "WSMWUPMFXDXIAGAR");
+                new JoreNoe.Message.EmailMessageAPI("postmaster@jorenoe.top", "smtp.qiye.aliyun.com", 25, "zw.047600");
 
-            await message.SendAsync("jth_net@163.com", "你好牛米好", "库你洗哇", true);
+            await message.SendAsync("jth_net@163.com", "登录验证码", "验证码：98782783", true);
 
         }
         public static void test111()
@@ -80,7 +106,7 @@ namespace Test
             ment.Add("asd");
             Console.WriteLine(ment.Any());
         }
-        
+
         public static void ment1()
         {
             var list1 = new List<int>();
@@ -91,7 +117,7 @@ namespace Test
 
             list2.Add(2);
 
-            list1 = list1.Where(d=>!list2.Select(s=>s).Contains(d)).ToList();
+            list1 = list1.Where(d => !list2.Select(s => s).Contains(d)).ToList();
             Console.WriteLine(list1);
         }
 
@@ -141,12 +167,12 @@ namespace Test
             Console.WriteLine(Guid.NewGuid().ToString("N"));
             Console.WriteLine(Guid.NewGuid());
         }
-        
+
         static void calc()
         {
-            for (int i = 1; i <= 60 ; i++)
+            for (int i = 1; i <= 60; i++)
             {
-                Console.WriteLine((i+(i % 30 == 0).ToString()));
+                Console.WriteLine((i + (i % 30 == 0).ToString()));
             }
         }
         static void ment()
@@ -164,8 +190,8 @@ namespace Test
 
                 foreach (var item in ments)
                 {
-                    x.Enqueue(item+"");
-                }   
+                    x.Enqueue(item + "");
+                }
 
             });
 
@@ -180,11 +206,11 @@ namespace Test
             var list = new List<string>();
             for (int i = 0; i < 10; i++)
             {
-                list.Add(i+string.Empty);
+                list.Add(i + string.Empty);
             }
 
             var x = list.Where(d => !list1.Contains(d));
-            
+
         }
 
         static void caonima()
@@ -238,14 +264,14 @@ namespace Test
         {
             //Registory.SetInitDbContext("Server=mysql.sqlpub.com;Database=mydbcloud;User Id=jorenoe;Password=48db25c68757687a;", IDBType.MySql);
 
-            Registory.SetInitDbContext("Server=172.26.127.108;Database=JoreNoe;User ID=root;Password=123456;", IDBType.MySql);
+            Registory.SetInitDbContext("Server=100.88.44.122;Database=jorenoe;User ID=root;Password=JoreNoe123$%^;", IDBType.MySql);
             var database = new Repository<Employees>();
 
 
 
             for (int s = 0; s < 200000000000; s++)
             {
-                
+
                 var lists = new ConcurrentQueue<Employees>();
                 for (int i = 0; i < 2000; i++)
                 {
@@ -261,7 +287,7 @@ namespace Test
                         phone_number = "12341234",
                         verification_code = "12341"
                     });
-                   // Console.WriteLine(i);
+                    // Console.WriteLine(i);
                 }
 
 
@@ -278,10 +304,10 @@ namespace Test
                 //输出经过的时间
                 Console.WriteLine($"封装2经过的时间: {elapsed1}");
             }
-            
-            
 
-            
+
+
+
             //for (int i = 0; i < 10; i++)
             //{
             //    //database.Removes<string>(lists.Select(d => d.employee_id.ToString()).ToArray(), "employee_id");
