@@ -14,6 +14,14 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using JoreNoe.WeChatPay.WeChatListener;
+using Newtonsoft.Json.Linq;
+using System.Data.SqlTypes;
+using System.Xml;
+using System.Text.RegularExpressions;
+using JoreNoe.JoreHttpClient;
+using System.Net.Http;
+using System.Text;
 
 namespace Test
 {
@@ -61,7 +69,7 @@ namespace Test
             //    Sendemail();
             //    await Task.Delay(1000);
             //}
-            Sendemail();
+            //Sendemail();
 
             //Parallel.For(0, 10000, i =>
             //{
@@ -79,11 +87,199 @@ namespace Test
             //        Console.WriteLine(List.First().Name + " -- " + List.Count);
             //    }
 
-               
+
             //});
+
+            Console.WriteLine("欢迎使用微信监听脚本...");
+
+            //try
+            //{
+            //    var app = new WebApp();
+            //    await app.RunAsync();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"发生错误: {ex.Message}");
+            //}
+
+            //mentsaf s = new mentsaf();
+
+            //s.ok();
+
+            hhhh();
+
+
 
             Console.ReadKey();
         }
+
+
+        public static async Task hhhh()
+        {
+            var postData = new
+            {
+                Account = "123412",
+                Remark = "1234",
+                Amount = "1234333"
+            };
+
+            // 将数据转换为 JSON 字符串
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(postData);
+
+            // 设置要发送的请求地址
+            string url = "https://jorenoe.top/api/JoreNoePay/Notice";
+
+            // 创建 HttpClient 实例
+            using var httpClient = new HttpClient();
+
+            // 创建要发送的 HTTP 请求内容
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                // 发送 HTTP POST 请求
+                var response = await httpClient.PostAsync(url, content);
+
+                // 检查响应是否成功
+                if (response.IsSuccessStatusCode)
+                {
+                    // 处理成功响应
+                    var responseData = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    // 处理失败响应
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
+        public class mentsaf {
+        
+            public async Task ok()
+            {
+                Console.WriteLine("欢迎使用微信消息监听脚本...");
+
+                try
+                {
+                    var listener = new HttpListener();
+                    listener.Prefixes.Add("http://127.0.0.1:9000/");
+                    listener.Start();
+                    Console.WriteLine("监听微信消息中...");
+
+                    while (true)
+                    {
+                        var context = await listener.GetContextAsync();
+                        var request = context.Request;
+                        var response = context.Response;
+
+                        if (request.HttpMethod == "POST" && request.Url.LocalPath == "/msg")
+                        {
+                            try
+                            {
+                                var content = await new System.IO.StreamReader(request.InputStream).ReadToEndAsync();
+
+                                var json = JObject.Parse(content);
+                                var messageContent = (string)json["content"];
+
+                                string title = mentsaf.GetAmountFromTitle(messageContent);
+                                string des = mentsaf.GetRemarkFromDes(messageContent);
+
+                                string mm = mentsaf.GetRemarkFromDes1(messageContent);
+
+                                Console.WriteLine("Amount: " + title);
+                                Console.WriteLine("Remark: " + des);
+                                Console.WriteLine("Remark: " + mm);
+
+                                response.StatusCode = 200;
+                                response.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"处理消息时发生错误: {ex.Message}");
+                                response.StatusCode = 500;
+                                response.Close();
+                            }
+                        }
+                        else
+                        {
+                            response.StatusCode = 404;
+                            response.Close();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"发生错误: {ex.Message}");
+                }
+            }
+
+            public static string GetRemarkFromDes1(string xml)
+            {
+                string pattern = @"汇总([\s\S]*?)备注收款成功";
+                Match match = Regex.Match(xml, pattern);
+                if (match.Success)
+                {
+                    return match.Groups[1].Value.Trim();
+                }
+                return string.Empty;
+            }
+
+            public  static string GetAmountFromTitle(string xml)
+            {
+                string pattern = @"微信支付收款(\d+(\.\d+)?)元";
+                Match match = Regex.Match(xml, pattern);
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }
+                return string.Empty;
+            }
+
+            // 从描述中提取备注的方法
+            public static string GetRemarkFromDes(string xml)
+            {
+                string pattern = @"付款方备注([^\n]*)";
+                Match match = Regex.Match(xml, pattern);
+                if (match.Success)
+                {
+                    return match.Groups[1].Value.Trim();
+                }
+                return string.Empty;
+            }
+            private static async Task HandleMessageAsync(string content)
+            {
+                var json = JObject.Parse(content);
+                var messageType = (int)json["msg_type"];
+                var messageContent = (string)json["content"];
+
+                switch (messageType)
+                {
+                    case 1:
+                        Console.WriteLine($"收到文本消息: {messageContent}");
+                        break;
+                    case 3:
+                        Console.WriteLine($"收到图片消息: {messageContent}");
+                        break;
+                    case 34:
+                        Console.WriteLine($"收到语音消息: {messageContent}");
+                        break;
+                    // 处理其他消息类型...
+                    default:
+                        Console.WriteLine($"收到未知消息类型({messageType}): {messageContent}");
+                        break;
+                }
+            }
+
+        }
+
+
+
+
 
         public class testClass
         {

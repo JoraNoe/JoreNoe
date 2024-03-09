@@ -6,26 +6,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace WeChatListener
+namespace JoreNoe.WeChatPay.WeChatListener
 {
-    class Program
-    {
-        static async Task Main(string[] args)
-        {
-            Console.WriteLine("欢迎使用微信监听脚本...");
-
-            try
-            {
-                var app = new WebApp();
-                await app.RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"发生错误: {ex.Message}");
-            }
-        }
-    }
-
     public class WebApp
     {
         private const string apiUrl = "http://v1.xxx.cn/api/recharge";
@@ -34,10 +16,11 @@ namespace WeChatListener
         public async Task RunAsync()
         {
             var listener = new HttpListener();
-            listener.Prefixes.Add("http://localhost:9000/");
+            listener.Prefixes.Add("http://localhost:9001/api/");
             listener.Start();
             Console.WriteLine("监听微信消息中...");
-
+            // http://127.0.0.1:9000/msg
+            //http://127.0.0.1:8989/api
             while (true)
             {
                 var context = await listener.GetContextAsync();
@@ -48,7 +31,14 @@ namespace WeChatListener
                 {
                     try
                     {
-                        var content = await request.Content.ReadAsStringAsync();
+                        string content;
+                        using (var reader = new System.IO.StreamReader(request.InputStream, request.ContentEncoding))
+                        {
+                            content = await reader.ReadToEndAsync();
+                        }
+
+                        Console.WriteLine(content);
+
                         await HandleMessageAsync(content);
                         response.StatusCode = 200;
                         response.Close();
@@ -59,11 +49,6 @@ namespace WeChatListener
                         response.StatusCode = 500;
                         response.Close();
                     }
-                }
-                else
-                {
-                    response.StatusCode = 404;
-                    response.Close();
                 }
             }
         }
