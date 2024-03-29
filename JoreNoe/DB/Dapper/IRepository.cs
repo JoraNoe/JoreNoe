@@ -95,14 +95,14 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        Task<T> AddAsync(T entity);
+        Task<T> AddAsync(T entity, string[] IgnoreFailds=null);
 
         /// <summary>
         /// 添加单条数据
         /// </summary>
         /// <param name="entity">数据</param>
         /// <returns></returns>
-        T Add(T entity);
+        T Add(T entity, string[] IgnoreFailds = null);
 
         /// <summary>
         /// 查询数据

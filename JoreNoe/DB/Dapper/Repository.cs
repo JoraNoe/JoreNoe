@@ -259,13 +259,13 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<T> AddAsync(T entity)
+        public async Task<T> AddAsync(T entity,string[] IgnoreFailds = null)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
             // 获取列
-            var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
+            var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>(IgnoreFailds);
             string insertQuery = $"INSERT INTO {typeof(T).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
             await this.DBConnection.ExecuteAsync(insertQuery, entity);
             return entity;
@@ -278,13 +278,13 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public T Add(T entity)
+        public T Add(T entity, string[] IgnoreFailds=null)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
             // 获取列
-            var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
+            var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>(IgnoreFailds);
             string insertQuery = $"INSERT INTO {this.GetTableName<T>()} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
             this.DBConnection.Execute(insertQuery, entity);
             return entity;

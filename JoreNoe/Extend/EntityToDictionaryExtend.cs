@@ -1,4 +1,6 @@
-﻿using Org.BouncyCastle.Crypto.Tls;
+﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +49,9 @@ namespace JoreNoe.Extend
             List<string> LatterParams = new List<string>();
             foreach (var property in properties)
             {
+                if (Attribute.IsDefined(property, typeof(IgnoreAutoIncrement)))
+                    continue;
+
                 if (IgnoreFields != null && IgnoreFields.Contains(property.Name)) continue;
                 NoLatterParams.Add(property.Name);
                 LatterParams.Add(string.Concat("@", property.Name));
