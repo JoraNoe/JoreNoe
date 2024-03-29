@@ -15,7 +15,7 @@ using static JoreNoe.DB.Dapper.DapperExtend;
 
 namespace JoreNoe.DB.Dapper
 {
-    public class Repository<T> : IRepository<T>
+    public class Repository<T> : IRepository<T> where T : class,new()
     {
         /// <summary>
         /// 数据库上下文
@@ -194,6 +194,34 @@ namespace JoreNoe.DB.Dapper
             return ExistsValueInfo;
         }
 
+        public T Update<TKey>(TKey ParamsValue, Action<T> Entity, string ParamsKeyName = "Id")
+        {
+            if (IsNullOrEmpty(ParamsValue))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
+            if (string.IsNullOrEmpty(ParamsKeyName))
+                throw new System.Exception("ParamsKeyName为空,请传递参数。");
+            if (Entity == null)
+                throw new System.Exception("实体为空,请传递参数。");
+
+            //验证数据是否存在
+            var ExistsValueInfo = this.Single(ParamsValue, ParamsKeyName);
+            if (ExistsValueInfo == null)
+                return default;
+
+            T entityToUpdate = new T();
+            Entity(entityToUpdate);
+
+            // 实体转换为字典
+            var ConvertToDictionary = EntityToDictionaryExtend.EntityToDictionary(entityToUpdate, new string[] { ParamsKeyName });
+            var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
+            ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
+            string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
+            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+
+            return ExistsValueInfo;
+        }
+
+
         /// <summary>
         /// 批量插入数据
         /// </summary>
@@ -259,7 +287,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<T> AddAsync(T entity,string[] IgnoreFailds = null)
+        public async Task<T> AddAsync(T entity, string[] IgnoreFailds = null)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -278,7 +306,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public T Add(T entity, string[] IgnoreFailds=null)
+        public T Add(T entity, string[] IgnoreFailds = null)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));

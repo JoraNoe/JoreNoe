@@ -89,6 +89,8 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id");
 
+        T Update<TKey>(TKey ParamsValue, Action<T> Entity, string ParamsKeyName = "Id");
+
         /// <summary>
         /// 添加单条数据
         /// </summary>

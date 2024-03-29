@@ -1,5 +1,6 @@
 ﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
@@ -29,8 +30,11 @@ namespace JoreNoe.Extend
             {
                 var key = property.Name;
                 if (IgnoreFields != null && IgnoreFields.Contains(key)) continue;
-                var value = property.GetValue(entity, null);
-                dictionary[key] = value;
+                var value = property.GetValue(entity);
+                var type = property.GetType();
+                if (value.Equals(default(type)))
+                if(value != null && !string.IsNullOrWhiteSpace(value.ToString()))
+                    dictionary[key] = value;
             }
             return dictionary;
         }
