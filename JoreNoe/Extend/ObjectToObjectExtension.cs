@@ -10,6 +10,15 @@ namespace JoreNoe.Extend
     /// </summary>
     public static class ObjectToObjectExtension
     {
+        //// 使用教程
+
+        //var config = new MapperConfiguration(cfg =>
+        //{
+        //    cfg.CreateMap<T, T>();
+        //});
+
+        //var mapper = new Mapper(config);
+
         /// <summary>
         /// 使用JoreNoeAutoMapper
         /// </summary>

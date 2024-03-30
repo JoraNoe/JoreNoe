@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
 
 namespace JoreNoe.DB.Dapper
 {
@@ -90,12 +93,65 @@ namespace JoreNoe.DB.Dapper
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<T>> GetBatchData<T>(this IEnumerable<T> data,long BatchCount)
+        public static IEnumerable<IEnumerable<T>> GetBatchData<T>(this IEnumerable<T> data, long BatchCount)
         {
             return data
             .Select((value, index) => new { Value = value, Index = index })
             .GroupBy(x => x.Index / BatchCount)
             .Select(g => g.Select(x => x.Value).ToList());
         }
+
+        public static string GetColumnName(PropertyInfo property)
+        {
+            var columnAttr = property.GetCustomAttribute<ColumnAttribute>();
+            return columnAttr != null ? columnAttr.Name : property.Name;
+        }
+
+        public static string GetColumnType(PropertyInfo property)
+        {
+            var type = property.PropertyType;
+
+            if (type == typeof(int))
+            {
+                StringBuilder Str = new StringBuilder();
+                var cloumnAttr =  property.GetCustomAttribute<ColumnAutoIncrementAttribute>();
+                if (cloumnAttr == null)
+                    Str.Append("INT ");
+                else Str.Append( "INT auto_increment ");
+                var cloumnAttr1 = property.GetCustomAttribute<ColumnPrimaryKeyAttribute>();
+                if (cloumnAttr1 != null)
+                    Str.Append(" Primary Key ");
+                return Str.ToString();
+            }
+            else if (type == typeof(string))
+            {
+                var columnAttr = property.GetCustomAttribute<ColumnLengthAttribute>();
+                if (columnAttr != null)
+                    return $"VARCHAR({columnAttr.Length})";
+                else
+                    return $"VARCHAR(255)";
+            }
+            else if(type == typeof(bool))
+            {
+                return $" TINYINT(1) ";
+            }
+            else if(type == typeof(DateTime))
+            {
+                return $" DATETIME ";
+            }
+            else if (type == typeof(Guid))
+            {
+                return $" UNIQUEIDENTIFIER ";
+            }
+
+            throw new ArgumentException($"Unsupported type: {type.Name}");
+        }
+
+        public static bool IsNullable(PropertyInfo property)
+        {
+            return Nullable.GetUnderlyingType(property.PropertyType) != null ||
+                   property.GetCustomAttribute<RequiredAttribute>() == null;
+        }
+
     }
 }

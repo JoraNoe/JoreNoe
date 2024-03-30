@@ -31,11 +31,21 @@ namespace JoreNoe.Extend
                 var key = property.Name;
                 if (IgnoreFields != null && IgnoreFields.Contains(key)) continue;
                 var value = property.GetValue(entity);
-                var type = property.GetType();
-                if (value.Equals(default(type)))
-                if(value != null && !string.IsNullOrWhiteSpace(value.ToString()))
                     dictionary[key] = value;
             }
+            return dictionary;
+        }
+
+        public static Dictionary<string, object> ObjectToDictionary(object obj)
+        {
+            var dictionary = new Dictionary<string, object>();
+
+            // 获取对象的属性并添加到字典中
+            foreach (var property in obj.GetType().GetProperties())
+            {
+                dictionary[property.Name] = property.GetValue(obj);
+            }
+
             return dictionary;
         }
 
@@ -53,7 +63,7 @@ namespace JoreNoe.Extend
             List<string> LatterParams = new List<string>();
             foreach (var property in properties)
             {
-                if (Attribute.IsDefined(property, typeof(IgnoreAutoIncrement)))
+                if (Attribute.IsDefined(property, typeof(InsertIgnoreAutoIncrementAttribute)))
                     continue;
 
                 if (IgnoreFields != null && IgnoreFields.Contains(property.Name)) continue;

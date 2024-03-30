@@ -87,9 +87,12 @@ namespace JoreNoe.DB.Dapper
         /// <param name="Entity">修改的实体</param>
         /// <param name="ParamsKeyName">主键名称</param>
         /// <returns></returns>
-        T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id");
+        T Update<TKey>(TKey ParamsValue, object Entity, string ParamsKeyName = "Id");
 
         T Update<TKey>(TKey ParamsValue, Action<T> Entity, string ParamsKeyName = "Id");
+
+        T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id");
+        T Update<TKey>(TKey ParamsValue, Func<T, T> Entity, string ParamsKeyName = "Id");
 
         /// <summary>
         /// 添加单条数据
@@ -139,5 +142,14 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         int Excute(string SQLExcute);
+
+        /// <summary>
+        /// 创建表
+        /// </summary>
+        /// <param name="Entity"></param>
+        /// <returns></returns>
+        bool CreateTable(T Entity);
+
+        void PublishHistory(string LogContext, string ResultContext, string ContextType, string UserName = "SystemCreate", string TableName = "BaseHistory");
     }
 }

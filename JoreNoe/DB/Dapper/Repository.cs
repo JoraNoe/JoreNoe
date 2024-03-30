@@ -1,21 +1,30 @@
-﻿using Dapper;
+﻿using AutoMapper;
+using Dapper;
+using Dapper.Contrib.Extensions;
 using JoreNoe.Extend;
+using JoreNoe.JoreNoeLog;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySql.Data.MySqlClient;
+using NPOI.POIFS.FileSystem;
+using NPOI.Util.Collections;
+using Org.BouncyCastle.Cms;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace JoreNoe.DB.Dapper
 {
-    public class Repository<T> : IRepository<T> where T : class,new()
+    public class Repository<T> : IRepository<T> where T : class, new()
     {
         /// <summary>
         /// 数据库上下文
@@ -170,7 +179,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName"></param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id")
+        public T Update<TKey>(TKey ParamsValue, object Entity, string ParamsKeyName = "Id")
         {
             if (IsNullOrEmpty(ParamsValue))
                 throw new System.Exception("ParamsValue为空,请传递参数。");
@@ -185,7 +194,7 @@ namespace JoreNoe.DB.Dapper
                 return default;
 
             // 实体转换为字典
-            var ConvertToDictionary = EntityToDictionaryExtend.EntityToDictionary(Entity, new string[] { ParamsKeyName });
+            var ConvertToDictionary = EntityToDictionaryExtend.ObjectToDictionary(Entity);
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
             string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
@@ -193,6 +202,64 @@ namespace JoreNoe.DB.Dapper
 
             return ExistsValueInfo;
         }
+
+
+        public T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id")
+        {
+            if (IsNullOrEmpty(ParamsValue))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
+            if (string.IsNullOrEmpty(ParamsKeyName))
+                throw new System.Exception("ParamsKeyName为空,请传递参数。");
+            if (Entity == null)
+                throw new System.Exception("实体为空,请传递参数。");
+
+            //验证数据是否存在
+            var ExistsValueInfo = this.Single(ParamsValue, ParamsKeyName);
+            if (ExistsValueInfo == null)
+                return default;
+
+
+            
+
+
+            // 实体转换为字典
+            var ConvertToDictionary = EntityToDictionaryExtend.ObjectToDictionary(Entity);
+            var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
+            ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
+            string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
+            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+
+            return ExistsValueInfo;
+        }
+
+
+        public T Update<TKey>(TKey ParamsValue, Func<T,T> Entity, string ParamsKeyName = "Id")
+        {
+            if (IsNullOrEmpty(ParamsValue))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
+            if (string.IsNullOrEmpty(ParamsKeyName))
+                throw new System.Exception("ParamsKeyName为空,请传递参数。");
+            if (Entity == null)
+                throw new System.Exception("实体为空,请传递参数。");
+
+            //验证数据是否存在
+            var ExistsValueInfo = this.Single(ParamsValue, ParamsKeyName);
+            if (ExistsValueInfo == null)
+                return default;
+
+            var temp = Entity(ExistsValueInfo);
+
+            // 实体转换为字典
+            var ConvertToDictionary = EntityToDictionaryExtend.EntityToDictionary(temp, new string[] { ParamsKeyName });
+            var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
+            ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
+            string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
+            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+
+
+            return ExistsValueInfo;
+        }
+
 
         public T Update<TKey>(TKey ParamsValue, Action<T> Entity, string ParamsKeyName = "Id")
         {
@@ -208,15 +275,15 @@ namespace JoreNoe.DB.Dapper
             if (ExistsValueInfo == null)
                 return default;
 
-            T entityToUpdate = new T();
-            Entity(entityToUpdate);
+            Entity(ExistsValueInfo);
 
             // 实体转换为字典
-            var ConvertToDictionary = EntityToDictionaryExtend.EntityToDictionary(entityToUpdate, new string[] { ParamsKeyName });
+            var ConvertToDictionary = EntityToDictionaryExtend.EntityToDictionary(ExistsValueInfo, new string[] { ParamsKeyName });
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
             string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
             this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+
 
             return ExistsValueInfo;
         }
@@ -376,9 +443,99 @@ namespace JoreNoe.DB.Dapper
             return this.DBConnection.Execute(SQLExcute);
         }
 
+        /// <summary>
+        /// 创建表
+        /// </summary>
+        /// <param name="Entity"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool CreateTable(T Entity)
+        {
+            if (Entity == null) throw new ArgumentNullException("参数为空");
+
+            StringBuilder sqlBuilder = new StringBuilder($"CREATE TABLE IF NOT EXISTS {this.GetTableName<T>()} (");
+
+            foreach (var property in typeof(T).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            {
+                var columnName = GetColumnName(property);
+                var columnType = GetColumnType(property);
+                var isNullable = IsNullable(property);
+
+                sqlBuilder.Append($"{columnName} {columnType}");
+
+                if (!isNullable)
+                {
+                    sqlBuilder.Append(" NOT NULL");
+                }
+                sqlBuilder.Append(", ");
+            }
+
+            sqlBuilder.Length -= 2;
+            sqlBuilder.Append(")");
+
+            this.DBConnection.Execute(sqlBuilder.ToString());
+
+            return true;
+        }
+
+
+        /// <summary>
+        /// 创建日志
+        /// 自动创建表
+        /// </summary>
+        /// <param name="LogContext"></param>
+        /// <param name="ResultContext"></param>
+        /// <param name="ContextType"></param>
+        /// <param name="UserName"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void PublishHistory(string LogContext,string ResultContext,string ContextType,string UserName="SystemCreate",string TableName= "BaseHistory")
+        {
+            if (string.IsNullOrEmpty(LogContext) || 
+                string.IsNullOrEmpty(ContextType)) throw new ArgumentNullException("数据为空");
+
+            if(this.DBConnection.QuerySingle<int>($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{this.DBConnection.Database}' AND TABLE_NAME = '{TableName}'") != 1)
+                this.PrivateCerateTable(new BaseHistory());
+
+            var Entity = new BaseHistory { Context = LogContext, HistoryType = ContextType, ResultContext = ResultContext, CreateUser = UserName,CreateTime = DateTime.Now };
+
+            var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<BaseHistory>();
+            string insertQuery = $"INSERT INTO {typeof(BaseHistory).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
+            this.DBConnection.Execute(insertQuery, Entity);
+        }
+
 
 
         #region 公用方法
+
+
+        private void PrivateCerateTable(BaseHistory e,string TableName= "BaseHistory")
+        {
+            string GetTableName = "BaseHistory";
+            if (TableName != "BaseHistory")
+                GetTableName = TableName;
+
+            StringBuilder sqlBuilder = new StringBuilder($"CREATE TABLE IF NOT EXISTS {GetTableName} (");
+
+            foreach (var property in typeof(BaseHistory).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            {
+                var columnName = GetColumnName(property);
+                var columnType = GetColumnType(property);
+                var isNullable = IsNullable(property);
+
+                sqlBuilder.Append($"{columnName} {columnType}");
+
+                if (!isNullable)
+                {
+                    sqlBuilder.Append(" NOT NULL");
+                }
+                sqlBuilder.Append(", ");
+            }
+
+            sqlBuilder.Length -= 2;
+            sqlBuilder.Append(")");
+
+            this.DBConnection.Execute(sqlBuilder.ToString());
+        }
 
         /// <summary>
         /// 批量插入数据

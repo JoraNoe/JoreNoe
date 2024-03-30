@@ -4,8 +4,7 @@ using System.Text;
 
 namespace JoreNoe.DB.Dapper.JoreNoeDapperAttribute
 {
-    public class IgnoreAutoIncrement:Attribute
+    public class ColumnAutoIncrementAttribute:Attribute
     {
-
     }
 }
