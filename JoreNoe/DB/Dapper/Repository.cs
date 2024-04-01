@@ -31,7 +31,6 @@ namespace JoreNoe.DB.Dapper
         /// </summary>
         public readonly IDbConnection DBConnection;
 
-
         public Repository()
         {
             this.DBConnection = Registory._Connection;
@@ -493,9 +492,10 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(LogContext) || 
                 string.IsNullOrEmpty(ContextType)) throw new ArgumentNullException("数据为空");
 
-            if(this.DBConnection.QuerySingle<int>($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{this.DBConnection.Database}' AND TABLE_NAME = '{TableName}'") != 1)
-                this.PrivateCerateTable(new BaseHistory());
+            //if(this.DBConnection.QuerySingle<int>($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{this.DBConnection.Database}' AND TABLE_NAME = '{TableName}'") != 1)
+            //    this.PrivateCerateTable(new BaseHistory());
 
+            this.PrivateCerateTable(new BaseHistory());
             var Entity = new BaseHistory { Context = LogContext, HistoryType = ContextType, ResultContext = ResultContext, CreateUser = UserName,CreateTime = DateTime.Now };
 
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<BaseHistory>();

@@ -74,6 +74,8 @@ namespace JoreNoe.DB.Dapper
 
             foreach (PropertyInfo property in properties)
             {
+                if (Attribute.IsDefined(property, typeof(InsertIgnoreAutoIncrementAttribute)))
+                    continue;
                 //string propertyName = property.Name;
                 var propertyValue = property.GetValue(Data, null); // 获取属性值
                 // 根据属性的类型判断是否需要添加单引号
