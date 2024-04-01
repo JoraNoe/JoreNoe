@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>6.9.7</Version>
-    <Description>Dapper 增加新方法，优化Dapper封装</Description>
+    <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+	  <TargetFramework>NET6.0</TargetFramework>
+    <Version>6.9.9</Version>
+    <Description> NET 6 版本 Dapper 增加新方法，优化Dapper封装</Description>
     <Authors>Jth.JoreNoe</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <UseWpf>True</UseWpf>
-    <UseWindowsForms>true</UseWindowsForms>
+    <!--<UseWpf>True</UseWpf>
+    <UseWindowsForms>true</UseWindowsForms>-->
     <RepositoryUrl>https://github.com/JoraNoe/JoreNoe/tree/maint</RepositoryUrl>
     <PackageProjectUrl>https://github.com/JoraNoe/JoreNoe/tree/main</PackageProjectUrl>
     <PackageIconUrl>https://avatars.githubusercontent.com/u/103556099</PackageIconUrl>
@@ -18,14 +19,54 @@
 	
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM32'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM32'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="JoreNoe.ico" />
   </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Autofac" Version="5.1.4" />
-    <PackageReference Include="AutoMapper" Version="11.0.1" />
-    <PackageReference Include="Dapper" Version="2.0.90" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="EPPlus" Version="5.7.5" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />

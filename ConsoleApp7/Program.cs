@@ -1,45 +1,35 @@
-﻿using Dapper;
-using JoreNoe;
-using JoreNoe.DB.Dapper;
+﻿using JoreNoe.DB.Dapper;
 using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 
-namespace ConsoleApp6
+namespace ConsoleApp7
 {
     internal class Program
     {
-
         static void Main(string[] args)
         {
-
             var database = new Repository<test>(new DatabaseService("Server=124.70.12.71;Database=jorenoe;User ID=root;Password=jorenoe123;"));
 
 
-           // Registory.SetInitDbContext("Server=124.70.12.71;Database=jorenoe;User ID=root;Password=jorenoe123;", IDBType.MySql,500000);
+            // Registory.SetInitDbContext("Server=124.70.12.71;Database=jorenoe;User ID=root;Password=jorenoe123;", IDBType.MySql,500000);
             //Registory.SetInitDbContext("Server=43.136.101.66;Database=jorenoe;User ID=root;Password=jorenoe123;", IDBType.MySql);
 
             var ment = new List<test>();
-            for (int i = 0;i < 10000; i++)
+            for (int i = 0; i < 10000; i++)
             {
-                ment.Add(new test { 
+                ment.Add(new test
+                {
                     Flg = true,
-                    Email = "123@"+i,
+                    Email = "123@" + i,
                     Name = "asdasdf"
                 });
             }
 
-            
+
             database.BulkInsert(ment);
 
-            
+
 
             Console.WriteLine("完成");
-
-
-            //var x = database.IsExists(12000340, "employee_id");
-
         }
 
         public class test
