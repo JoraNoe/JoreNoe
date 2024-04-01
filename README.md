@@ -2,9 +2,9 @@
 
 安装方法
 
-| Build                                                     | NuGet                                                        | Downloads                                                    |
-| --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](https://img.shields.io/badge/NetCore-3.1-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="https://img.shields.io/nuget/dt/JoreNoe?label=Downloads" alt="NuGet Downloads"></a>
+| Build                                   | NuGet                                                        | Downloads                                                    |
+| --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](./assets/NetCore-3.1-green.svg+xml) | [![](./assets/JoreNoe.svg+xml)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="./assets/JoreNoe.svg+xml" alt="NuGet Downloads"></a> |
 
 ```C#
 Install-Package JoreNoe -Version 6.9.9
@@ -353,6 +353,58 @@ public class TestDomianService(){
     {
         RedisManager.Add(KeyName,内容，失效时间（秒）);
         return null;
+    }
+}
+```
+
+# 发送消息
+
+目前支持：email  发送  
+
+## 1.邮箱发送
+
+**如何使用**
+
+```C#
+using JoreNoe.Message;
+
+public class test{
+    
+    public void sendtest(){
+
+        // 首先注册 
+        var EmailHelper = new EmailMessageAPI(发送者，SMTP地址，SMTP端口，密码（个人是授权码），是否开启SSL认证);
+        
+        EmailHelper.Send(收件人，标题，主题内容，是否开启兼容HTML);
+    }
+}
+```
+
+# 帮助扩展方法
+
+**支持：boolean，字典转SQL，映射，实体转字典**
+
+**bool 扩展方法**
+
+```C#
+using JoreNoe.Extend;
+
+public class test{
+    
+    public void sendtest(){
+
+         /// <summary>
+ /// 可用枚举类型 默认 1
+ /// 类型1：IsOrDeny 是 否
+ /// 类型2：TrueOrFalse 真 假
+ /// 类型3：OnOrOff 开 关 
+ /// 类型4：EnableOrDisable 启用 关闭
+ /// </summary>
+        
+        var booltest = false;
+         var REsult = booltest.BooleanToString(AvailableType.IsOrDeny);
+        // 输出 否
+        
     }
 }
 ```
