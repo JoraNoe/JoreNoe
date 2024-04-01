@@ -6,74 +6,88 @@ using System.Data;
 
 namespace JoreNoe.DB.Dapper
 {
-    public enum IDBType { SqlServer = 0, MySql = 1 };
+    /// <summary>
+    /// 数据库枚举
+    /// </summary>
+    public enum IDBType { SqlServer, MySql };
 
-    public static class Registory
+    /// <summary>
+    /// 数据库配置参数
+    /// </summary>
+    public interface IDatabaseSettings
     {
-        /// <summary>
-        /// 链接
-        /// </summary>
-        public static IDbConnection _Connection { get; set; }
+        IDBType dbType { get; set; }
+        string connectionString { get; set; }
+        long mulitInsertBatchcount { get; set; }
+    }
 
-        /// <summary>
-        /// 类型
-        /// </summary>
-        public static IDBType ConnectionDbType { get; set; }
+    /// <summary>
+    /// 数据库使用服务
+    /// </summary>
+    public interface IDatabaseService
+    {
+        IDatabaseSettings DataBaseSettings { get; set; }
+        IDbConnection GetConnection();
+    }
 
-        /// <summary>
-        /// 链接字符串
-        /// </summary>
-        public static string ConnectionString { get; set; }
 
-        /// <summary>
-        /// 批次数量避免超时
-        /// </summary>
-        public static int BatchCount { get; set; }
-
-        /// <summary>
-        /// 创建链接
-        /// </summary>
-        /// <param name="connectionString"></param>
-        /// <param name="dbType"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="Exception"></exception>
-        private static IDbConnection CreateDbConnection(string connectionString, IDBType dbType)
+    public class DatabaseSettings : IDatabaseSettings
+    {
+        public DatabaseSettings(string connectionString, IDBType dbtype = IDBType.MySql, long mulitInsertBatchcount = 200000)
         {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
-
-            switch (dbType)
-            {
-                case IDBType.MySql:
-                    return new MySqlConnection(connectionString);
-                case IDBType.SqlServer:
-                    return new SqlConnection(connectionString);
-                default:
-                    throw new Exception("未知类型");
-            }
+            this.connectionString = connectionString;
+            this.dbType = dbtype;
+            this.mulitInsertBatchcount = mulitInsertBatchcount;
         }
+        public IDBType dbType { set; get; }
+        public string connectionString { set; get; }
+        public long mulitInsertBatchcount { set; get; }
+    }
 
-        /// <summary>
-        /// 初始化Dapper链接
-        /// </summary>
-        /// <param name="DBConnectionString"></param>
-        /// <param name="DBType"></param>
-        public static void SetInitDbContext(string DBConnectionString, IDBType DBType, int _BatchCount = 200000)
-        {
-            ConnectionDbType = DBType;
-            ConnectionString = DBConnectionString;
-            BatchCount = _BatchCount;
-            _Connection = CreateDbConnection(DBConnectionString, DBType);
-        }
 
-        /// <summary>
-        /// 服务注入
-        /// </summary>
-        /// <param name="Services"></param>
-        public static void AddJoreNoeDapper(this IServiceCollection Services)
+    public static class JoreNoeDapperExtensions
+    {
+        public static void AddJoreNoeDapper(this IServiceCollection services, string connectionString, IDBType dbtype, long mulitInsertBatchcount = 200000)
         {
-            _ = Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddSingleton<IDatabaseSettings>(new DatabaseSettings(connectionString, dbtype, mulitInsertBatchcount));
+            services.AddScoped<IDatabaseService, DatabaseService>();
+
         }
     }
+
+    public class DatabaseService : IDatabaseService
+    {
+        public DatabaseService(IDatabaseSettings dataBaseSettings)
+        {
+            this.DataBaseSettings = dataBaseSettings;
+        }
+
+        public DatabaseService(string connectionString, IDBType dbtype = IDBType.MySql, long mulitInsertBatchcount = 200000)
+        {
+            this.DataBaseSettings = new DatabaseSettings(connectionString,dbtype,mulitInsertBatchcount);
+        }
+
+        public IDatabaseSettings DataBaseSettings { get; set; }
+
+        public IDbConnection GetConnection()
+        {
+            if (this.DataBaseSettings == null)
+                throw new ArgumentException("Connection string cannot be null or empty.", nameof(this.DataBaseSettings));
+            if (string.IsNullOrEmpty(this.DataBaseSettings.connectionString))
+                throw new ArgumentException("Connection string cannot be null or empty.", nameof(this.DataBaseSettings.connectionString));
+
+            switch (this.DataBaseSettings.dbType)
+            {
+                case IDBType.MySql:
+                    return new MySqlConnection(this.DataBaseSettings.connectionString);
+                case IDBType.SqlServer:
+                    return new Microsoft.Data.SqlClient.SqlConnection(this.DataBaseSettings.connectionString);
+                default:
+                    throw new NotSupportedException($"Database type '{this.DataBaseSettings.dbType}' is not supported.");
+            }
+
+        }
+    }
+
 }

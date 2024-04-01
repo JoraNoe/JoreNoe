@@ -29,11 +29,13 @@ namespace JoreNoe.DB.Dapper
         /// <summary>
         /// 数据库上下文
         /// </summary>
-        public readonly IDbConnection DBConnection;
+        private readonly IDbConnection DBConnection;
 
-        public Repository()
+        private readonly IDatabaseService databaseService;
+        public Repository(IDatabaseService dataBaseService)
         {
-            this.DBConnection = Registory._Connection;
+            this.databaseService = dataBaseService;
+            this.DBConnection = dataBaseService.GetConnection();
         }
 
         /// <summary>
@@ -217,10 +219,6 @@ namespace JoreNoe.DB.Dapper
             if (ExistsValueInfo == null)
                 return default;
 
-
-            
-
-
             // 实体转换为字典
             var ConvertToDictionary = EntityToDictionaryExtend.ObjectToDictionary(Entity);
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
@@ -301,7 +299,7 @@ namespace JoreNoe.DB.Dapper
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
 
-            var BatchData = data.GetBatchData(Registory.BatchCount);
+            var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
             foreach (var batch in BatchData) this.InsertBatchNew(batch, GetTableName, GetColumns.Item1);
             //Parallel.ForEach(batches, batch => { this.InsertBatch(batch, GetTableName, GetColumns.Item1, GetColumns.Item2); });
         }
@@ -321,7 +319,7 @@ namespace JoreNoe.DB.Dapper
             //var batches = data.Batch(this.BatchCount); // 自定义批量扩展方法
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-            var BatchData = data.GetBatchData(Registory.BatchCount);
+            var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
             foreach (var batch in BatchData) await this.InsertBatchAsyncNew(batch, GetTableName, GetColumns.Item1).ConfigureAwait(false);
 
             //await Task.WhenAll(batches.Select(batch => this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1, GetColumns.Item2)));
@@ -342,7 +340,7 @@ namespace JoreNoe.DB.Dapper
             var GetTableName = this.GetTableName<T>(); //typeof(T).Name;
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-            var BatchData = data.GetBatchData(Registory.BatchCount);
+            var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
             foreach (var batch in BatchData) this.InsertBatchTransaction(batch, GetTableName, GetColumns.Item1);
         }
 
@@ -573,11 +571,6 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private async Task InsertBatchAsyncNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
-            //using (IDbConnection dbConnection = this.DBConnection)
-            //{
-            //dbConnection.Open();
-            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
             var insertQueue = new ConcurrentQueue<string>();
 
             // 使用并行循环将数据插入队列
@@ -595,9 +588,7 @@ namespace JoreNoe.DB.Dapper
             }
 
             await this.DBConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
-            //scope.Complete();
-            //}
-            //}
+
         }
 
         /// <summary>
@@ -696,21 +687,11 @@ namespace JoreNoe.DB.Dapper
         /// <typeparam name="TKey"></typeparam>
         /// <param name="Value"></param>
         /// <param name="tableName"></param>
-        /// <param name="InsertColumns"></param>
-        /// <param name="InsertColumnValues"></param>
         private void DeleteBatch<TKey>(TKey[] Value, string tableName, string ParamsKeyName)
         {
-            //using (IDbConnection dbConnection = this.DBConnection)
-            //using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
-            //dbConnection.Open();
-            // 使用 IN 子句
             string inClause = string.Join(",", Value.Select(param => $"{param}"));
             string sql = $"DELETE FROM {tableName} WHERE {ParamsKeyName} IN ({inClause})";
-
             this.DBConnection.Execute(sql);
-            //transactionScope.Complete();
-            //}
         }
 
 
