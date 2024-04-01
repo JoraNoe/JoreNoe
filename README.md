@@ -2,76 +2,125 @@
 
 安装方法
 
-| Build                                                     | NuGet                                                        | Downloads                                                    |
-| --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](https://img.shields.io/badge/NetCore-3.1-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="https://img.shields.io/nuget/dt/JoreNoe?label=Downloads" alt="NuGet Downloads"></a>
+| Build                                   | NuGet                                                        | Downloads                                                    |
+| --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](./assets/NetCore-3.1-green.svg+xml) | [![](./assets/JoreNoe.svg+xml)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="./assets/JoreNoe.svg+xml" alt="NuGet Downloads"></a> |
 
 ```C#
 Install-Package JoreNoe -Version 6.9.9
 ```
 
-### ORM使用说明
+# ORM使用说明
 
-##### 1.Dapper 使用
+**JoreNoe包目前支持数据库：Mysql , SqlServer** 
 
-首先第一步引用
+**支持，ORM框架 Dapper，EFCore** 
+
+
+
+## 1.Dapper 使用
+
+#### 首先第一步引用
 
 ```C#
 using JoreNoe.DB.Dapper
 ```
 
-第二步进行注册,写入StartUp 中  
+#### 第二步进行注册 
+
+在您的应用程序启动时，将服务添加到依赖注入容器中。您可以在 Startup.cs 文件中的 ConfigureServices 方法中调用 AddJoreNoeDapper 方法来注册服务。
 
 ```c#
- // SetInitDbContext
-// 参数1：数据库链接字符串
-//参数2：数据库类型，目前只支持MySql 和  SQLServer
-//参数3：批量插入分页大小 ，默认二十万条 ，根据实际需求进行修改
- Registory.SetInitDbContext("Server=localhost;Database=tempdata;User ID=jorenoe;Password=zeNnwfyD5ue2z81V;", IDBType.MySql);
- Service.AddJoreNoeDapper(); // 注入JoreNoe.Dapper 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddJoreNoeDapper("your_connection_string_here", IDBType.SqlServer);
+    // 或者
+    // services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql);
+}
 ```
 
-第三步实战使用
+#### **第三步使用服务**
 
 ```C#
-public class UserController
+public class YourService
 {
-    // 注入Dapper 
-     private readonly IRepository<Employees> Dapper;
-     public UserController(IRepository<Employees> Dapper)
-     {
-         this.Dapper = Dapper;
-     }
-    
-    // 测试方法
-    [HttpPost("test")]
-    public void test()
+    private readonly IRepository<test> TestRepository;
+
+    public YourService(IRepository<test> TestRepository)
     {
-        // 调用封装好的方法
-        this.Dapper.Add(new Employees { });
+        this.TestRepository = TestRepository;
     }
+
+    public void YourMethod()
+    {
+        this.TestRepository.Add(new ...);
+    }
+}
+```
+
+#### 属性获取
+
+```C#
+public class YourService
+{
+    private readonly IDatabaseService dataBaseService;
+
+    public YourService(IDatabaseService dataBaseService)
+    {
+        this.dataBaseService = dataBaseService;
+    }
+
+    public IDbConnection GetConnection()
+    {
+        this.dataBaseService.GetConnection();
+    }
+    
+    public string GetPropValue()
+    {
+        return this.dataBaseService.DataBaseSettings.connectionString; // 返回链接字符串
+        return this.dataBaseService.DataBaseSettings.dbType; // 返回数据库类型
+         return this.dataBaseService.DataBaseSettings.mulitInsertBatchcount; // 返回批量插入 一批次数量
+        
+    }
+    
 }
 ```
 
 
 
-#### 2.EntityFramework.Core使用
+#### 不使用注入方式
 
-##### 首先第一步引用
+```C#
+public class UserController
+{
+    var database = new Repository<test>(new DatabaseService("your_connection_string_here",默认Mysql,默认20万));
+    database.add(new test{...});
+}
+```
 
-1.在仓储项目中创建 
 
-​	1.1 RepositoryModule.cs
 
-​	1.2 IntegratedPlatformSupporRegister.cs  名字可随意 
+## 2.EntityFramework.Core使用
 
-2.创建上下文 
+#### 首先第一步引用
 
-​	2.1 IntegratedPlatformSupporDBContext.cs 名字随意 
+**1.在仓储项目中创建** 
 
-##### 第二步具体代码实现
+```C#
+1.1 RepositoryModule.cs
 
-1.1.RepositoryModule.cs 文件 具体代码实现
+1.2 IntegratedPlatformSupporRegister.cs  名字可随意 
+```
+
+**2.创建上下文** 
+
+```C#
+2.1 IntegratedPlatformSupporDBContext.cs 名字随意 
+```
+
+#### 第二步具体代码实现
+
+**1.1.RepositoryModule.cs 文件 具体代码实现**
 
 ```C#
 using Autofac;
@@ -91,7 +140,7 @@ namespace IntegratedPlatformSuppor.Repository
 }
 ```
 
-1.2.IntegratedPlatformSupporRegister.cs 文件具体代码实现
+**1.2.IntegratedPlatformSupporRegister.cs 文件具体代码实现**
 
 ```C#
 using JoreNoe;
@@ -121,7 +170,7 @@ namespace IntegratedPlatformSuppor.Repository
 
 ```
 
-2.1.IntegratedPlatformSupporDBContext.cs 文件具体代码实现
+**2.1.IntegratedPlatformSupporDBContext.cs 文件具体代码实现**
 
 ```C#
 using IntegratedPlatformSuppor.Domain.Entity;
@@ -172,11 +221,9 @@ namespace IntegratedPlatformSuppor.Repository
 
 #### 进行注册
 
-##### 第一步
+**1.使用AutoFac** 
 
-1.使用AutoFac 
-
-​	在项目中创建Autofac.json 文件 写入配置如下  根据实际情况进行自行调整
+	在项目中创建Autofac.json 文件 写入配置如下  根据实际情况进行自行调整
 
 ```json
 {
@@ -189,7 +236,7 @@ namespace IntegratedPlatformSuppor.Repository
 }
 ```
 
-2.WebApi 项目中 Program.cs 文件中写入 
+**2.WebApi 项目中 Program.cs 文件中写入** 
 
 ```C#
 using Autofac.Extensions.DependencyInjection;
@@ -229,7 +276,7 @@ namespace IntegratedPlatformSuppor.API
 
 ```
 
-3.StartUp.cs 中加入 
+**3.StartUp.cs 中加入** 
 
 ```C#
       public void ConfigureContainer(ContainerBuilder builder)
@@ -262,11 +309,9 @@ public class testDomainService :BaseRepository ,ItestDomainService
 }
 ```
 
-### 2.Redis 使用说明
+## 3.Redis 使用说明
 
-JoreNoe.DB.Redis 使用方法
-
-Startup 中注册上下文
+**JoreNoe.DB.Redis 使用方法    Startup 中注册上下文**
 
 ```C#
 //使用此方法进行注册 
@@ -275,3 +320,40 @@ Startup 中注册上下文
 //默认数据库（Int 类型 ）
 Register.SetInitRedisConfig(YourRedisConnection,InstanceName,defaultDB = 0)
 ```
+
+#### 如何使用
+
+**1.注入JoreNoe.Redis**
+
+```C#
+using  JoreNoe.Cache.Redis;
+
+public void ConfigureServices(IServiceCollection services)
+{
+    // 初始化参数
+   InitRedisConfig('链接字符串','实例名称',数据库默认0);
+    
+    // 使用JoreNoe.redis
+    this.AddJoreNoeRedis();
+}
+```
+
+**2.如何使用**
+
+```C#
+public class TestDomianService(){
+    private readonly IRedisManager RedisManager;
+    public testDomainService(
+       IRedisManager RedisManager)
+    {
+        this.RedisManager = RedisManager;
+    }
+
+    public TestValue test()
+    {
+        RedisManager.Add(KeyName,内容，失效时间（秒）);
+        return null;
+    }
+}
+```
+
