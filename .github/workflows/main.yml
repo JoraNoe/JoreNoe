@@ -24,8 +24,9 @@ jobs:
     # 2.runtime environment
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
-      with: 
-        dotnet-version: 3.1.100
+      with:
+        dotnet-version: 6.0.0
+        #dotnet-version: 3.1.100
     # 3.build
     - name: Build with dotnet
       run: dotnet build --configuration Release
