@@ -2,8 +2,8 @@
 
 namespace JoreNoe.Queue.RBMQ
 {
-    public interface ICustome
+    public interface ICustome<T> where T : class
     {
-        Task<T> ConSume<T>(CustomeContent<T> Context) where T : class;
+        Task<T> ConSume(CustomeContent<T> Context);
     }
 }
