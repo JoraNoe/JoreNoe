@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JoreNoe.Queue.RBMQ
@@ -41,53 +43,72 @@ namespace JoreNoe.Queue.RBMQ
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Custome"></param>
-        //public static void Receive<T>(ICustome<T> Custome) where T : class
-        //{
-        //    using (var connection = ConectionFactory.CreateConnection())
-        //    {
-        //        using (var channel = connection.CreateModel())
-        //        {
-        //            var consumer = new EventingBasicConsumer(channel);
-        //            channel.BasicConsume(QueueName, true, consumer);
-        //            consumer.Received += (model, ea) =>
-        //            {
-        //                var body = ea.Body;
-        //                var message = Encoding.UTF8.GetString(body.ToArray());
-
-        //                Custome.ConSume(new CustomeContent<T>
-        //                {
-        //                    QueueName = QueueName,
-        //                    Context = (T)JsonConvert.DeserializeObject(message)
-        //                });
-
-        //            };
-
-        //        }
-        //    }
-
-        //}
-        public static void Receive<T>(ICustome<T> Custome) where T : class
+        public  static void Receive<T>(ICustome<T> Custome, string QueueName) where T : class
         {
-            using (var connection = ConectionFactory.CreateConnection())
+            Task.Run(async () =>
             {
-                using (var channel = connection.CreateModel())
+                var connection = ConectionFactory.CreateConnection();
+                var channel = connection.CreateModel();
+                while (true)
                 {
+                    channel.QueueDeclare(queue: QueueName,
+                                             durable: false,
+                                             exclusive: false,
+                                             autoDelete: false,
+                                             arguments: null);
+
                     var consumer = new EventingBasicConsumer(channel);
-                    channel.BasicConsume(QueueName, true, consumer);
                     consumer.Received += (model, ea) =>
                     {
-                        var body = ea.Body;
-                        var message = Encoding.UTF8.GetString(body.ToArray());
-                        Custome.ConSume(new CustomeContent<T>
+                        var body = ea.Body.ToArray();
+                        var message = Encoding.UTF8.GetString(body);
+
+                        try
                         {
-                            QueueName = QueueName,
-                            Context = JsonConvert.DeserializeObject<T>(message)
-                        });
+                            if (IsValidJson(message))
+                            {
+                                Custome.ConSume(new CustomeContent<T>
+                                {
+                                    QueueName = QueueName,
+                                    Context = JsonConvert.DeserializeObject<T>(message)
+                                });
+                            }
+                            else
+                            {
+                                throw new Exception("无法序列化");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                            throw new Exception(ex.Message);
+                        }
+
                     };
+                    channel.BasicConsume(queue: QueueName,
+                                         autoAck: true,
+                                         consumer: consumer);
+                    await Task.Delay(1000);
                 }
-            }
+                
+
+            }).ConfigureAwait(false);
+                
+  
         }
 
+        static bool IsValidJson(string json)
+        {
+            try
+            {
+                JToken.Parse(json);
+                return true;
+            }
+            catch (JsonReaderException)
+            {
+                return false;
+            }
 
+        }
     }
 }

@@ -38,6 +38,7 @@ namespace JoreNoe.Queue.RBMQ
                 HostName = HostName,
                 UserName = UserName,
                 Password = Password,
+                Port = 5672,
                 VirtualHost = VirtualHost
             };
         }
