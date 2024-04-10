@@ -312,50 +312,54 @@ public class testDomainService :BaseRepository ,ItestDomainService
 
 ## 3.Redis 使用说明
 
-**JoreNoe.DB.Redis 使用方法    Startup 中注册上下文**
-
-```C#
-//使用此方法进行注册 
-//参数 Connection 你的Reids链接地址
-//实例名称   
-//默认数据库（Int 类型 ）
-Register.SetInitRedisConfig(YourRedisConnection,InstanceName,defaultDB = 0)
-```
-
 #### 如何使用
 
-**1.注入JoreNoe.Redis**
+**1.注入  JoreNoe Redis 中注册上下文**
+
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddJoreNoeRedis("your_connection_string_here", "InstanceName",DefaultDB=0);
+}
+```
+
+**2.如何使用Redis**
 
 ```C#
 using  JoreNoe.Cache.Redis;
 
-public void ConfigureServices(IServiceCollection services)
+public class RedisTest
 {
-    // 初始化参数
-   InitRedisConfig('链接字符串','实例名称',数据库默认0);
-    
-    // 使用JoreNoe.redis
-    this.AddJoreNoeRedis();
+    private readonly JoreNoe.Cache.Redis.IRedisManager ReadisManager;
+    public RedisTest(JoreNoe.Cache.Redis.IRedisManager ReadisManager) {
+        this.ReadisManager = ReadisManager;
+    }
+
+    public void test()
+    {
+        this.ReadisManager.Add("Test", "test", JoreNoe.Cache.Redis.ExpireModel.LongCache);
+
+        Console.WriteLine(this.ReadisManager.Get("Test"));
+    }
 }
 ```
 
-**2.如何使用**
+##### 	3.直接调用
 
 ```C#
-public class TestDomianService(){
-    private readonly IRedisManager RedisManager;
-    public testDomainService(
-       IRedisManager RedisManager)
-    {
-        this.RedisManager = RedisManager;
-    }
+JoreNoe.Cache.Redis.JoreNoeRedisBaseService RedisDataBase = new JoreNoe.Cache.Redis.JoreNoeRedisBaseService(new JoreNoe.Cache.Redis.SettingConfigs {
+    ConnectionString= "localhost:6379,password=mima",
+    DefaultDB=1,
+    InstanceName="TestRedis"
+});
 
-    public TestValue test()
-    {
-        RedisManager.Add(KeyName,内容，失效时间（秒）);
-        return null;
-    }
-}
+JoreNoe.Cache.Redis.IRedisManager RedisManager = new JoreNoe.Cache.Redis.RedisManager(RedisDataBase);
+
+RedisManager.Add("Test","test", JoreNoe.Cache.Redis.ExpireModel.LongCache);
+
+Console.WriteLine(RedisManager.Get("Test"));
+
+Console.ReadLine();
 ```
 
 # 发送消息
