@@ -1,64 +1,89 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using JoreNoe.DB.Dapper;
+using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace JoreNoe.Cache.Redis
 {
 
-    public static class Register
+    public interface ISettingConfigs
     {
         /// <summary>
-        /// 链接字符串
+        /// 字符串
         /// </summary>
-        private static string _ConnectionString { get; set; }
+        string ConnectionString { get; set; }
 
         /// <summary>
         /// 实例名称
         /// </summary>
-        private static string _InstanceName { get; set; }
+        string InstanceName { get; set; }
 
         /// <summary>
         /// 默认数据库
         /// </summary>
-        private static int _DefaultDB { get; set; }
+        int DefaultDB { get; set; }
+    }
 
-        public static ConcurrentDictionary<string, ConnectionMultiplexer> _connections { get; set; }
-
-        public static void InitRedisConfig(string ConnectionString, string InstanceName, int DefaultDB = 0)
+    /// <summary>
+    /// 配置文件复制
+    /// </summary>
+    public class SettingConfigs : ISettingConfigs
+    {
+        public SettingConfigs()
         {
-            _ConnectionString = ConnectionString;
-            _InstanceName = InstanceName;
-            _DefaultDB = DefaultDB;
-            _connections = new ConcurrentDictionary<string, ConnectionMultiplexer>();
+
+        }
+        public SettingConfigs(string ConnectionString, string InstanceName, int DefaultDB = 0)
+        {
+            this.ConnectionString = ConnectionString;
+            this.InstanceName = InstanceName;
+            this.DefaultDB = DefaultDB;
         }
 
-        /// <summary>
-        /// 获取数据库
-        /// </summary>
-        /// <returns></returns>
-        public static IDatabase GetDatabase()
+        public string ConnectionString { get; set; }
+        public string InstanceName { get; set; }
+        public int DefaultDB { get; set; }
+    }
+
+    /// <summary>
+    /// Redis基础接口
+    /// </summary>
+    public interface IJoreNoeRedisBaseService
+    {
+        ConcurrentDictionary<string, ConnectionMultiplexer> ConnectionDB { get; set; }
+
+        IDatabase RedisDataBase { get; set; }
+    }
+
+    /// <summary>
+    /// 实现方法
+    /// </summary>
+    public class JoreNoeRedisBaseService : IJoreNoeRedisBaseService
+    {
+        private readonly ISettingConfigs SettingConfigs;
+        public ConcurrentDictionary<string, ConnectionMultiplexer> ConnectionDB { set; get; }
+        public IDatabase RedisDataBase { get; set; }
+
+        public JoreNoeRedisBaseService(ISettingConfigs SettingConfigs)
         {
-            return GetConnect().GetDatabase(_DefaultDB);
+            this.SettingConfigs = SettingConfigs;
+            this.ConnectionDB = new ConcurrentDictionary<string, ConnectionMultiplexer>();
+            var GetConnection = this.ConnectionDB.GetOrAdd(this.SettingConfigs.InstanceName, Instance => ConnectionMultiplexer.Connect(this.SettingConfigs.ConnectionString));
+            this.RedisDataBase = GetConnection.GetDatabase(this.SettingConfigs.DefaultDB);
         }
-        /// <summary>
-        /// 获取ConnectionMultiplexer
-        /// </summary>
-        /// <returns></returns>
-        private static ConnectionMultiplexer GetConnect()
+    }
+
+    /// <summary>
+    /// 实用类
+    /// </summary>
+    public static class JoreNoeRedisExtensions
+    {
+        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, string InstanceName, int DefaultDB = 0)
         {
-            return _connections.GetOrAdd(_InstanceName, p => ConnectionMultiplexer.Connect(_ConnectionString));
+            services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
+            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, InstanceName, DefaultDB));
+            services.AddScoped<IDatabaseService, DatabaseService>();
         }
-
-
-        /// <summary>
-        /// 服务
-        /// </summary>
-        /// <param name="Services"></param>
-        public static void AddJoreNoeRedis(this IServiceCollection Services)
-        {
-            _ = Services.AddSingleton<IRedisManager, RedisManager>();
-        }
-
-
     }
 }

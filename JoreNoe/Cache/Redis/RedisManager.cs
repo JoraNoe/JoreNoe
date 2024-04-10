@@ -3,16 +3,19 @@ using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace JoreNoe.Cache.Redis
 {
     public class RedisManager : IRedisManager
     {
-        private IDatabase RedisDataBase;
+        private readonly IDatabase RedisDataBase;
+        private readonly IJoreNoeRedisBaseService JoreNoeRedisBaseService;
 
-        public RedisManager()
+        public RedisManager(IJoreNoeRedisBaseService JoreNoeRedisBaseService)
         {
-            this.RedisDataBase = Register.GetDatabase();
+            this.JoreNoeRedisBaseService = JoreNoeRedisBaseService;
+            this.RedisDataBase = this.JoreNoeRedisBaseService.RedisDataBase;
         }
 
         /// <summary>
@@ -165,20 +168,6 @@ namespace JoreNoe.Cache.Redis
         public bool Exists(string KeyName)
         {
             return this.RedisDataBase.KeyExists(KeyName);
-        }
-
-        /// <summary>
-        /// 释放
-        /// </summary>
-        public void Dispose()
-        {
-            if (Register._connections != null && Register._connections.Count > 0)
-            {
-                foreach (var item in Register._connections.Values)
-                {
-                    item.Close();
-                }
-            }
         }
 
         /// <summary>

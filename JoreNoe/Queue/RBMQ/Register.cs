@@ -29,7 +29,7 @@ namespace JoreNoe.Queue.RBMQ
         /// <param name="Password"></param>
         /// <param name="VirtualHost"></param>
         /// <param name="SendType"></param>
-        public static void RegisterQueue(string HostName, string UserName, string Password, string VirtualHost, string ChannelName)
+        public static void RegisterQueue(string HostName, string UserName, string Password, string VirtualHost, string ChannelName,int Port = 5672)
         {
             _ChannelName = ChannelName;
 
@@ -38,7 +38,7 @@ namespace JoreNoe.Queue.RBMQ
                 HostName = HostName,
                 UserName = UserName,
                 Password = Password,
-                Port = 5672,
+                Port = Port,
                 VirtualHost = VirtualHost
             };
         }

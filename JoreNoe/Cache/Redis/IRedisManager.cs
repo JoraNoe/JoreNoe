@@ -23,8 +23,6 @@ namespace JoreNoe.Cache.Redis
 
         IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180);
 
-        void Dispose();
-
         string AddOrGet(string KeyName, string Context, int Expire = 180);
 
         string Get(string KeyName);
