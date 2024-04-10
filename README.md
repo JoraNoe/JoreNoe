@@ -414,3 +414,95 @@ public class test{
 }
 ```
 
+##### 2.映射（AutoMapper）
+
+```C#
+// 直接使用方式 
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.CreateMap<test, test1>();
+    cfg.CreateMap<test1, test>();
+});
+var mapper = new Mapper(config);
+JoreNoe.Extend.JoreNoeObjectToObjectExtension.UseJoreNoeObjectToOBject(mapper);
+var test = new test() {
+    name = "c",
+    age=123
+};
+var test1 = new test1();
+// 将 test 数据 给 test1
+var ment = test.Map(test1);
+Console.ReadLine();
+
+// NET 使用方式
+// StartUp 
+ public partial class Startup
+    {
+        protected void AddAutoMapper(IServiceCollection services)
+        {
+            services.TryAddSingleton<MapperConfigurationExpression>();
+            services.TryAddSingleton(serviceProvider =>
+            {
+                var mapperConfigurationExpression = serviceProvider.GetRequiredService<MapperConfigurationExpression>();
+                var instance = new MapperConfiguration(mapperConfigurationExpression);
+                
+                instance.AssertConfigurationIsValid();
+                return instance;
+            });
+            services.TryAddSingleton(serviceProvider =>
+            {
+                var mapperConfiguration = serviceProvider.GetRequiredService<MapperConfiguration>();
+                return mapperConfiguration.CreateMapper();
+            });
+        }
+        public void UseAutoMapper(IApplicationBuilder applicationBuilder)
+        {
+            var config = applicationBuilder.ApplicationServices.GetRequiredService<MapperConfigurationExpression>();
+            
+            //订单
+            config.CreateMap<OrderModel, Order>(MemberList.None);
+            config.CreateMap<Order, OrderValue>(MemberList.None);
+
+            //config.CreateMap<User, UserInfo>().ForMember(d => d.names, option => option.MapFrom(d => d.name)).ReverseMap();
+        }
+     
+     
+     // Program
+      public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+             Host.CreateDefaultBuilder(args)
+             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+             .ConfigureAppConfiguration((appConfiguration, builder) =>
+             {
+                 builder
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("Configs/Redis.json", optional: false, reloadOnChange: true)
+               .AddJsonFile("Configs/Exceptionless.json", optional: false, reloadOnChange: true)
+               .AddJsonFile("Configs/WeChatOpenConfig.json", optional: false, reloadOnChange: true)
+               .AddEnvironmentVariables().Build();
+             })
+             .ConfigureWebHostDefaults(webBuilder =>
+             {
+                 webBuilder.UseStartup<Startup>();
+                 webBuilder.UseUrls("http://*:5000");
+             });
+     
+     
+     // StartUp Configure 中  
+     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment() || env.IsProduction())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZerroMovies.API v1"));
+            }
+            app.UseObjectToOBjectExtension();
+        }
+```
+
+
