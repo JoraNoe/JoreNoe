@@ -312,50 +312,54 @@ public class testDomainService :BaseRepository ,ItestDomainService
 
 ## 3.Redis 使用说明
 
-**JoreNoe.DB.Redis 使用方法    Startup 中注册上下文**
-
-```C#
-//使用此方法进行注册 
-//参数 Connection 你的Reids链接地址
-//实例名称   
-//默认数据库（Int 类型 ）
-Register.SetInitRedisConfig(YourRedisConnection,InstanceName,defaultDB = 0)
-```
-
 #### 如何使用
 
-**1.注入JoreNoe.Redis**
+**1.注入  JoreNoe Redis 中注册上下文**
+
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddJoreNoeRedis("your_connection_string_here", "InstanceName",DefaultDB=0);
+}
+```
+
+**2.如何使用Redis**
 
 ```C#
 using  JoreNoe.Cache.Redis;
 
-public void ConfigureServices(IServiceCollection services)
+public class RedisTest
 {
-    // 初始化参数
-   InitRedisConfig('链接字符串','实例名称',数据库默认0);
-    
-    // 使用JoreNoe.redis
-    this.AddJoreNoeRedis();
+    private readonly JoreNoe.Cache.Redis.IRedisManager ReadisManager;
+    public RedisTest(JoreNoe.Cache.Redis.IRedisManager ReadisManager) {
+        this.ReadisManager = ReadisManager;
+    }
+
+    public void test()
+    {
+        this.ReadisManager.Add("Test", "test", JoreNoe.Cache.Redis.ExpireModel.LongCache);
+
+        Console.WriteLine(this.ReadisManager.Get("Test"));
+    }
 }
 ```
 
-**2.如何使用**
+##### 	3.直接调用
 
 ```C#
-public class TestDomianService(){
-    private readonly IRedisManager RedisManager;
-    public testDomainService(
-       IRedisManager RedisManager)
-    {
-        this.RedisManager = RedisManager;
-    }
+JoreNoe.Cache.Redis.JoreNoeRedisBaseService RedisDataBase = new JoreNoe.Cache.Redis.JoreNoeRedisBaseService(new JoreNoe.Cache.Redis.SettingConfigs {
+    ConnectionString= "localhost:6379,password=mima",
+    DefaultDB=1,
+    InstanceName="TestRedis"
+});
 
-    public TestValue test()
-    {
-        RedisManager.Add(KeyName,内容，失效时间（秒）);
-        return null;
-    }
-}
+JoreNoe.Cache.Redis.IRedisManager RedisManager = new JoreNoe.Cache.Redis.RedisManager(RedisDataBase);
+
+RedisManager.Add("Test","test", JoreNoe.Cache.Redis.ExpireModel.LongCache);
+
+Console.WriteLine(RedisManager.Get("Test"));
+
+Console.ReadLine();
 ```
 
 # 发送消息
@@ -409,4 +413,96 @@ public class test{
     }
 }
 ```
+
+##### 2.映射（AutoMapper）
+
+```C#
+// 直接使用方式 
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.CreateMap<test, test1>();
+    cfg.CreateMap<test1, test>();
+});
+var mapper = new Mapper(config);
+JoreNoe.Extend.JoreNoeObjectToObjectExtension.UseJoreNoeObjectToOBject(mapper);
+var test = new test() {
+    name = "c",
+    age=123
+};
+var test1 = new test1();
+// 将 test 数据 给 test1
+var ment = test.Map(test1);
+Console.ReadLine();
+
+// NET 使用方式
+// StartUp 
+ public partial class Startup
+    {
+        protected void AddAutoMapper(IServiceCollection services)
+        {
+            services.TryAddSingleton<MapperConfigurationExpression>();
+            services.TryAddSingleton(serviceProvider =>
+            {
+                var mapperConfigurationExpression = serviceProvider.GetRequiredService<MapperConfigurationExpression>();
+                var instance = new MapperConfiguration(mapperConfigurationExpression);
+                
+                instance.AssertConfigurationIsValid();
+                return instance;
+            });
+            services.TryAddSingleton(serviceProvider =>
+            {
+                var mapperConfiguration = serviceProvider.GetRequiredService<MapperConfiguration>();
+                return mapperConfiguration.CreateMapper();
+            });
+        }
+        public void UseAutoMapper(IApplicationBuilder applicationBuilder)
+        {
+            var config = applicationBuilder.ApplicationServices.GetRequiredService<MapperConfigurationExpression>();
+            
+            //订单
+            config.CreateMap<OrderModel, Order>(MemberList.None);
+            config.CreateMap<Order, OrderValue>(MemberList.None);
+
+            //config.CreateMap<User, UserInfo>().ForMember(d => d.names, option => option.MapFrom(d => d.name)).ReverseMap();
+        }
+     
+     
+     // Program
+      public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+             Host.CreateDefaultBuilder(args)
+             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+             .ConfigureAppConfiguration((appConfiguration, builder) =>
+             {
+                 builder
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("Configs/Redis.json", optional: false, reloadOnChange: true)
+               .AddJsonFile("Configs/Exceptionless.json", optional: false, reloadOnChange: true)
+               .AddJsonFile("Configs/WeChatOpenConfig.json", optional: false, reloadOnChange: true)
+               .AddEnvironmentVariables().Build();
+             })
+             .ConfigureWebHostDefaults(webBuilder =>
+             {
+                 webBuilder.UseStartup<Startup>();
+                 webBuilder.UseUrls("http://*:5000");
+             });
+     
+     
+     // StartUp Configure 中  
+     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment() || env.IsProduction())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZerroMovies.API v1"));
+            }
+            app.UseObjectToOBjectExtension();
+        }
+```
+
 
