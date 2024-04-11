@@ -1,80 +1,100 @@
-﻿using System;
+﻿using JoreNoe.Cache.Redis;
+using JoreNoe.DB.Dapper;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Net;
 using System.Net.Mail;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace JoreNoe.Message
 {
-    // 邮箱API
-    public class EmailMessageAPI
+    public interface IEmailMessageSettingConfigs
     {
-        private string SmtpUserName;
-        private string SmtpHost;
-        private int SmtpPort;
-        private string Password;
-        private bool EnableSSL;
+        string SmtpUserName { get; set; }
+        string SmtpHost { get; set; }
+        int SmtpPort { get; set; }
+        string Password { get; set; }
+        bool EnableSSL { set; get; }
+    }
 
-        public EmailMessageAPI()
+    public class EmailMessageSettingConfigs : IEmailMessageSettingConfigs
+    {
+        public EmailMessageSettingConfigs() { }
+        public EmailMessageSettingConfigs(string SmtpUserName,string SmtpHost,int SmtpPort,string Password,bool EnableSSL = false)
         {
-
+            this.SmtpPort = SmtpPort;
+            this.SmtpHost = SmtpHost;
+            this.SmtpUserName = SmtpUserName;
+            this.EnableSSL = EnableSSL;
+            this.Password = Password;
         }
 
-        /// <summary>
-        /// 注册
-        /// </summary>
-        /// <param name="smtpUserName">发送者</param>
-        /// <param name="smtpHost">SMTP地址</param>
-        /// <param name="smtpPort">SMTP端口</param>
-        /// <param name="password">密码（这里的密码是 SMTP授权认证码）</param>
-        /// <param name="enableSSL">是否开启SSL认证</param>
-        public EmailMessageAPI(string smtpUserName, string smtpHost, int smtpPort, string password, bool enableSSL = false)
+
+
+        public string SmtpUserName { get; set; }
+        public string SmtpHost { get; set; }
+        public int SmtpPort { get; set; }
+        public string Password { get; set; }
+        public bool EnableSSL { get; set; }
+    }
+
+    /// <summary>
+    /// 邮箱消息
+    /// </summary>
+    public interface IEmailMessageAPI
+    {
+        Task<bool> SendAsync(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false);
+        bool Send(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false);
+    }
+
+    public class EmailMessageAPI : IEmailMessageAPI
+    {
+        public IEmailMessageSettingConfigs EmailMessageSettingConfigs { get; set; }
+        public EmailMessageAPI(IEmailMessageSettingConfigs EmailMessageSettingConfigs)
         {
-            SmtpUserName = smtpUserName;
-            SmtpHost = smtpHost;
-            SmtpPort = smtpPort;
-            Password = password;
-            EnableSSL = enableSSL;
+            this.EmailMessageSettingConfigs= EmailMessageSettingConfigs;
         }
 
-        
-
-        /// <summary>
-        /// 注册
-        /// </summary>
-        /// <param name="smtpUserName">发送者</param>
-        /// <param name="smtpHost">SMTP地址</param>
-        /// <param name="smtpPort">SMTP端口</param>
-        /// <param name="password">密码（这里的密码是 SMTP授权认证码）</param>
-        /// <param name="enableSSL">是否开启SSL认证</param>
-        public void RegisterEmail(string smtpUserName, string smtpHost, int smtpPort, string password, bool enableSSL = false)
+        public bool Send(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false)
         {
-            SmtpUserName = smtpUserName;
-            SmtpHost = smtpHost;
-            SmtpPort = smtpPort;
-            Password = password;
-            EnableSSL = enableSSL;
-        
+            try
+            {
+                using (var smtpClient = new SmtpClient(this.EmailMessageSettingConfigs.SmtpHost, this.EmailMessageSettingConfigs.SmtpPort))
+                {
+                    smtpClient.Credentials = new NetworkCredential(this.EmailMessageSettingConfigs.SmtpUserName,this.EmailMessageSettingConfigs.Password);
+                    smtpClient.EnableSsl = this.EmailMessageSettingConfigs.EnableSSL;
+
+                    var message = new MailMessage
+                    {
+                        From = new MailAddress(this.EmailMessageSettingConfigs.SmtpUserName),
+                        Subject = Subject,
+                        Body = Body,
+                        IsBodyHtml = IsBodyHTML
+                    };
+                    message.To.Add(ToEmailUser);
+
+                    smtpClient.Send(message);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        /// <summary>
-        /// 发送邮件短信
-        /// </summary>
-        /// <param name="ToEmailUser">接收人</param>
-        /// <param name="Subject">标题</param>
-        /// <param name="Body">主题内容</param>
-        /// <param name="IsBodyHTML">是否开启兼容HTML</param>
-        /// <returns></returns>
         public async Task<bool> SendAsync(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false)
         {
             try
             {
-                using (var smtpClient = new SmtpClient(SmtpHost, SmtpPort))
+                using (var smtpClient = new SmtpClient(this.EmailMessageSettingConfigs.SmtpHost, this.EmailMessageSettingConfigs.SmtpPort))
                 {
-                    smtpClient.Credentials = new NetworkCredential(SmtpUserName, Password);
-                    smtpClient.EnableSsl = EnableSSL;
+                    smtpClient.Credentials = new NetworkCredential(this.EmailMessageSettingConfigs.SmtpUserName, this.EmailMessageSettingConfigs.Password);
+                    smtpClient.EnableSsl = this.EmailMessageSettingConfigs.EnableSSL;
                     var message = new MailMessage
                     {
-                        From = new MailAddress(SmtpUserName),
+                        From = new MailAddress(this.EmailMessageSettingConfigs.SmtpUserName),
                         Subject = Subject,
                         Body = Body,
                         IsBodyHtml = IsBodyHTML
@@ -90,41 +110,14 @@ namespace JoreNoe.Message
                 throw ex;
             }
         }
+    }
 
-        /// <summary>
-        /// 发送邮件短信
-        /// </summary>
-        /// <param name="ToEmailUser">接收人</param>
-        /// <param name="Subject">标题</param>
-        /// <param name="Body">主题内容</param>
-        /// <param name="IsBodyHTML">是否开启兼容HTML</param>
-        /// <returns></returns>
-        public bool Send(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false)
+    public static class JoreNoeEmailMessageExtensions 
+    { 
+        public static void AddJoreNoeEmailMessage(this IServiceCollection services, string SmtpUserName, string SmtpHost, int SmtpPort, string Password, bool EnableSSL = false)
         {
-            try
-            {
-                using (var smtpClient = new SmtpClient(SmtpHost, SmtpPort))
-                {
-                    smtpClient.Credentials = new NetworkCredential(SmtpUserName, Password);
-                    smtpClient.EnableSsl = EnableSSL;
-
-                    var message = new MailMessage
-                    {
-                        From = new MailAddress(SmtpUserName),
-                        Subject = Subject,
-                        Body = Body,
-                        IsBodyHtml = IsBodyHTML
-                    };
-                    message.To.Add(ToEmailUser);
-
-                    smtpClient.Send(message);
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            services.AddSingleton<IEmailMessageSettingConfigs>(new EmailMessageSettingConfigs(SmtpUserName, SmtpHost, SmtpPort, Password, EnableSSL));
+            services.AddScoped(typeof(IEmailMessageAPI), typeof(EmailMessageAPI));
         }
     }
 }

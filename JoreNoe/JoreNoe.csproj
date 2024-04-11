@@ -3,8 +3,8 @@
   <PropertyGroup>
     <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
 	  <TargetFramework>NET6.0</TargetFramework>
-    <Version>6.9.9</Version>
-    <Description> NET 6 版本 Dapper 增加新方法，优化Dapper封装</Description>
+    <Version>6.9.9.1</Version>
+    <Description> NET 6 版本 优化使用方式，注册方式和调整内容</Description>
     <Authors>Jth.JoreNoe</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <!--<UseWpf>True</UseWpf>

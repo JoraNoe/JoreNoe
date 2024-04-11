@@ -39,7 +39,6 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             
-           
 
             Console.ReadLine();
         }
@@ -81,3 +80,14 @@ namespace ConsoleApp1
 
 //// 将 test 数据 给 test1
 //var ment = test.Map(test1);
+
+
+// 邮箱
+//JoreNoe.Message.IEmailMessageAPI MessageAPI = new JoreNoe.Message.EmailMessageAPI(new JoreNoe.Message.EmailMessageSettingConfigs { 
+//    SmtpHost= "smtp.qiye.aliyun.com",
+//    Password="zw.047600",
+//    SmtpPort=25,
+//    SmtpUserName= "postmaster@jorenoe.top"
+//});
+
+//MessageAPI.Send("jorenoe@126.com","测试接口","测试数据");
