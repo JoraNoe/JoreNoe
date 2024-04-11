@@ -91,3 +91,6 @@ namespace ConsoleApp1
 //});
 
 //MessageAPI.Send("jorenoe@126.com","测试接口","测试数据");
+
+// Dapper 
+// Registory.SetInitDbContext("Server=124.70.12.71;Database=jorenoe;User ID=root;Password=jorenoe123;", IDBType.MySql,500000);
