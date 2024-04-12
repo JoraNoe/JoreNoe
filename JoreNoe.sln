@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JoreNoe", "JoreNoe\JoreNoe.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{FCAFEABB-740E-44D2-B163-0FDDBE5FD845}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestNET6Project", "TestNET6Project\TestNET6Project.csproj", "{C16ADE38-B726-4230-A327-1886FE915045}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,26 @@ Global
 		{FCAFEABB-740E-44D2-B163-0FDDBE5FD845}.Release|x64.Build.0 = Release|Any CPU
 		{FCAFEABB-740E-44D2-B163-0FDDBE5FD845}.Release|x86.ActiveCfg = Release|Any CPU
 		{FCAFEABB-740E-44D2-B163-0FDDBE5FD845}.Release|x86.Build.0 = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|x64.Build.0 = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Debug|x86.Build.0 = Debug|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|ARM32.Build.0 = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|ARM64.Build.0 = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|x64.ActiveCfg = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|x64.Build.0 = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|x86.ActiveCfg = Release|Any CPU
+		{C16ADE38-B726-4230-A327-1886FE915045}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
