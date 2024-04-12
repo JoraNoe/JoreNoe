@@ -38,7 +38,29 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            
+
+            var List  = new List<test>() { 
+            new test{ name="12"  },
+            new test{ name="13"  },
+            new test{ name="14"  },
+            new test{ name="15"  }
+            };
+
+            var list1 = new HashSet<string>() { "12","15" };
+
+            List = List.Where(d => !list1.Contains(d.name)).ToList();
+
+
+            var Templist = "123,";
+
+            var Get = (Templist ?? string.Empty);
+
+            var ment = new HashSet<string>(Get.Split(new[] { ','},StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+
+            foreach (var m in ment)
+            {
+                Console.WriteLine(m);
+            }
 
             Console.ReadLine();
         }
