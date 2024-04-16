@@ -23,7 +23,7 @@ namespace TestNET6Project.Controllers
         {
 
 
-            //var a = int.Parse("s");
+            var a = int.Parse("s");
 
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

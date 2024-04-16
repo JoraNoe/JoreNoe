@@ -1,15 +1,28 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NPOI.Util;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace JoreNoe.Middleware
 {
+    public interface IJorenoeRuningRequestLogging
+    {
+        /// <summary>
+        /// 返回信息
+        /// </summary>
+        /// <returns></returns>
+        Task RunningRequestLogging(JorenoeRuningRequestLoggingModel Context);
+    }
+
     /// <summary>
     /// 运行日志获取内容
     /// </summary>
@@ -19,7 +32,7 @@ namespace JoreNoe.Middleware
         /// 开始时间
         /// </summary>
         public DateTime StartTime { get; set; }
-        
+
         /// <summary>
         /// 请求方法
         /// </summary>
@@ -29,7 +42,7 @@ namespace JoreNoe.Middleware
         /// 请求路径
         /// </summary>
         public string Path { get; set; }
-        
+
         /// <summary>
         /// Get请求参数
         /// </summary>
@@ -66,6 +79,9 @@ namespace JoreNoe.Middleware
         public TimeSpan Duration { get; set; }
     }
 
+    /// <summary>
+    /// 回调逻辑
+    /// </summary>
     public class APIGlobalRuningRequestLoggingMiddleware
     {
         private readonly RequestDelegate _next;
@@ -84,14 +100,15 @@ namespace JoreNoe.Middleware
             var method = request.Method;
             var path = request.Path;
             var queryString = request.QueryString;
-            var requestBody = await GetRequestBodyAsync(request);
+            var requestBody = await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
 
             await _next(context);
 
             var endTime = DateTime.UtcNow;
             var duration = endTime - startTime;
 
-            _callback(new JorenoeRuningRequestLoggingModel
+
+            var Entity = new JorenoeRuningRequestLoggingModel
             {
                 StartTime = startTime,
                 Method = method,
@@ -103,34 +120,94 @@ namespace JoreNoe.Middleware
                 Hsot = request.Host.ToString(),
                 Scheme = request.Scheme,
                 FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
-            });
+            };
+
+            // 回调 
+            _callback(Entity);
         }
-
-        private async Task<string> GetRequestBodyAsync(HttpRequest request)
-        {
-            var body = request.Body;
-            if (body.CanSeek)
-            {
-                body.Seek(0, SeekOrigin.Begin);
-            }
-
-            var requestBody = await new StreamReader(body).ReadToEndAsync();
-
-            if (body.CanSeek)
-            {
-                body.Seek(0, SeekOrigin.Begin);
-            }
-
-            return requestBody;
-        }
-
     }
+
+    /// <summary>
+    /// 接口集成逻辑
+    /// </summary>
+    /// <typeparam name="Entity"></typeparam>
+    public class APIGlobalInefaceRuningRequestLoggingMiddleware<Entity>
+        where Entity:class,IJorenoeRuningRequestLogging
+    {
+        private readonly RequestDelegate _next;
+        private readonly Entity _entity;
+        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next,Entity entity) {
+            _next = next;
+            _entity = entity;
+        }
+
+        public async Task Invoke(HttpContext context)
+        {
+            var startTime = DateTime.UtcNow;
+
+            var request = context.Request;
+            var method = request.Method;
+            var path = request.Path;
+            var queryString = request.QueryString;
+            var requestBody = await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
+
+            await _next(context);
+
+            var endTime = DateTime.UtcNow;
+            var duration = endTime - startTime;
+
+
+            var EntityData = new JorenoeRuningRequestLoggingModel
+            {
+                StartTime = startTime,
+                Method = method,
+                Path = path,
+                QueryString = queryString,
+                RequestBody = requestBody,
+                Duration = duration,
+                Headers = JsonConvert.SerializeObject(request.Headers),
+                Hsot = request.Host.ToString(),
+                Scheme = request.Scheme,
+                FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
+            };
+
+            await _entity.RunningRequestLogging(EntityData).ConfigureAwait(false);
+        }
+    }
+
+    
 
     public static class JoreNoeRequestLoggingMiddlewareExtensions
     {
+        /// <summary>
+        /// 直接使用的全局系统请求日志中间件
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseJoreNoeRequestLoggingMiddleware(this IApplicationBuilder builder, Action<JorenoeRuningRequestLoggingModel> callback)
         {
             return builder.UseMiddleware<APIGlobalRuningRequestLoggingMiddleware>(callback);
+        }
+
+        /// <summary>
+        /// 使用全局系统请求日志中间件
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void UseJoreNoeRequestLoggingMiddleware(this IApplicationBuilder builder)
+        {
+            builder.UseMiddleware<APIGlobalInefaceRuningRequestLoggingMiddleware<IJorenoeRuningRequestLogging>>();
+        }
+
+        /// <summary>
+        /// 添加全局系统请求日志中间件
+        /// </summary>
+        /// <typeparam name="Entity">要使用得类</typeparam>
+        /// <param name="Service"></param>
+        public static void AddJoreNoeRequestLoggingMiddleware<Entity>(this IServiceCollection Service)
+            where Entity : class, IJorenoeRuningRequestLogging
+        {
+            Service.AddSingleton<IJorenoeRuningRequestLogging, Entity>();
         }
     }
 
