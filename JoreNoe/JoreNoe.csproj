@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>6.9.9.3</Version>
+		<Version>6.9.9.4</Version>
 		<Description>增加WebAPI 全局日志中间件</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
