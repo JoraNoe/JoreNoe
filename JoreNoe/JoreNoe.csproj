@@ -8,7 +8,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/JoraNoe/JoreNoe/tree/maint</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/JoraNoe/JoreNoe/tree/main</PackageProjectUrl>
-		<PackageIconUrl>https://avatars.githubusercontent.com/u/103556099</PackageIconUrl>
+		<!--<PackageIconUrl>https://avatars.githubusercontent.com/u/103556099</PackageIconUrl>-->
+		<PackageIconUrl>https://avatars.githubusercontent.com/u/125747954</PackageIconUrl>
 		<RepositoryType>git</RepositoryType>
 		<LangVersion>latest</LangVersion>
 		<ApplicationIcon>JoreNoe.ico</ApplicationIcon>
@@ -24,13 +25,6 @@
 	  <Compile Remove="DB\Services\**" />
 	  <EmbeddedResource Remove="DB\Services\**" />
 	  <None Remove="DB\Services\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="JoreNoe.ico" />
-	  <Content Include="README.md">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,14 +55,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="JoreNoe-Old1.ico">
+	  <None Include="JoreNoe-Old1.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="JoreNoe.ico">
+	  <None Include="JoreNoe.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="JoreNoe.nuspec">
+	  <None Include="nuget.exe">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Include="README.md">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
+
+
+
 </Project>
