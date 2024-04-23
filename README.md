@@ -17,7 +17,7 @@ Install-Package JoreNoe -Version 6.9.9.4
 #### **[ORM使用](#OPT1)**
 
 - **[Dapper教程](#OPT1-1)**
-- **[EntityFramework.Core教程](#OPT1-2])**
+- **[EntityFramework.Core教程](#OPT1-2)**
 
 #### [Redis使用](#OPT2)
 
