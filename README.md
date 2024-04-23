@@ -14,6 +14,7 @@ Install-Package JoreNoe -Version 6.9.9.4
 # 文档目录
 
 
+
 #### **[ORM使用](#OPT1)**
 
 - **[Dapper教程](#OPT1-1)**
@@ -35,11 +36,11 @@ Install-Package JoreNoe -Version 6.9.9.4
 
 
 
-
+<a name="OPT1-1"></a>
 
 ## 1.Dapper 使用
 
-<a name="OPT1-1"></a>
+
 
 #### 首先第一步引用
 
@@ -121,9 +122,11 @@ public class UserController
 
 
 
+<a name="OPT1-2"></a>
+
 ## 2.EntityFramework.Core使用
 
-<a name="OPT1-2"></a>
+
 
 #### 首先第一步引用
 
@@ -332,9 +335,11 @@ public class testDomainService :BaseRepository ,ItestDomainService
 }
 ```
 
+<a name="OPT2"></a>
+
 ## 3.Redis 使用说明
 
-<a name="OPT2"></a>
+
 
 #### 如何使用
 
@@ -388,11 +393,13 @@ Console.ReadLine();
 
 
 
+<a name="OPT3"></a>
+
 # 发送消息
 
 **目前支持：email  发送**  
 
-<a name="OPT3"></a>
+
 
 ## 1.邮箱发送
 
@@ -415,9 +422,11 @@ public class test{
 
 
 
+<a name="OPT4"></a>
+
 # 帮助扩展方法
 
-<a name="OPT4"></a>
+
 
 **支持：boolean，字典转SQL，映射，实体转字典**
 
@@ -537,9 +546,13 @@ Console.ReadLine();
         }
 ```
 
-# 中间件的使用
+
 
 <a name="OPT5"></a>
+
+# 中间件的使用
+
+
 
 #### 1.全局错误日志中间件
 
@@ -612,4 +625,5 @@ namespace TestNET6Project
 
 ```
 
+Jorenoe Thanks use this package !!!
 
