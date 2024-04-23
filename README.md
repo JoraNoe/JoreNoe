@@ -14,19 +14,18 @@ Install-Package JoreNoe -Version 6.9.9.4
 # 文档目录
 
 
+#### **[ORM使用](#OPT1)**
 
-#### **[ORM使用][#OPT1]**
+- **[Dapper教程](#OPT1-1)**
+- **[EntityFramework.Core教程](#OPT1-2])**
 
-- **[Dapper教程][#OPT1-1]**
-- **[EntityFramework.Core教程][#OPT1-2]**
+#### [Redis使用](#OPT2)
 
-#### [Redis使用][#OPT2]
+#### [发送消息](#OPT3)
 
-#### [发送消息][#OPT3]
+#### [帮助扩展方法](#OPT4)
 
-#### [帮助扩展方法][#OPT4]
-
-#### [中间件使用][#OPT5]
+#### [中间件使用](#OPT5)
 
 # ORM使用说明
 
