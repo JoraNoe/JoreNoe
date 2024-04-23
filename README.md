@@ -505,4 +505,79 @@ Console.ReadLine();
         }
 ```
 
+# 中间件的使用
+
+#### 1.全局错误日志中间件
+
+```C#
+// 使用方式1 webapi 全局错误日志中间件  直接使用方式
+app.UseJoreNoeGlobalErrorHandlingMiddleware(async (ex, context) =>
+{
+    // 返回错误信息 // 处理自己的数据
+    await Console.Out.WriteLineAsync(ex.Message);
+});
+
+
+// 使用方式2 注入 自定义类继承使用方式
+builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
+app.UseJoreNoeGlobalErrorHandlingMiddleware();
+// 使用案例
+using JoreNoe.Middleware;
+
+namespace TestNET6Project
+{
+    public class TestErrorMiddleWare : IJoreNoeGlobalErrorHandling
+    {
+        public async Task GlobalErrorHandling(Exception Ex)
+        {
+            await Console.Out.WriteLineAsync(JoreNoeRequestCommonTools.FormatError(Ex));
+        }
+    }
+}
+
+```
+
+#### 2.全局运行日志中间件
+
+```C#
+// webapi 全局运行日志中间件  直接使用方式
+app.UseJoreNoeRequestLoggingMiddleware(info => {
+    Console.WriteLine("方法"+info.Method);
+    Console.WriteLine("路径" + info.Path);
+    Console.WriteLine("开始时间" + info.StartTime);
+    Console.WriteLine("总时长" + info.Duration);
+    Console.WriteLine("Get请求参数" + info.QueryString);
+    Console.WriteLine("BODY请求参数" + info.RequestBody);
+    Console.WriteLine("完整路径" + info.FullPathUrl);
+    Console.WriteLine("Headers" + info.Headers);
+});
+
+// 注入 自定义类继承使用方式
+builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
+app.UseJoreNoeRequestLoggingMiddleware();
+// 使用案例
+using JoreNoe.Middleware;
+
+namespace TestNET6Project
+{
+    public class TestMiddleWare : IJorenoeRuningRequestLogging
+    {
+        public async Task RunningRequestLogging(JorenoeRuningRequestLoggingModel info)
+        {
+            Console.WriteLine("方法" + info.Method);
+            Console.WriteLine("路径" + info.Path);
+            Console.WriteLine("开始时间" + info.StartTime);
+            Console.WriteLine("总时长" + info.Duration);
+            Console.WriteLine("Get请求参数" + info.QueryString);
+            Console.WriteLine("BODY请求参数" + info.RequestBody);
+            Console.WriteLine("完整路径" + info.FullPathUrl);
+            Console.WriteLine("Headers" + info.Headers);
+        }
+    }
+}
+
+```
+
+
+
 
