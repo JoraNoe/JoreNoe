@@ -43,61 +43,6 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
 
-            var test = new List<test1>();
-
-            test.Add(new test1
-            {
-                age = 1,
-                name = "1" ,
-                time = DateTime.Parse("2024-04-09 9:30"),
-                OrganizationId = "802"
-            });
-
-            test.Add(new test1
-            {
-                age = 1,
-                name = "2",
-                time = DateTime.Parse("2024-04-19 9:13"),
-                OrganizationId = "809"
-            });
-
-            test.Add(new test1
-            {
-                age = 1,
-                name = "3",
-                time = DateTime.Parse("2024-04-19 10:19"),
-                OrganizationId = "802"
-            });
-
-            test.Add(new test1
-            {
-                age = 1,
-                name = "2",
-                time = DateTime.Parse("2024-04-18 11:31"),
-                OrganizationId = "802"
-            });
-
-            var me = test.Where(d => new string[] { "1", "2" }.Contains(d.name)).ToList();
-
-            var ces = test.Where(d => d.name == "1").ToList();
-
-            var sf = new string[] { "809" };
-
-
-            var FilterFormatTimeTenMin1 = DateTime.Parse(DateTime.Now.AddMinutes(24*60).ToString("yyyy-MM-dd HH:mm"));
-            var EffectiveTenMinData1 = test.Where(d =>
-                    DateTime.Parse(d.time.ToString("yyyy-MM-dd HH:mm")) >= FilterFormatTimeTenMin1
-                    && DateTime.Parse(d.time.ToString("yyyy-MM-dd HH:mm")) <= FilterFormatTimeTenMin1
-                ).ToList();
-
-            var currentTimeMinusOneHour = DateTime.Parse(DateTime.Now.AddMinutes(60).ToString("yyyy-MM-dd HH:mm"));
-            var effectiveData = test.Where(d =>
-                DateTime.Parse(d.time.ToString("yyyy-MM-dd HH:mm")) >= currentTimeMinusOneHour.AddMinutes(-1)
-                    && DateTime.Parse(d.time.ToString("yyyy-MM-dd HH:mm")) <= currentTimeMinusOneHour.AddMinutes(1) &&
-                !sf.Contains(d.OrganizationId)) // 不包含在指定的组织列表中
-                .ToList();
-
-
             Console.ReadLine();
         }
     }
