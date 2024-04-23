@@ -1,7 +1,4 @@
 ﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Org.BouncyCastle.Asn1.X509.Qualified;
-using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
 using System.Linq;

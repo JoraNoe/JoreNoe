@@ -42,6 +42,9 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+            var fff = true;
+            var sss =  fff.BooleanToString("降低","升高");
+            Console.WriteLine(sss);
 
             Console.ReadLine();
         }

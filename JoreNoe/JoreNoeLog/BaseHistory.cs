@@ -1,13 +1,23 @@
 ﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace JoreNoe.JoreNoeLog
 {
     public class BaseHistory
     {
+        /// <summary>
+        /// 系统日志
+        /// </summary>
+        public const string History_Message_Type_SystemLog = "SystemLog";
+
+        /// <summary>
+        /// 错误日志
+        /// </summary>
+        public const string History_Message_Type_ErrorLog = "ErrorLog";
+
+
+
         /// <summary>
         /// ID
         /// </summary>

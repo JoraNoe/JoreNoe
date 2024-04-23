@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace JoreNoe.Extend
 {
@@ -17,7 +15,25 @@ namespace JoreNoe.Extend
         /// 类型3：OnOrOff 开 关 
         /// 类型4：EnableOrDisable 启用 关闭
         /// </summary>
-        public enum AvailableType { IsOrDeny = 1, TrueOrFalse = 2, OnOrOff = 3, EnableOrDisable = 4 }
+        public enum AvailableType 
+        {
+            /// <summary>
+            /// 是 否
+            /// </summary>
+            IsOrDeny = 1,
+            /// <summary>
+            /// 真 假
+            /// </summary>
+            TrueOrFalse = 2,
+            /// <summary>
+            /// 开 关 
+            /// </summary>
+            OnOrOff = 3,
+            /// <summary>
+            /// 启用 关闭
+            /// </summary>
+            EnableOrDisable = 4
+        }
 
         /// <summary>
         /// 特定转换类型 boolean
@@ -50,7 +66,7 @@ namespace JoreNoe.Extend
         /// 自定义转换类型 boolean
         /// </summary>
         /// <param name="Value"></param>
-        /// <param name="Letter"></param>
+        /// <param name="Letter">自定义参数，以逗号分割 第一个为True，第二个为false</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
@@ -71,13 +87,13 @@ namespace JoreNoe.Extend
         }
 
         /// <summary>
-        /// 自定义转换类型 boolean
+        /// 自定义类型
         /// </summary>
-        /// <param name="Value"></param>
-        /// <param name="Letter"></param>
+        /// <param name="Value">本身</param>
+        /// <param name="StartLetter">True 对应 value </param>
+        /// <param name="LastLetter">False 对应 value </param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
         public static string BooleanToString(this bool Value, string StartLetter, string LastLetter)
         {
             if (string.IsNullOrWhiteSpace(StartLetter) || string.IsNullOrWhiteSpace(LastLetter))

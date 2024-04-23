@@ -1,10 +1,7 @@
-﻿using JoreNoe.Cache.Redis;
-using JoreNoe.DB.Dapper;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
 using System.Net.Mail;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace JoreNoe.Message
