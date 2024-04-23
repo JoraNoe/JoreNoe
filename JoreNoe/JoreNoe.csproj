@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>6.9.9.4</Version>
+		<Version>6.9.9.5</Version>
 		<Description>增加WebAPI 全局日志中间件</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -13,7 +13,7 @@
 		<LangVersion>latest</LangVersion>
 		<ApplicationIcon>JoreNoe.ico</ApplicationIcon>
 		<Platforms>AnyCPU;x64;x86;ARM64;ARM32</Platforms>
-
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' Or '$(Configuration)|$(Platform)'=='Debug|x64' Or '$(Configuration)|$(Platform)'=='Debug|x86' Or '$(Configuration)|$(Platform)'=='Debug|ARM64' Or '$(Configuration)|$(Platform)'=='Debug|ARM32' Or '$(Configuration)|$(Platform)'=='Release|AnyCPU' Or '$(Configuration)|$(Platform)'=='Release|x64' Or '$(Configuration)|$(Platform)'=='Release|x86' Or '$(Configuration)|$(Platform)'=='Release|ARM64' Or '$(Configuration)|$(Platform)'=='Release|ARM32'">
@@ -27,7 +27,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="JoreNoe.ico" />
+	  <Content Include="JoreNoe.ico" />
+	  <Content Include="README.md">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Autofac" Version="5.1.4" />
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="Dapper" Version="2.1.35" />
@@ -52,5 +58,17 @@
 		<PackageReference Include="StackExchange.Redis" Version="2.5.61" />
 		<PackageReference Include="System.Data.Odbc" Version="5.0.0" />
 		<PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="3.14.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="JoreNoe-Old1.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="JoreNoe.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="JoreNoe.nuspec">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 </Project>
