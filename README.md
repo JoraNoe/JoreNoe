@@ -11,6 +11,23 @@
 Install-Package JoreNoe -Version 6.9.9.4
 ```
 
+# 文档目录
+
+
+
+#### **[ORM使用][#OPT1]**
+
+- **[Dapper教程][#OPT1-1]**
+- **[EntityFramework.Core教程][#OPT1-2]**
+
+#### [Redis使用][#OPT2]
+
+#### [发送消息][#OPT3]
+
+#### [帮助扩展方法][#OPT4]
+
+#### [中间件使用][#OPT5]
+
 # ORM使用说明
 
 **JoreNoe包目前支持数据库：Mysql , SqlServer** 
@@ -19,7 +36,11 @@ Install-Package JoreNoe -Version 6.9.9.4
 
 
 
+
+
 ## 1.Dapper 使用
+
+<a name="OPT1-1"></a>
 
 #### 首先第一步引用
 
@@ -102,6 +123,8 @@ public class UserController
 
 
 ## 2.EntityFramework.Core使用
+
+<a name="OPT1-2"></a>
 
 #### 首先第一步引用
 
@@ -312,6 +335,8 @@ public class testDomainService :BaseRepository ,ItestDomainService
 
 ## 3.Redis 使用说明
 
+<a name="OPT2"></a>
+
 #### 如何使用
 
 **1.注入  JoreNoe Redis 中注册上下文**
@@ -362,9 +387,13 @@ Console.WriteLine(RedisManager.Get("Test"));
 Console.ReadLine();
 ```
 
+
+
 # 发送消息
 
-目前支持：email  发送  
+**目前支持：email  发送**  
+
+<a name="OPT3"></a>
 
 ## 1.邮箱发送
 
@@ -385,11 +414,15 @@ public class test{
 }
 ```
 
+
+
 # 帮助扩展方法
+
+<a name="OPT4"></a>
 
 **支持：boolean，字典转SQL，映射，实体转字典**
 
-**bool 扩展方法**
+**1.bool 扩展方法**
 
 ```C#
 using JoreNoe.Extend;
@@ -414,7 +447,7 @@ public class test{
 }
 ```
 
-##### 2.映射（AutoMapper）
+##### 	2.映射（AutoMapper）
 
 ```C#
 // 直接使用方式 
@@ -505,8 +538,9 @@ Console.ReadLine();
         }
 ```
 
-
 # 中间件的使用
+
+<a name="OPT5"></a>
 
 #### 1.全局错误日志中间件
 
@@ -578,3 +612,5 @@ namespace TestNET6Project
 }
 
 ```
+
+
