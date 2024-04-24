@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
@@ -65,7 +64,7 @@ namespace JoreNoe.DB.Dapper
 
         public DatabaseService(string connectionString, IDBType dbtype = IDBType.MySql, long mulitInsertBatchcount = 200000)
         {
-            this.DataBaseSettings = new DatabaseSettings(connectionString,dbtype,mulitInsertBatchcount);
+            this.DataBaseSettings = new DatabaseSettings(connectionString, dbtype, mulitInsertBatchcount);
         }
 
         public IDatabaseSettings DataBaseSettings { get; set; }

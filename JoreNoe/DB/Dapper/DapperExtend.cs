@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
 
 namespace JoreNoe.DB.Dapper
 {
@@ -116,10 +113,10 @@ namespace JoreNoe.DB.Dapper
             if (type == typeof(int))
             {
                 StringBuilder Str = new StringBuilder();
-                var cloumnAttr =  property.GetCustomAttribute<ColumnAutoIncrementAttribute>();
+                var cloumnAttr = property.GetCustomAttribute<ColumnAutoIncrementAttribute>();
                 if (cloumnAttr == null)
                     Str.Append("INT ");
-                else Str.Append( "INT auto_increment ");
+                else Str.Append("INT auto_increment ");
                 var cloumnAttr1 = property.GetCustomAttribute<ColumnPrimaryKeyAttribute>();
                 if (cloumnAttr1 != null)
                     Str.Append(" Primary Key ");
@@ -133,11 +130,11 @@ namespace JoreNoe.DB.Dapper
                 else
                     return $"VARCHAR(255)";
             }
-            else if(type == typeof(bool))
+            else if (type == typeof(bool))
             {
                 return $" TINYINT(1) ";
             }
-            else if(type == typeof(DateTime))
+            else if (type == typeof(DateTime))
             {
                 return $" DATETIME ";
             }

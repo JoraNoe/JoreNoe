@@ -125,11 +125,12 @@ namespace JoreNoe.Middleware
     /// </summary>
     /// <typeparam name="Entity"></typeparam>
     public class APIGlobalInefaceRuningRequestLoggingMiddleware<Entity>
-        where Entity:class,IJorenoeRuningRequestLogging
+        where Entity : class, IJorenoeRuningRequestLogging
     {
         private readonly RequestDelegate _next;
         private readonly Entity _entity;
-        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next,Entity entity) {
+        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next, Entity entity)
+        {
             _next = next;
             _entity = entity;
         }
@@ -168,7 +169,7 @@ namespace JoreNoe.Middleware
         }
     }
 
-    
+
 
     public static class JoreNoeRequestLoggingMiddlewareExtensions
     {

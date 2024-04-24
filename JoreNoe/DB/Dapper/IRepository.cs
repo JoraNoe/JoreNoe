@@ -49,7 +49,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="SoftKeyValue">软删除数据</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        T SoftRemove<TKey>(TKey ParamsValues, string ParamsKeyName = "Id", string SoftKeyName = "IsDelete",bool? SoftKeyValue = null);
+        T SoftRemove<TKey>(TKey ParamsValues, string ParamsKeyName = "Id", string SoftKeyName = "IsDelete", bool? SoftKeyValue = null);
 
         /// <summary>
         /// 查询是否存在数据
@@ -100,7 +100,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="entity"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        Task<T> AddAsync(T entity, string[] IgnoreFailds=null);
+        Task<T> AddAsync(T entity, string[] IgnoreFailds = null);
 
         /// <summary>
         /// 添加单条数据

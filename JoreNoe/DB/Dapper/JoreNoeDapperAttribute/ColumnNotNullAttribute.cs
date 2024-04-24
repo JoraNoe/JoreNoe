@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JoreNoe.DB.Dapper.JoreNoeDapperAttribute
 {
-    public class ColumnNotNullAttribute:Attribute
+    public class ColumnNotNullAttribute : Attribute
     {
     }
 }

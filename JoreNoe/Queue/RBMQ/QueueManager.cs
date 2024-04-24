@@ -42,7 +42,7 @@ namespace JoreNoe.Queue.RBMQ
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Custome"></param>
-        public  static void Receive<T>(ICustome<T> Custome, string QueueName) where T : class
+        public static void Receive<T>(ICustome<T> Custome, string QueueName) where T : class
         {
             Task.Run(async () =>
             {
@@ -89,11 +89,11 @@ namespace JoreNoe.Queue.RBMQ
                                          consumer: consumer);
                     await Task.Delay(1000);
                 }
-                
+
 
             }).ConfigureAwait(false);
-                
-  
+
+
         }
 
         static bool IsValidJson(string json)

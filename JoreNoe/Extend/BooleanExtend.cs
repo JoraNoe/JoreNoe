@@ -15,7 +15,7 @@ namespace JoreNoe.Extend
         /// 类型3：OnOrOff 开 关 
         /// 类型4：EnableOrDisable 启用 关闭
         /// </summary>
-        public enum AvailableType 
+        public enum AvailableType
         {
             /// <summary>
             /// 是 否

@@ -18,7 +18,7 @@ namespace JoreNoe.Message
     public class EmailMessageSettingConfigs : IEmailMessageSettingConfigs
     {
         public EmailMessageSettingConfigs() { }
-        public EmailMessageSettingConfigs(string SmtpUserName,string SmtpHost,int SmtpPort,string Password,bool EnableSSL = false)
+        public EmailMessageSettingConfigs(string SmtpUserName, string SmtpHost, int SmtpPort, string Password, bool EnableSSL = false)
         {
             this.SmtpPort = SmtpPort;
             this.SmtpHost = SmtpHost;
@@ -50,7 +50,7 @@ namespace JoreNoe.Message
         public IEmailMessageSettingConfigs EmailMessageSettingConfigs { get; set; }
         public EmailMessageAPI(IEmailMessageSettingConfigs EmailMessageSettingConfigs)
         {
-            this.EmailMessageSettingConfigs= EmailMessageSettingConfigs;
+            this.EmailMessageSettingConfigs = EmailMessageSettingConfigs;
         }
 
         public bool Send(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false)
@@ -59,7 +59,7 @@ namespace JoreNoe.Message
             {
                 using (var smtpClient = new SmtpClient(this.EmailMessageSettingConfigs.SmtpHost, this.EmailMessageSettingConfigs.SmtpPort))
                 {
-                    smtpClient.Credentials = new NetworkCredential(this.EmailMessageSettingConfigs.SmtpUserName,this.EmailMessageSettingConfigs.Password);
+                    smtpClient.Credentials = new NetworkCredential(this.EmailMessageSettingConfigs.SmtpUserName, this.EmailMessageSettingConfigs.Password);
                     smtpClient.EnableSsl = this.EmailMessageSettingConfigs.EnableSSL;
 
                     var message = new MailMessage
@@ -109,8 +109,8 @@ namespace JoreNoe.Message
         }
     }
 
-    public static class JoreNoeEmailMessageExtensions 
-    { 
+    public static class JoreNoeEmailMessageExtensions
+    {
         public static void AddJoreNoeEmailMessage(this IServiceCollection services, string SmtpUserName, string SmtpHost, int SmtpPort, string Password, bool EnableSSL = false)
         {
             services.AddSingleton<IEmailMessageSettingConfigs>(new EmailMessageSettingConfigs(SmtpUserName, SmtpHost, SmtpPort, Password, EnableSSL));

@@ -1,26 +1,18 @@
-﻿using AutoMapper;
-using Dapper;
-using Dapper.Contrib.Extensions;
+﻿using Dapper;
 using JoreNoe.Extend;
 using JoreNoe.JoreNoeLog;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySql.Data.MySqlClient;
-using NPOI.POIFS.FileSystem;
-using NPOI.Util.Collections;
-using Org.BouncyCastle.Cms;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace JoreNoe.DB.Dapper
 {
@@ -230,7 +222,7 @@ namespace JoreNoe.DB.Dapper
         }
 
 
-        public T Update<TKey>(TKey ParamsValue, Func<T,T> Entity, string ParamsKeyName = "Id")
+        public T Update<TKey>(TKey ParamsValue, Func<T, T> Entity, string ParamsKeyName = "Id")
         {
             if (IsNullOrEmpty(ParamsValue))
                 throw new System.Exception("ParamsValue为空,请传递参数。");
@@ -485,16 +477,16 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ContextType"></param>
         /// <param name="UserName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public void PublishHistory(string LogContext,string ResultContext,string ContextType,string UserName="SystemCreate",string TableName= "BaseHistory")
+        public void PublishHistory(string LogContext, string ResultContext, string ContextType, string UserName = "SystemCreate", string TableName = "BaseHistory")
         {
-            if (string.IsNullOrEmpty(LogContext) || 
+            if (string.IsNullOrEmpty(LogContext) ||
                 string.IsNullOrEmpty(ContextType)) throw new ArgumentNullException("数据为空");
 
             //if(this.DBConnection.QuerySingle<int>($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{this.DBConnection.Database}' AND TABLE_NAME = '{TableName}'") != 1)
             //    this.PrivateCerateTable(new BaseHistory());
 
             this.PrivateCerateTable(new BaseHistory());
-            var Entity = new BaseHistory { Context = LogContext, HistoryType = ContextType, ResultContext = ResultContext, CreateUser = UserName,CreateTime = DateTime.Now };
+            var Entity = new BaseHistory { Context = LogContext, HistoryType = ContextType, ResultContext = ResultContext, CreateUser = UserName, CreateTime = DateTime.Now };
 
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<BaseHistory>();
             string insertQuery = $"INSERT INTO {typeof(BaseHistory).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
@@ -506,7 +498,7 @@ namespace JoreNoe.DB.Dapper
         #region 公用方法
 
 
-        private void PrivateCerateTable(BaseHistory e,string TableName= "BaseHistory")
+        private void PrivateCerateTable(BaseHistory e, string TableName = "BaseHistory")
         {
             string GetTableName = "BaseHistory";
             if (TableName != "BaseHistory")

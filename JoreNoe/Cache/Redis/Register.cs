@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 
 namespace JoreNoe.Cache.Redis
 {

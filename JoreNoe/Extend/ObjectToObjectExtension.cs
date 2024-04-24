@@ -6,7 +6,8 @@ using System.Collections.Generic;
 namespace JoreNoe.Extend
 {
 
-    public static class JoreNoeObjectToObjectExtension {
+    public static class JoreNoeObjectToObjectExtension
+    {
 
         private static IMapper UseMapper;
         public static void UseJoreNoeObjectToOBject(this IApplicationBuilder Builder)

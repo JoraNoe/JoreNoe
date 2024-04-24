@@ -28,7 +28,7 @@ namespace JoreNoe.Extend
                 var key = property.Name;
                 if (IgnoreFields != null && IgnoreFields.Contains(key)) continue;
                 var value = property.GetValue(entity);
-                    dictionary[key] = value;
+                dictionary[key] = value;
             }
             return dictionary;
         }

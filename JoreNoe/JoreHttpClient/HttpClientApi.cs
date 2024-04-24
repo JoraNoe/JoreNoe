@@ -46,7 +46,7 @@ namespace JoreNoe.JoreHttpClient
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="HttpRequestException"></exception>
-        public static async Task<string> GetAsync(string url, string charset="UTF-8")
+        public static async Task<string> GetAsync(string url, string charset = "UTF-8")
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
