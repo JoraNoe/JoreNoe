@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
+namespace JoreNoe.DB.EntityFrameWork.Core
 {
     public class Repository<TKey, TEntity> : IRepository<TKey, TEntity> where TEntity : BaseModel<TKey>, new()
     {
@@ -16,7 +16,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 
         public Repository(ICurrencyRegister Currency)
         {
-            this.EFContent = Currency.Dbcontext;
+            EFContent = Currency.Dbcontext;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Entity == null)
                 throw new ArgumentNullException("实体为空");
 
-            this.EFContent.Set<TEntity>().Add(Entity);
+            EFContent.Set<TEntity>().Add(Entity);
             return Entity;
         }
 
@@ -42,7 +42,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (Entity == default || Entity == null)
                 throw new ArgumentNullException("实体为空");
-            await this.EFContent.Set<TEntity>().AddAsync(Entity);
+            await EFContent.Set<TEntity>().AddAsync(Entity);
             return Entity;
         }
 
@@ -56,7 +56,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (Entity == default || Entity == null || Entity.Count == 0)
                 throw new ArgumentNullException("实体为空");
-            this.EFContent.Set<TEntity>().AddRange(Entity);
+            EFContent.Set<TEntity>().AddRange(Entity);
             return Entity.ToList();
         }
 
@@ -69,7 +69,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (Entity == default || Entity == null || Entity.Count == 0)
                 throw new ArgumentNullException("实体为空");
-            await this.EFContent.Set<TEntity>().AddRangeAsync(Entity);
+            await EFContent.Set<TEntity>().AddRangeAsync(Entity);
             return Entity;
         }
 
@@ -79,7 +79,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<IList<TEntity>> AllAsync()
         {
-            var Result = this.EFContent.Set<TEntity>().Where(d => true);
+            var Result = EFContent.Set<TEntity>().Where(d => true);
             if (Result == null)
                 return new List<TEntity>();
             return await Result.ToListAsync().ConfigureAwait(false);
@@ -92,9 +92,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public TEntity SoftDelete(TKey Id)
         {
-            if (!this.Exists(Id))
+            if (!Exists(Id))
                 return null;
-            var Result = this.Update(Id, e => { e.IsDelete = true; });
+            var Result = Update(Id, e => { e.IsDelete = true; });
             return Result;
         }
 
@@ -105,19 +105,19 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public TEntity Delete(TKey Id)
         {
-            if (!this.Exists(Id))
+            if (!Exists(Id))
                 return null;
-            var Entity = this.Single(Id);
+            var Entity = Single(Id);
             if (Entity == null)
                 return null;
 
-            var Result = this.EFContent.Set<TEntity>().Remove(Entity);
+            var Result = EFContent.Set<TEntity>().Remove(Entity);
             return Result.Entity;
         }
 
         public TEntity Remove(TKey Id)
         {
-            return this.Delete(Id);
+            return Delete(Id);
         }
 
 
@@ -128,10 +128,10 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool DeleteRange(TKey[] Ids)
         {
-            var Find = this.EFContent.Set<TEntity>().Where(d => Ids.Contains(d.Id));
+            var Find = EFContent.Set<TEntity>().Where(d => Ids.Contains(d.Id));
             if (Find == null)
                 return false;
-            this.EFContent.Set<TEntity>().RemoveRange(Find);
+            EFContent.Set<TEntity>().RemoveRange(Find);
             return true;
         }
 
@@ -142,10 +142,10 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public TEntity Edit(TEntity Entity)
         {
-            if (!this.Exists(Entity.Id))
+            if (!Exists(Entity.Id))
                 return null;
 
-            var Result = this.EFContent.Set<TEntity>().Update(Entity);
+            var Result = EFContent.Set<TEntity>().Update(Entity);
             return Result.Entity;
         }
         /// <summary>
@@ -155,9 +155,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<TEntity> SingleAsync(TKey Id)
         {
-            if (!this.Exists(Id))
+            if (!Exists(Id))
                 return null;
-            return await this.EFContent.Set<TEntity>().SingleOrDefaultAsync(d => d.Id + string.Empty == Id + string.Empty);
+            return await EFContent.Set<TEntity>().SingleOrDefaultAsync(d => d.Id + string.Empty == Id + string.Empty);
         }
 
         /// <summary>
@@ -167,9 +167,9 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public TEntity Single(TKey Id)
         {
-            if (!this.Exists(Id))
+            if (!Exists(Id))
                 return null;
-            return this.EFContent.Set<TEntity>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty);
+            return EFContent.Set<TEntity>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty);
         }
 
 
@@ -193,7 +193,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public List<TEntity> AllNoTracking()
         {
-            var Result = this.EFContent.Set<TEntity>().AsNoTracking();
+            var Result = EFContent.Set<TEntity>().AsNoTracking();
             if (Result == null)
                 return new List<TEntity>();
             return Result.ToList();
@@ -208,7 +208,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             return await Task.Run(() =>
             {
-                var Result = this.EFContent.Set<TEntity>().Where(Func);
+                var Result = EFContent.Set<TEntity>().Where(Func);
                 if (Result == null)
                     return new List<TEntity>();
                 return Result.ToList();
@@ -223,7 +223,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public List<TEntity> Find(Func<TEntity, bool> Func)
         {
-            var Result = this.EFContent.Set<TEntity>().Where(Func);
+            var Result = EFContent.Set<TEntity>().Where(Func);
             if (Result == null)
                 return new List<TEntity>();
             return Result.ToList();
@@ -236,7 +236,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool Exist(Func<TEntity, bool> Func)
         {
-            var ExistsResult = this.EFContent.Set<TEntity>().AsNoTracking().Any(Func);
+            var ExistsResult = EFContent.Set<TEntity>().AsNoTracking().Any(Func);
             return ExistsResult;
         }
 
@@ -247,7 +247,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public bool Exists(TKey Id)
         {
-            return this.EFContent.Set<TEntity>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty) == null ? false : true;
+            return EFContent.Set<TEntity>().SingleOrDefault(d => d.Id + string.Empty == Id + string.Empty) == null ? false : true;
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<int> TotalAsync()
         {
-            return await this.EFContent.Set<TEntity>().CountAsync();
+            return await EFContent.Set<TEntity>().CountAsync();
         }
 
 
@@ -268,7 +268,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public IList<TEntity> FindAsNoTracking(Func<TEntity, bool> Func)
         {
-            return this.EFContent.Set<TEntity>().AsNoTracking().Where(Func).ToList();
+            return EFContent.Set<TEntity>().AsNoTracking().Where(Func).ToList();
         }
 
 
@@ -279,7 +279,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         /// <returns></returns>
         public async Task<IList<TEntity>> FindAsNoTracKingAsync(Func<TEntity, bool> Func)
         {
-            var Find = this.EFContent.Set<TEntity>().AsNoTracking().Where(Func).ToList();
+            var Find = EFContent.Set<TEntity>().AsNoTracking().Where(Func).ToList();
             if (Find == null || Find.Count == 0)
                 return null;
             return await Task.Run(() =>
@@ -290,22 +290,22 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
 
         public IList<TEntity> All()
         {
-            return this.EFContent.Set<TEntity>().ToList();
+            return EFContent.Set<TEntity>().ToList();
         }
 
         public int Count(Func<TEntity, bool> Func = null)
         {
             if (Func == null)
-                return this.EFContent.Set<TEntity>().Count();
+                return EFContent.Set<TEntity>().Count();
 
-            return this.EFContent.Set<TEntity>().Count(Func);
+            return EFContent.Set<TEntity>().Count(Func);
         }
 
         public async Task<TEntity> EditAsync(TEntity Entity)
         {
             if (Entity == null)
                 throw new ArgumentNullException(nameof(Entity));
-            this.EFContent.Set<TEntity>().Update(Entity);
+            EFContent.Set<TEntity>().Update(Entity);
             return await Task.Run(() =>
             {
                 return Entity;
@@ -322,7 +322,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
                 return null;
 
             ActionRever(Single);
-            this.EFContent.Set<TEntity>().Update(Single);
+            EFContent.Set<TEntity>().Update(Single);
             return Single;
         }
 
@@ -330,12 +330,12 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (ActionRever == null)
                 throw new ArgumentNullException(nameof(ActionRever));
-            var Single = await this.SingleAsync(Id).ConfigureAwait(false);
+            var Single = await SingleAsync(Id).ConfigureAwait(false);
             if (Single == null)
                 return null;
 
             ActionRever(Single);
-            this.EFContent.Set<TEntity>().Update(Single);
+            EFContent.Set<TEntity>().Update(Single);
             return Single;
         }
 
@@ -344,11 +344,11 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Id == null)
                 return null;
 
-            var Single = await this.SingleAsync(Id).ConfigureAwait(false);
+            var Single = await SingleAsync(Id).ConfigureAwait(false);
             if (Single == null)
                 return null;
 
-            var RemoveInfo = this.EFContent.Remove(Single);
+            var RemoveInfo = EFContent.Remove(Single);
             return RemoveInfo.Entity;
         }
 
@@ -357,7 +357,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Entitys == null || Entitys.Count == 0)
                 return false;
 
-            this.EFContent.BulkInsert<TEntity>(Entitys);
+            EFContent.BulkInsert(Entitys);
 
             return true;
         }
@@ -366,7 +366,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (Entitys == null || Entitys.Count == 0)
                 return false;
-            await this.EFContent.BulkInsertAsync<TEntity>(Entitys).ConfigureAwait(false);
+            await EFContent.BulkInsertAsync(Entitys).ConfigureAwait(false);
             return true;
         }
 
@@ -375,7 +375,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Entitys == null || Entitys.Count == 0)
                 return false;
 
-            this.EFContent.BulkDelete<TEntity>(Entitys);
+            EFContent.BulkDelete(Entitys);
 
             return true;
         }
@@ -385,7 +385,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
             if (Entitys == null || Entitys.Count == 0)
                 return false;
 
-            await this.EFContent.BulkDeleteAsync<TEntity>(Entitys).ConfigureAwait(false);
+            await EFContent.BulkDeleteAsync(Entitys).ConfigureAwait(false);
 
             return true;
         }
@@ -394,7 +394,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (Entitys == null || Entitys.Count == 0)
                 return false;
-            this.EFContent.BulkUpdate<TEntity>(Entitys);
+            EFContent.BulkUpdate(Entitys);
             return true;
         }
 
@@ -402,7 +402,7 @@ namespace JoreNoe.DB.EntityFrameWork.Core.SqlServer
         {
             if (Entitys == null || Entitys.Count == 0)
                 return false;
-            await this.EFContent.BulkUpdateAsync<TEntity>(Entitys).ConfigureAwait(false);
+            await EFContent.BulkUpdateAsync(Entitys).ConfigureAwait(false);
 
             return true;
         }
