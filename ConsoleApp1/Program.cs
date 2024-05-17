@@ -10,14 +10,23 @@ using Microsoft.Extensions.DependencyInjection;
 using JoreNoe.Cache.Redis;
 using AutoMapper;
 using JoreNoe.Extend;
+using System.Security.Cryptography;
+using JoreNoe.DB.Dapper;
+using System.Diagnostics;
+using Org.BouncyCastle.Bcpg.Sig;
+using NPOI.SS.Formula.Functions;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace ConsoleApp1
 {
 
     public class test
     {
-        public string name { get; set; }
-        public int age { get; set; }
+        public string Name { get; set; }
+        public bool Flg { get; set; }
+        public string Email { get; set; }
     }
     public class test1
     {
@@ -29,27 +38,98 @@ namespace ConsoleApp1
         public string OrganizationId { get; set; }
     }
 
-    public class PhoneStore : ICustome<test>
+
+
+    //public class PhoneStore : ICustome<test>
+    //{
+    //    public async Task<test> ConSume(CustomeContent<test> Context)
+    //    {
+    //        await Console.Out.WriteLineAsync(Context.Context.name);
+    //        return null;
+    //    }
+    //}
+
+
+    public static class m
     {
-        public async Task<test> ConSume(CustomeContent<test> Context)
+        public static string CalculateMD5Hash(string input)
         {
-            await Console.Out.WriteLineAsync(Context.Context.name);
-            return null;
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2"));
+                }
+
+                return sb.ToString();
+            }
         }
     }
-
+   
     internal class Program
     {
-        static void Main(string[] args)
+
+        
+
+        static async Task Main(string[] args)
         {
-            var fff = true;
-            var sss =  fff.BooleanToString("降低","升高");
-            Console.WriteLine(sss);
+
+            //var count = 20;
+            //var list = new List<string>();
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    list.Add(i.ToString());
+            //}
+
+            //var ok = list.YieldCollectionList(100);
+
+
+            var x = m.CalculateMD5Hash("2180201202515" + "60a96e6d-5db0-4bfc-b7c5-9e2ebe3815b6");
+
+
+
+            //var ment = "66701-[{\"Key\":\"WeChatData\",\"Value\":\"{\\\"NewsData\\\":null,\\\"OpenId\\\":null,\\\"MessageType\\\":\\\"Template\\\",\\\"MessageContext\\\":null,\\\"Title\\\":\\\"课表提醒\\\",\\\"Desc\\\":\\\"您在2024/05/09 13:00将有一节习近平新时代中国特色社会主义思想概论直播课，请按时参加\\\\r\\\\n\\\",\\\"UrlAddress\\\":\\\"http://student.allinone.ouc-online.com.cn//#/liveroomtransfer/63cb8e1f-4727-4058-aea9-b05b2941fa1c\\\",\\\"ModuleData\\\":{\\\"first\\\":{\\\"value\\\":\\\"您在2024/05/09 13:00将有一节《习近平新时代中国特色社会主义思想概论》直播课，请按时参加\\\\r\\\\n\\\"},\\\"keyword1\\\":{\\\"value\\\":\\\"《习近平新时代中国特色社会主义思想概论》\\\\r\\\\n\\\"},\\\"keyword2\\\":{\\\"value\\\":\\\"2024-05-09 13:00\\\\r\\\\n\\\"},\\\"remark\\\":{\\\"value\\\":\\\"请按时上课\\\"}},\\\"TopColor\\\":\\\"#7B68EE\\\",\\\"TemplateId\\\":\\\"s11Vy-9bbxuhywd9LW_Brp7SXUgggt-U93sADCp2JzU\\\",\\\"Message\\\":null}\"},{\"Key\":\"ClassTime\",\"Value\":\"2024-05-09 13:00\"},{\"Key\":\"CourseName\",\"Value\":\"习近平新时代中国特色社会主义思想概论\"}]";
+
+            //var Data = new ConcurrentBag<test>();
+            //Parallel.For(0, 1000000, e =>
+            //{
+            //    Data.Add(new test
+            //    {
+            //        Email = $"email{e}@example.com",
+            //        Flg = false,
+            //        Name = "Name" + e
+            //    });
+            //});
+
+            ////var database = new Repository<test>(new DatabaseService("Server=124.70.12.71;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;"));
+            //var database = new Repository<test>(new DatabaseService("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IsEnabledMulitConnection: false, mulitInsertBatchcount: 200000));
+
+            ////var database = new Repository<test>(new DatabaseService("Server=mysql.sqlpub.com;Port=3306;Database=mydbcloud;Uid=jorenoe;Pwd=48db25c68757687a;"));
+
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    Stopwatch stopwatch = new Stopwatch();
+            //    Console.WriteLine("开始计时...");
+            //    stopwatch.Start();
+
+            //    //await database.TestMUlit().ConfigureAwait(false);
+            //    database.BulkInsert(Data);
+
+            //    stopwatch.Stop();
+            //    Console.WriteLine("计时结束.");
+            //    TimeSpan elapsedTime = stopwatch.Elapsed;
+            //    Console.WriteLine($"总共耗时: {elapsedTime.TotalSeconds} 秒");
+            //}
+
+
 
             Console.ReadLine();
         }
     }
-
 }
 
 

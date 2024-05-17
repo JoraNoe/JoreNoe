@@ -151,5 +151,7 @@ namespace JoreNoe.DB.Dapper
         bool CreateTable(T Entity);
 
         void PublishHistory(string LogContext, string ResultContext, string ContextType, string UserName = "SystemCreate", string TableName = "BaseHistory");
+
+        Task TestMUlit(IEnumerable<T> D);
     }
 }

@@ -3,12 +3,14 @@ using JoreNoe.Extend;
 using JoreNoe.JoreNoeLog;
 using Microsoft.Data.SqlClient;
 using MySql.Data.MySqlClient;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
@@ -292,7 +294,10 @@ namespace JoreNoe.DB.Dapper
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
 
             var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
-            foreach (var batch in BatchData) this.InsertBatchNew(batch, GetTableName, GetColumns.Item1);
+            if (this.databaseService.DataBaseSettings.IsEnabledMulitConnection)
+                Parallel.ForEach(BatchData, batch => { this.InsertBatchNew(batch, GetTableName, GetColumns.Item1); });
+            else
+                foreach (var batch in BatchData) this.InsertBatchNew(batch, GetTableName, GetColumns.Item1);
             //Parallel.ForEach(batches, batch => { this.InsertBatch(batch, GetTableName, GetColumns.Item1, GetColumns.Item2); });
         }
 
@@ -312,7 +317,8 @@ namespace JoreNoe.DB.Dapper
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
             var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
-            foreach (var batch in BatchData) await this.InsertBatchAsyncNew(batch, GetTableName, GetColumns.Item1).ConfigureAwait(false);
+            foreach (var batch in BatchData) await this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1).ConfigureAwait(false);
+
 
             //await Task.WhenAll(batches.Select(batch => this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1, GetColumns.Item2)));
         }
@@ -561,25 +567,34 @@ namespace JoreNoe.DB.Dapper
         /// <param name="InsertColumns"></param>
         /// <param name="InsertColumnValues"></param>
         /// <returns></returns>
-        private async Task InsertBatchAsyncNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
+        private async Task InsertBatchAsync<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
+            // 顺序处理队列中的数据并插入
+            StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
             var insertQueue = new ConcurrentQueue<string>();
 
             // 使用并行循环将数据插入队列
             Parallel.ForEach(data, item =>
             {
                 string insertValues = GetEntityFiledParams(item);
-                insertQueue.Enqueue(insertValues);
+                insertQueue.Enqueue($"({insertValues}),");
             });
 
-            // 顺序处理队列中的数据并插入
-            StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
-            while (insertQueue.TryDequeue(out string insertValues))
-            {
-                InsertSQL.Append($"({insertValues}),");
-            }
+            InsertSQL.Append(string.Join("", insertQueue));
 
-            await this.DBConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
+            // 判断是否启用多连接插入 
+            if (this.databaseService.DataBaseSettings.IsEnabledMulitConnection)
+            {
+                using (var connection = new MySqlConnection(this.DBConnection.ConnectionString))
+                {
+                    await connection.OpenAsync().ConfigureAwait(false);
+                    await connection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                await this.DBConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
+            }
 
         }
 
@@ -618,23 +633,32 @@ namespace JoreNoe.DB.Dapper
         /// <param name="InsertColumnValues"></param>
         private void InsertBatchNew<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
+            // 顺序处理队列中的数据并插入
+            StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
             var insertQueue = new ConcurrentQueue<string>();
 
             // 使用并行循环将数据插入队列
             Parallel.ForEach(data, item =>
             {
                 string insertValues = GetEntityFiledParams(item);
-                insertQueue.Enqueue(insertValues);
+                insertQueue.Enqueue($"({insertValues}),");
             });
 
-            // 顺序处理队列中的数据并插入
-            StringBuilder InsertSQL = new StringBuilder($"INSERT INTO {tableName} ({InsertColumns}) VALUES ");
-            while (insertQueue.TryDequeue(out string insertValues))
-            {
-                InsertSQL.Append($"({insertValues}),");
-            }
+            InsertSQL.Append(string.Join("", insertQueue));
 
-            this.DBConnection.Execute(InsertSQL.ToString().TrimEnd(','));
+            // 判断是否启用多连接插入 
+            if (this.databaseService.DataBaseSettings.IsEnabledMulitConnection)
+            {
+                using (var connection = new MySqlConnection(this.DBConnection.ConnectionString))
+                {
+                    //connection.Open();
+                    connection.Execute(InsertSQL.ToString().TrimEnd(','));
+                }
+            }
+            else
+            {
+                this.DBConnection.Execute(InsertSQL.ToString().TrimEnd(','));
+            }
         }
 
         /// <summary>
@@ -724,6 +748,63 @@ namespace JoreNoe.DB.Dapper
         private string GetTableName<TData>()
         {
             return typeof(TData).Name.ToLower();
+        }
+
+        #endregion
+
+        #region 调试方法
+
+        public async Task TestMUlit(IEnumerable<T> D)
+        {
+            string connectionString = this.DBConnection.ConnectionString; // 替换为你的 MySQL 连接字符串
+            int totalDataCount = 10000;
+            int batchSize = 500;
+
+            List<Task> insertTasks = new List<Task>();
+            for (int i = 0; i < totalDataCount; i += batchSize)
+            {
+                insertTasks.Add(InsertDataAsync(connectionString, i, batchSize));
+            }
+
+            await Task.WhenAll(insertTasks);
+
+            Console.WriteLine("All data inserted successfully.");
+        }
+
+        public async Task InsertDataAsync(string connectionString, int startIndex, int batchSize)
+        {
+            Parallel.For(startIndex, startIndex + batchSize, async i =>
+            {
+                //await semaphore.WaitAsync(); // 请求一个许可，如果已达到并发连接数上限，会阻塞直到有许可可用
+
+                try
+                {
+                    string innerConnectionString = connectionString; // 创建一个本地副本，避免闭包引用问题
+
+                    using (var connection = new MySqlConnection(innerConnectionString))
+                    {
+                        await connection.OpenAsync();
+
+                        // 构造插入数据的 SQL 语句，假设你的表名是 test，列名为 id、Name、email、Flg
+                        string sql = "INSERT INTO test (Name, email, Flg) VALUES (@Name, @Email, @Flg)";
+
+                        // 构造参数
+                        var parameters = new
+                        {
+                            Name = $"Name{i}",
+                            Email = $"email{i}@example.com",
+                            Flg = false // 假设 Flg 交替为 true 和 false
+                        };
+
+                        // 执行插入操作
+                        await connection.ExecuteAsync(sql, parameters);
+                    }
+                }
+                finally
+                {
+                    // semaphore.Release(); // 释放许可，允许其他线程进入临界区
+                }
+            });
         }
 
         #endregion

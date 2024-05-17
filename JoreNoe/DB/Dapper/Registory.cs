@@ -18,6 +18,7 @@ namespace JoreNoe.DB.Dapper
         IDBType dbType { get; set; }
         string connectionString { get; set; }
         long mulitInsertBatchcount { get; set; }
+        bool IsEnabledMulitConnection { get; set; }
     }
 
     /// <summary>
@@ -32,24 +33,26 @@ namespace JoreNoe.DB.Dapper
 
     public class DatabaseSettings : IDatabaseSettings
     {
-        public DatabaseSettings(string connectionString, IDBType dbtype = IDBType.MySql, long mulitInsertBatchcount = 200000)
+        public DatabaseSettings(string connectionString, IDBType dbtype = IDBType.MySql, bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000)
         {
             this.connectionString = connectionString;
             this.dbType = dbtype;
             this.mulitInsertBatchcount = mulitInsertBatchcount;
+            this.IsEnabledMulitConnection = IsEnabledMulitConnection;
         }
         public IDBType dbType { set; get; }
         public string connectionString { set; get; }
         public long mulitInsertBatchcount { set; get; }
+        public bool IsEnabledMulitConnection { get; set; }
     }
 
 
     public static class JoreNoeDapperExtensions
     {
-        public static void AddJoreNoeDapper(this IServiceCollection services, string connectionString, IDBType dbtype, long mulitInsertBatchcount = 200000)
+        public static void AddJoreNoeDapper(this IServiceCollection services, string connectionString, IDBType dbtype, bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000)
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddSingleton<IDatabaseSettings>(new DatabaseSettings(connectionString, dbtype, mulitInsertBatchcount));
+            services.AddSingleton<IDatabaseSettings>(new DatabaseSettings(connectionString, dbtype, IsEnabledMulitConnection, mulitInsertBatchcount));
             services.AddScoped<IDatabaseService, DatabaseService>();
 
         }
@@ -62,9 +65,9 @@ namespace JoreNoe.DB.Dapper
             this.DataBaseSettings = dataBaseSettings;
         }
 
-        public DatabaseService(string connectionString, IDBType dbtype = IDBType.MySql, long mulitInsertBatchcount = 200000)
+        public DatabaseService(string connectionString, IDBType dbtype = IDBType.MySql,bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000)
         {
-            this.DataBaseSettings = new DatabaseSettings(connectionString, dbtype, mulitInsertBatchcount);
+            this.DataBaseSettings = new DatabaseSettings(connectionString, dbtype, IsEnabledMulitConnection, mulitInsertBatchcount);
         }
 
         public IDatabaseSettings DataBaseSettings { get; set; }
