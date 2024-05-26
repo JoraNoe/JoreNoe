@@ -34,8 +34,8 @@ namespace TestNET6Project.Controllers
             .ToArray();
         }
 
-        [HttpGet("MENT")]
-        public ActionResult Get(string OK)
+        [HttpPost("MENT")]
+        public ActionResult Get(s OK)
         {
 
 
@@ -43,4 +43,10 @@ namespace TestNET6Project.Controllers
         }
 
     }
+
+    public class s
+    {
+        public int MyProperty { get; set; }
+    }
+
 }

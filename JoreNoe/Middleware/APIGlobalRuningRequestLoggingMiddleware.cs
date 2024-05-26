@@ -87,16 +87,14 @@ namespace JoreNoe.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            var startTime = DateTime.UtcNow;
+            await _next(context);
 
+            var startTime = DateTime.UtcNow;
             var request = context.Request;
             var method = request.Method;
             var path = request.Path;
             var queryString = request.QueryString;
             var requestBody = await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
-
-            await _next(context);
-
             var endTime = DateTime.UtcNow;
             var duration = endTime - startTime;
 
@@ -114,7 +112,7 @@ namespace JoreNoe.Middleware
                 Scheme = request.Scheme,
                 FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
             };
-
+           
             // 回调 
             _callback(Entity);
         }
@@ -137,20 +135,16 @@ namespace JoreNoe.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            var startTime = DateTime.UtcNow;
+            await _next(context);
 
+            var startTime = DateTime.UtcNow;
             var request = context.Request;
             var method = request.Method;
             var path = request.Path;
             var queryString = request.QueryString;
             var requestBody = await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
-
-            await _next(context);
-
             var endTime = DateTime.UtcNow;
             var duration = endTime - startTime;
-
-
             var EntityData = new JorenoeRuningRequestLoggingModel
             {
                 StartTime = startTime,
@@ -164,8 +158,9 @@ namespace JoreNoe.Middleware
                 Scheme = request.Scheme,
                 FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
             };
-
+            
             await _entity.RunningRequestLogging(EntityData).ConfigureAwait(false);
+            
         }
     }
 
