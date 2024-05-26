@@ -58,7 +58,7 @@ namespace JoreNoe.DB.Dapper
 
             // 组装SQL 
             string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", this.GetTableName<T>(),
-                " where ", ParamsKeyName, " = ", ParamsValue);
+                " where ", ParamsKeyName, " = ", "'",ParamsValue,"'");
 
             return this.DBConnection.QueryFirstOrDefault<T>(QuerySQL);
         }
@@ -160,7 +160,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(ParamsKeyName))
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
 
-            var ExistsSQL = $"SELECT COUNT(*) FROM {this.GetTableName<T>()} WHERE {ParamsKeyName}={ParamsValues}";
+            var ExistsSQL = $"SELECT COUNT(*) FROM {this.GetTableName<T>()} WHERE {ParamsKeyName}='{ParamsValues}'";
             return this.DBConnection.QueryFirstOrDefault<bool>(ExistsSQL, ParamsKeyName);
         }
 

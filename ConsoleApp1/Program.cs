@@ -88,7 +88,7 @@ namespace ConsoleApp1
             //var ok = list.YieldCollectionList(100);
 
 
-            var x = m.CalculateMD5Hash("2180201202515" + "60a96e6d-5db0-4bfc-b7c5-9e2ebe3815b6");
+            //var x = m.CalculateMD5Hash("2180201202515" + "60a96e6d-5db0-4bfc-b7c5-9e2ebe3815b6");
 
 
 
@@ -106,7 +106,9 @@ namespace ConsoleApp1
             //});
 
             ////var database = new Repository<test>(new DatabaseService("Server=124.70.12.71;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;"));
-            //var database = new Repository<test>(new DatabaseService("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IsEnabledMulitConnection: false, mulitInsertBatchcount: 200000));
+            var database = new Repository<test>(new DatabaseService("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IsEnabledMulitConnection: false, mulitInsertBatchcount: 200000));
+
+            var x = database.IsExists("Name544845", "Name");
 
             ////var database = new Repository<test>(new DatabaseService("Server=mysql.sqlpub.com;Port=3306;Database=mydbcloud;Uid=jorenoe;Pwd=48db25c68757687a;"));
 
