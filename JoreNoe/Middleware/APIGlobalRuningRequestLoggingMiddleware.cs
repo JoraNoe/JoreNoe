@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace JoreNoe.Middleware
@@ -87,14 +89,41 @@ namespace JoreNoe.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            await _next(context);
+            // 备份原始请求体
+            var originalRequestBody = context.Request.Body;
+            string RequestBody = string.Empty;
+            try
+            {
+                // 创建一个新的内存流来保存请求体的副本
+                using (var memStream = new MemoryStream())
+                {
+                    // 复制原始请求体到内存流
+                    await context.Request.Body.CopyToAsync(memStream);
+                    memStream.Seek(0, SeekOrigin.Begin);
+
+                    // 读取请求体内容作为字符串
+                    RequestBody = await new StreamReader(memStream).ReadToEndAsync();
+
+                    // 将内存流设置为请求的新请求体
+                    memStream.Seek(0, SeekOrigin.Begin);
+                    context.Request.Body = memStream;
+
+                    // 调用下一个中间件
+                    await _next(context);
+                }
+            }
+            finally
+            {
+                // 恢复原始请求体
+                context.Request.Body = originalRequestBody;
+            }
 
             var startTime = DateTime.UtcNow;
             var request = context.Request;
             var method = request.Method;
             var path = request.Path;
             var queryString = request.QueryString;
-            var requestBody = await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
+            var requestBody = RequestBody; //await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
             var endTime = DateTime.UtcNow;
             var duration = endTime - startTime;
 
@@ -135,14 +164,40 @@ namespace JoreNoe.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            await _next(context);
+            // 备份原始请求体
+            var originalRequestBody = context.Request.Body;
+            string RequestBody = string.Empty;
+            try
+            {
+                // 创建一个新的内存流来保存请求体的副本
+                using (var memStream = new MemoryStream())
+                {
+                    // 复制原始请求体到内存流
+                    await context.Request.Body.CopyToAsync(memStream);
+                    memStream.Seek(0, SeekOrigin.Begin);
+
+                    // 读取请求体内容作为字符串
+                    RequestBody = await new StreamReader(memStream).ReadToEndAsync();
+
+                    // 将内存流设置为请求的新请求体
+                    memStream.Seek(0, SeekOrigin.Begin);
+                    context.Request.Body = memStream;
+
+                    // 调用下一个中间件
+                    await _next(context);
+                }
+            }
+            finally
+            {
+                // 恢复原始请求体
+                context.Request.Body = originalRequestBody;
+            }
 
             var startTime = DateTime.UtcNow;
             var request = context.Request;
             var method = request.Method;
             var path = request.Path;
             var queryString = request.QueryString;
-            var requestBody = await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
             var endTime = DateTime.UtcNow;
             var duration = endTime - startTime;
             var EntityData = new JorenoeRuningRequestLoggingModel
@@ -151,7 +206,7 @@ namespace JoreNoe.Middleware
                 Method = method,
                 Path = path,
                 QueryString = queryString,
-                RequestBody = requestBody,
+                RequestBody = RequestBody,
                 Duration = duration,
                 Headers = JsonConvert.SerializeObject(request.Headers),
                 Hsot = request.Host.ToString(),

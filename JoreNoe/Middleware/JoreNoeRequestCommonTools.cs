@@ -15,20 +15,37 @@ namespace JoreNoe.Middleware
         /// <returns></returns>
         public static async Task<string> GetRequestBodyAsync(HttpRequest request)
         {
-            var body = request.Body;
-            if (body.CanSeek)
+            // 保存原始请求体
+            var originalBody = request.Body;
+
+            try
             {
-                body.Seek(0, SeekOrigin.Begin);
+                // 读取请求体的内容作为字符串
+                using (var memoryStream = new MemoryStream())
+                {
+                    // 复制请求体到内存流
+                    await originalBody.CopyToAsync(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    // 读取内存流中的内容作为字符串
+                    var requestBody = await new StreamReader(memoryStream).ReadToEndAsync();
+
+                    // 重置内存流的位置
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    // 将内存流设置为请求的新请求体
+                    request.Body = memoryStream;
+
+                    return requestBody;
+                }
             }
-
-            var requestBody = await new StreamReader(body).ReadToEndAsync();
-
-            if (body.CanSeek)
+            finally
             {
-                body.Seek(0, SeekOrigin.Begin);
+                // 恢复原始请求体
+                request.Body = originalBody;
+                // 将请求体流位置重置到起始位置，以便后续中间件再次读取
+                request.Body.Seek(0, SeekOrigin.Begin);
             }
-
-            return requestBody;
         }
 
         /// <summary>
