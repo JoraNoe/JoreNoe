@@ -9,14 +9,14 @@ namespace JoreNoe.Extend
 {
     public class AutofacResolverExtend
     {
-        private static Func<IContainer> _containerFactory;
+        private static Func<ILifetimeScope> _containerFactory;
 
-        public static void SetContainerFactory(Func<IContainer> containerFactory)
+        public static void SetContainerFactory(Func<ILifetimeScope> containerFactory)
         {
             _containerFactory = containerFactory ?? throw new ArgumentNullException(nameof(containerFactory));
         }
 
-        private static IContainer Container
+        private static ILifetimeScope Container
         {
             get
             {
