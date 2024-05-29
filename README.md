@@ -1,15 +1,16 @@
-# JoreNoe
+# JoreNoe Package
 
 安装方法
 
-
-| Build                                                     | NuGet                                                        | Downloads                                                    |
-| --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](https://img.shields.io/badge/NetCore-3.1-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="https://img.shields.io/nuget/dt/JoreNoe?label=Downloads" alt="NuGet Downloads"></a>
+| Build                                   | NuGet                                                        | Downloads                                                    |
+| --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](./assets/NetCore-3.1-green.svg+xml) | [![](./assets/JoreNoe.svg+xml)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="./assets/JoreNoe.svg+xml" alt="NuGet Downloads"></a> |
 
 ```C#
-Install-Package JoreNoe -Version 6.9.9.4
+Install-Package JoreNoe -Version 6.9.9
 ```
+
+
 
 # 文档目录
 
@@ -428,7 +429,7 @@ public class test{
 
 
 
-**支持：boolean，字典转SQL，映射，实体转字典**
+**支持：boolean，字典转SQL，映射，实体转字典，Resolve扩展**
 
 **1.bool 扩展方法**
 
@@ -546,6 +547,19 @@ Console.ReadLine();
         }
 ```
 
+### 3.Resolve扩展
+
+```C#
+// 在程序启动时设置容器工厂
+AutofacResolver.SetContainerFactory(() => container);
+
+// 在需要解析依赖项的地方使用 AutofacResolver
+var service = AutofacResolver.Resolve<IMyService>();
+
+```
+
+
+
 
 
 <a name="OPT5"></a>
@@ -625,5 +639,11 @@ namespace TestNET6Project
 
 ```
 
-Jorenoe Thanks use this package !!!
+
+
+
+
+
+
+
 
