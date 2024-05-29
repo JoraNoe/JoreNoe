@@ -1,3 +1,4 @@
+using JoreNoe.Cache.Redis;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TestNET6Project.Controllers
@@ -12,10 +13,12 @@ namespace TestNET6Project.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IRedisManager _redisMan22ager;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IRedisManager _redisManager)
         {
             _logger = logger;
+            _redisMan22ager = _redisManager;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -37,7 +40,7 @@ namespace TestNET6Project.Controllers
         [HttpPost("MENT")]
         public ActionResult Get(s OK)
         {
-
+            this._redisMan22ager.Get("1");
 
             return Ok(OK);
         }

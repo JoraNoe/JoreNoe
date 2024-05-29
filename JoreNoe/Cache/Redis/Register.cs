@@ -80,9 +80,9 @@ namespace JoreNoe.Cache.Redis
     {
         public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, string InstanceName, int DefaultDB = 0)
         {
-            services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
             services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, InstanceName, DefaultDB));
-            services.AddScoped<IDatabaseService, DatabaseService>();
+            services.AddScoped<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
+            services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
         }
     }
 }

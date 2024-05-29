@@ -1,5 +1,6 @@
 namespace TestNET6Project
 {
+    using JoreNoe.Cache.Redis;
     using JoreNoe.DB.Dapper;
     using JoreNoe.Middleware;
     using Newtonsoft.Json;
@@ -23,8 +24,10 @@ namespace TestNET6Project
 
 
             builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
+            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123", "Dogegg", 1);
             var app = builder.Build();
 
+            
 
 
             app.UseJoreNoeGlobalErrorHandlingMiddleware();
