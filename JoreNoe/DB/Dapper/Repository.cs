@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
-using LinqKit;
 
 namespace JoreNoe.DB.Dapper
 {
