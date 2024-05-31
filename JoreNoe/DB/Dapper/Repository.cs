@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
+using LinqKit;
 
 namespace JoreNoe.DB.Dapper
 {
@@ -453,7 +454,8 @@ namespace JoreNoe.DB.Dapper
                 throw new ArgumentNullException(nameof(Predicate));
 
             // Convert the expression to SQL
-            var sql = DapperExtend.Convert(Predicate);
+            var sql = ExpressionToSqlConverter.Convert(Predicate);
+            //var sql = DapperExtend.Convert(Predicate);
 
             return this.DBConnection.Query<T>(sql);
         }
@@ -464,7 +466,7 @@ namespace JoreNoe.DB.Dapper
                 throw new ArgumentNullException(nameof(Predicate));
 
             // Convert the expression to SQL
-            var sql = DapperExtend.Convert(Predicate);
+            var sql = ExpressionToSqlConverter.Convert(Predicate);
 
             return await this.DBConnection.QueryAsync<T>(sql).ConfigureAwait(false);
         }

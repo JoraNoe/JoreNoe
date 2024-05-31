@@ -69,11 +69,11 @@ namespace ConsoleApp1
             }
         }
     }
-   
+
     internal class Program
     {
 
-        
+
 
         static async Task Main(string[] args)
         {
@@ -108,7 +108,9 @@ namespace ConsoleApp1
             ////var database = new Repository<test>(new DatabaseService("Server=124.70.12.71;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;"));
             var database = new Repository<test>(new DatabaseService("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IsEnabledMulitConnection: false, mulitInsertBatchcount: 200000));
 
-            var x = database.IsExists("Name544845", "Name");
+            //var x = database.IsExists("Name544845", "Name");
+
+            var xx = database.Find(d => d.Name == "1" && d.Email == "1@");
 
             ////var database = new Repository<test>(new DatabaseService("Server=mysql.sqlpub.com;Port=3306;Database=mydbcloud;Uid=jorenoe;Pwd=48db25c68757687a;"));
 

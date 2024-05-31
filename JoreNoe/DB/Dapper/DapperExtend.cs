@@ -176,4 +176,88 @@ namespace JoreNoe.DB.Dapper
         }
 
     }
+
+    public static class ExpressionToSqlConverter
+    {
+        public static string Convert<T>(Expression<Func<T, bool>> expression)
+        {
+            return "SELECT * FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
+        }
+
+        private static string ProcessExpression(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                    return ProcessBinaryExpression((BinaryExpression)expression);
+
+                case ExpressionType.AndAlso:
+                case ExpressionType.OrElse:
+                    return ProcessLogicalExpression((BinaryExpression)expression);
+
+                case ExpressionType.MemberAccess:
+                    return ProcessMemberExpression((MemberExpression)expression);
+
+                case ExpressionType.Constant:
+                    return ProcessConstantExpression((ConstantExpression)expression);
+
+                default:
+                    throw new NotSupportedException($"The expression type '{expression.NodeType}' is not supported.");
+            }
+        }
+
+        private static string ProcessBinaryExpression(BinaryExpression expression)
+        {
+            var left = ProcessExpression(expression.Left);
+            var right = ProcessExpression(expression.Right);
+            var operatorSymbol = GetOperatorSymbol(expression.NodeType);
+
+            return $"{left} {operatorSymbol} {right}";
+        }
+
+        private static string ProcessLogicalExpression(BinaryExpression expression)
+        {
+            var left = ProcessExpression(expression.Left);
+            var right = ProcessExpression(expression.Right);
+            var operatorSymbol = GetOperatorSymbol(expression.NodeType);
+
+            return $"({left} {operatorSymbol} {right})";
+        }
+
+        private static string ProcessMemberExpression(MemberExpression expression)
+        {
+            return expression.Member.Name;
+        }
+
+        private static string ProcessConstantExpression(ConstantExpression expression)
+        {
+            if (expression.Type == typeof(string))
+            {
+                return $"'{expression.Value}'";
+            }
+            return expression.Value.ToString();
+        }
+
+        private static string GetOperatorSymbol(ExpressionType type)
+        {
+            return type switch
+            {
+                ExpressionType.Equal => "=",
+                ExpressionType.NotEqual => "<>",
+                ExpressionType.GreaterThan => ">",
+                ExpressionType.GreaterThanOrEqual => ">=",
+                ExpressionType.LessThan => "<",
+                ExpressionType.LessThanOrEqual => "<=",
+                ExpressionType.AndAlso => "AND",
+                ExpressionType.OrElse => "OR",
+                _ => throw new NotSupportedException($"The expression type '{type}' is not supported."),
+            };
+        }
+    }
+
 }
