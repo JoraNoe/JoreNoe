@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -150,6 +151,28 @@ namespace JoreNoe.DB.Dapper
         {
             return Nullable.GetUnderlyingType(property.PropertyType) != null ||
                    property.GetCustomAttribute<RequiredAttribute>() == null;
+        }
+
+
+        public static string Convert<T>(Expression<Func<T, bool>> expression)
+        {
+            // Basic implementation: only handles simple expressions
+            var body = expression.Body as BinaryExpression;
+            if (body == null)
+                throw new NotSupportedException("Only simple binary expressions are supported.");
+
+            var left = body.Left as MemberExpression;
+            var right = body.Right as ConstantExpression;
+
+            if (left == null || right == null)
+                throw new NotSupportedException("Only simple member and constant expressions are supported.");
+
+            // Here you should handle different types of expressions and operators
+            string columnName = left.Member.Name;
+            object value = right.Value;
+
+            // Create a simple SQL query
+            return $"SELECT * FROM {typeof(T).Name} WHERE {columnName} = '{value}'";
         }
 
     }

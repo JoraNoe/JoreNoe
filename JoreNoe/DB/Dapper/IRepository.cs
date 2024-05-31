@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace JoreNoe.DB.Dapper
@@ -21,6 +22,15 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsColumns">输出的列名,默认为 * 全部</param>
         /// <returns></returns>
         T Single<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
+
+        /// <summary>
+        /// 根据SQL查询
+        /// </summary>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        T Single(string SQL);
+
+        Task<T> SingleAsync(string SQL);
 
         /// <summary>
         /// 删除单条数据 物理删除
@@ -125,6 +135,12 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         IEnumerable<T> Find(string SQLExcute, object Params);
+
+        Task<IEnumerable<T>> FindAsync(string SQLExcute, object Params);
+
+        IEnumerable<T> Find(Expression<Func<T, bool>> Predicate);
+
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> Predicate);
 
         /// <summary>
         /// 执行

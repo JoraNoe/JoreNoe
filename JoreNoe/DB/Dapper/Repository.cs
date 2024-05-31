@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +63,29 @@ namespace JoreNoe.DB.Dapper
 
             return this.DBConnection.QueryFirstOrDefault<T>(QuerySQL);
         }
+
+        /// <summary>
+        /// 通过SQL查询单个数据
+        /// </summary>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public T Single(string SQL)
+        {
+            if (string.IsNullOrEmpty(SQL))
+                throw new System.Exception("SQL 为空");
+            return this.DBConnection.QuerySingle<T>(SQL);
+        }
+
+        public async Task<T> SingleAsync(string SQL)
+        {
+            if (string.IsNullOrEmpty(SQL))
+                throw new System.Exception("SQL 为空");
+            return await this.DBConnection.QuerySingleAsync<T>(SQL).ConfigureAwait(false);
+        }
+
+
+
 
         /// <summary>
         /// 删除单条数据，物理删除
@@ -407,6 +431,42 @@ namespace JoreNoe.DB.Dapper
                 throw new ArgumentNullException(nameof(SQLExcute));
 
             return this.DBConnection.Query<T>(SQLExcute, Params);
+        }
+
+        public async Task<IEnumerable<T>> FindAsync(string SQLExcute, object Params)
+        {
+            if (string.IsNullOrEmpty(SQLExcute))
+                throw new ArgumentNullException(nameof(SQLExcute));
+
+            return await this.DBConnection.QueryAsync<T>(SQLExcute, Params).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 查询
+        /// </summary>
+        /// <param name="Predicate"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IEnumerable<T> Find(Expression<Func<T,bool>> Predicate)
+        {
+            if (Predicate == null)
+                throw new ArgumentNullException(nameof(Predicate));
+
+            // Convert the expression to SQL
+            var sql = DapperExtend.Convert(Predicate);
+
+            return this.DBConnection.Query<T>(sql);
+        }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> Predicate)
+        {
+            if (Predicate == null)
+                throw new ArgumentNullException(nameof(Predicate));
+
+            // Convert the expression to SQL
+            var sql = DapperExtend.Convert(Predicate);
+
+            return await this.DBConnection.QueryAsync<T>(sql).ConfigureAwait(false);
         }
 
         /// <summary>
