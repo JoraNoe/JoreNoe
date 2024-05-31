@@ -63,6 +63,19 @@ namespace JoreNoe.DB.Dapper
 
             return this.DBConnection.QueryFirstOrDefault<T>(QuerySQL);
         }
+        public async Task<T> SingleAsync<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null)
+        {
+            if (DapperExtend.IsNullOrEmpty(ParamsValue))
+                throw new System.Exception("ParamsValue为空,请传递参数。");
+            if (string.IsNullOrEmpty(ParamsKeyName))
+                throw new System.Exception("ParamsKeyName为空,请传递参数。");
+
+            // 组装SQL 
+            string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", this.GetTableName<T>(),
+                " where ", ParamsKeyName, " = ", "'", ParamsValue, "'");
+
+            return await this.DBConnection.QueryFirstOrDefaultAsync<T>(QuerySQL).ConfigureAwait(false);
+        }
 
         /// <summary>
         /// 通过SQL查询单个数据
@@ -70,19 +83,35 @@ namespace JoreNoe.DB.Dapper
         /// <param name="SQL"></param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        public T Single(string SQL)
+        public T SingleSQL(string SQL)
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return this.DBConnection.QuerySingle<T>(SQL);
+            return this.DBConnection.QueryFirstOrDefault<T>(SQL);
         }
 
-        public async Task<T> SingleAsync(string SQL)
+        public async Task<T> SingleSQLAsync(string SQL)
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return await this.DBConnection.QuerySingleAsync<T>(SQL).ConfigureAwait(false);
+            return await this.DBConnection.QueryFirstOrDefaultAsync<T>(SQL).ConfigureAwait(false);
         }
+
+        public T SingleSQL(string SQL, object Params)
+        {
+            if (string.IsNullOrEmpty(SQL))
+                throw new System.Exception("SQL 为空");
+            return this.DBConnection.QueryFirstOrDefault<T>(SQL, Params);
+        }
+
+        public async Task<T> SingleSQLAsync(string SQL, object Params)
+        {
+            if (string.IsNullOrEmpty(SQL))
+                throw new System.Exception("SQL 为空");
+            return await this.DBConnection.QueryFirstOrDefaultAsync<T>(SQL, Params).ConfigureAwait(false);
+        }
+
+        
 
 
 

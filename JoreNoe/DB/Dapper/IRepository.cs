@@ -22,15 +22,18 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsColumns">输出的列名,默认为 * 全部</param>
         /// <returns></returns>
         T Single<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
+        Task<T> SingleAsync<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
 
         /// <summary>
         /// 根据SQL查询
         /// </summary>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        T Single(string SQL);
+        T SingleSQL(string SQL);
+        Task<T> SingleSQLAsync(string SQL);
+        T SingleSQL(string SQL, object Params);
+        Task<T> SingleSQLAsync(string SQL, object Params);
 
-        Task<T> SingleAsync(string SQL);
 
         /// <summary>
         /// 删除单条数据 物理删除
