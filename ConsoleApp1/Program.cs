@@ -138,10 +138,13 @@ namespace ConsoleApp1
 
 
 
-// 消息队列使用
+// 消息队列使用 接受
 //Register.RegisterQueue("124.70.12.71", "jorenoe", "jorenoe", "/", "hello");
 //QueueManager.Receive(new PhoneStore(),"hello");
 //Console.ReadLine();
+
+//Register.RegisterQueue("124.70.12.71", "jorenoe", "jorenoe", "/", "hello"); 
+//QueueManager.
 
 // Redis缓存使用
 //JoreNoeRedisBaseService RedisDataBase = new JoreNoeRedisBaseService(new SettingConfigs
