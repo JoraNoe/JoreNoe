@@ -29,7 +29,7 @@ Install-Package JoreNoe -Version 7.0.0.4
 
 #### [中间件使用](#OPT5)
 
-#### [RabbitMQ](#TOP6)
+#### [RabbitMQ](#OPT6)
 
 # ORM使用说明
 
