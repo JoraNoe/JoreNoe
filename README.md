@@ -29,6 +29,8 @@ Install-Package JoreNoe -Version 7.0.0.4
 
 #### [中间件使用](#OPT5)
 
+#### [RabbitMQ](#OPT6)
+
 # ORM使用说明
 
 **JoreNoe包目前支持数据库：Mysql , SqlServer** 
@@ -638,6 +640,77 @@ namespace TestNET6Project
 }
 
 ```
+
+
+<a name="OPT6"></a>
+
+# RabbitMQ使用
+
+
+
+### 1.初始化
+
+```C#
+ // 在Program  或者 StrartUp 中 进行初始化
+ // 加入RabbitMQ 外部使用 监控使用 特殊用法
+ JoreNoe.Queue.RBMQ.Register.RegisterQueue("Ip", "账户", "密码", "/虚机", "队列名称");
+ // 例子
+ JoreNoe.Queue.RBMQ.Register.RegisterQueue("124.70.12.123", "jorenoe", "jorenoe", "/", "Moitoring");
+
+```
+
+
+
+### 注意 如果只推送 不接受按照第一步初始化即可，如果需要接受请按一下配置
+
+```C#
+JoreNoe.Queue.RBMQ.Register.RegisterQueue("124.70.12.123", "jorenoe", "jorenoe", "/", "Moitoring");
+QueueManager.Receive<MoitoringEvent>(new CustomerRabbitMQ(), "Moitoring");// 增加一条接受配置
+
+ public class CustomerRabbitMQ : ICustome<MoitoringEvent>
+    {
+        public async Task<MoitoringEvent> ConSume(CustomeContent<MoitoringEvent> Context)
+        {
+            MessageBox.Show(Context.Context.SID);
+            return null;
+        }
+    }
+```
+
+
+
+### 2.使用 推送 和 接受
+
+```C#
+public class MoitoringEvent
+{
+    /// <summary>
+    /// 设备ID
+    /// </summary>
+    public string SID { get; set; }
+
+    /// <summary>
+    /// 上线还是下线
+    /// </summary>
+    public string Type { get; set; }
+}
+
+
+// 推送
+QueueManager.SendPublish<MoitoringEvent>(new MoitoringEvent { SID = SID,Type= Type });
+
+// 接收
+ public class CustomerRabbitMQ : ICustome<MoitoringEvent>
+    {
+        public async Task<MoitoringEvent> ConSume(CustomeContent<MoitoringEvent> Context)
+        {
+            MessageBox.Show(Context.Context.SID);
+            return null;
+        }
+    }
+```
+
+
 
 
 
