@@ -172,5 +172,12 @@ namespace JoreNoe.DB.Dapper
         void PublishHistory(string LogContext, string ResultContext, string ContextType, string UserName = "SystemCreate", string TableName = "BaseHistory");
 
         Task TestMUlit(IEnumerable<T> D);
+
+        /// <summary>
+        /// 数量
+        /// </summary>
+        /// <returns></returns>
+        int Count();
+        int Count(Expression<Func<T, bool>> Predicate);
     }
 }

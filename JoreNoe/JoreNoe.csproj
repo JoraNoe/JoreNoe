@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.0.0.9</Version>
+		<Version>7.0.1.0</Version>
 		<Description>Dapper 增加新方法</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

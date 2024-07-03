@@ -897,6 +897,35 @@ namespace JoreNoe.DB.Dapper
             });
         }
 
+
         #endregion
+
+        /// <summary>
+        /// 查询总数
+        /// </summary>
+        /// <returns></returns>
+        public int Count()
+        {
+            return this.DBConnection.QuerySingle<int>($"select Count(*) from {this.GetTableName<T>()}");
+        }
+
+        /// <summary>
+        /// 查询总数
+        /// </summary>
+        /// <param name="Predicate"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int Count(Expression<Func<T, bool>> Predicate)
+        {
+            if (Predicate == null)
+                throw new ArgumentNullException(nameof(Predicate));
+
+            // Convert the expression to SQL
+            var sql = ExpressionToSqlConverter.Convert(Predicate);
+
+            return this.DBConnection.QuerySingle<int>(sql);
+        }
+
+
     }
 }
