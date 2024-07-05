@@ -18,6 +18,7 @@ using NPOI.SS.Formula.Functions;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using JoreNoe.JoreHttpClient;
 
 namespace ConsoleApp1
 {
@@ -106,11 +107,11 @@ namespace ConsoleApp1
             //});
 
             ////var database = new Repository<test>(new DatabaseService("Server=124.70.12.71;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;"));
-            var database = new Repository<test>(new DatabaseService("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IsEnabledMulitConnection: false, mulitInsertBatchcount: 200000));
+            //  var database = new Repository<test>(new DatabaseService("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IsEnabledMulitConnection: false, mulitInsertBatchcount: 200000));
 
             //var x = database.IsExists("Name544845", "Name");
 
-            var xx = database.Find(d => d.Name == "1" && d.Email == "1@");
+            //var xx = database.Find(d => d.Name == "1" && d.Email == "1@");
 
             ////var database = new Repository<test>(new DatabaseService("Server=mysql.sqlpub.com;Port=3306;Database=mydbcloud;Uid=jorenoe;Pwd=48db25c68757687a;"));
 
@@ -129,7 +130,16 @@ namespace ConsoleApp1
             //    Console.WriteLine($"总共耗时: {elapsedTime.TotalSeconds} 秒");
             //}
 
+            var services = new ServiceCollection();
+            services.AddHttpClientApi();
 
+            // 构建服务提供者
+            var serviceProvider = services.BuildServiceProvider();
+
+            // 获取 HttpClientApi 实例
+            var httpClientApi = serviceProvider.GetRequiredService<HttpClientApi>();
+
+           var ss = await  httpClientApi.GetAsync("https://jorenoe.top/dogegg/api/notice");
 
             Console.ReadLine();
         }
@@ -187,3 +197,18 @@ namespace ConsoleApp1
 
 // Dapper 
 // Registory.SetInitDbContext("Server=124.70.12.71;Database=jorenoe;User ID=root;Password=jorenoe123;", IDBType.MySql,500000);
+
+
+// httpclient 使用方式
+//var services = new ServiceCollection();
+//services.AddHttpClientApi();
+
+//// 构建服务提供者
+//var serviceProvider = services.BuildServiceProvider();
+
+//// 获取 HttpClientApi 实例
+//var httpClientApi = serviceProvider.GetRequiredService<HttpClientApi>();
+
+//var ss = await httpClientApi.GetAsync("https://jorenoe.top/dogegg/api/notice");
+
+// 注入 services.AddHttpClientApi();

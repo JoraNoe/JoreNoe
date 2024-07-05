@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.0.1.0</Version>
+		<Version>7.0.1.1</Version>
 		<Description>Dapper 增加新方法</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -47,6 +47,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 		<PackageReference Include="MySql.Data" Version="8.3.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="NPOI" Version="2.7.0" />

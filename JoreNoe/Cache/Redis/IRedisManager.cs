@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace JoreNoe.Cache.Redis
 {
@@ -13,6 +14,7 @@ namespace JoreNoe.Cache.Redis
         T Add<T>(string KeyName, T Context, int Expire = 180);
 
         T AddOrGet<T>(string KeyName, T Context, int Expire = 180);
+        T AddOrGet<T>(string keyName, Func<T> contentProvider, int expire = 180);
 
         bool Exists(string KeyName);
 

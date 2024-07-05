@@ -91,6 +91,37 @@ namespace JoreNoe.Cache.Redis
             return Context;
         }
 
+        public T AddOrGet<T>(string keyName, Func<T> contentProvider, int expire = 180)
+        {
+            if (string.IsNullOrEmpty(keyName))
+                throw new ArgumentNullException(nameof(keyName));
+            if (contentProvider == null)
+                throw new ArgumentNullException(nameof(contentProvider));
+
+            // Check if the key already exists in the Redis database
+            if (this.RedisDataBase.KeyExists(keyName))
+            {
+                // Get the value associated with the key and deserialize it
+                string value = this.RedisDataBase.StringGet(keyName);
+                return JsonConvert.DeserializeObject<T>(value);
+            }
+
+            // Get the context from the content provider
+            T context = contentProvider();
+
+            // Serialize the context and store it in the Redis database with an expiration time
+            string serializedContext = JsonConvert.SerializeObject(context);
+            bool isStored = this.RedisDataBase.StringSet(keyName, serializedContext, TimeSpan.FromSeconds(expire));
+
+            if (!isStored)
+                throw new Exception("Failed to store the data in Redis");
+
+            // Return the original context if storing was successful
+            return context;
+        }
+
+
+
         /// <summary>
         /// 查询
         /// </summary>
