@@ -67,7 +67,6 @@ namespace JoreNoe.Cache.Redis
 
         public JoreNoeRedisBaseService(ISettingConfigs SettingConfigs)
         {
-            RequireMethod.CheckMethod();
             this.SettingConfigs = SettingConfigs;
             this.ConnectionDB = new ConcurrentDictionary<string, ConnectionMultiplexer>();
             var GetConnection = this.ConnectionDB.GetOrAdd(this.SettingConfigs.InstanceName, Instance => ConnectionMultiplexer.Connect(this.SettingConfigs.ConnectionString));

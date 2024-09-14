@@ -40,7 +40,6 @@ namespace JoreNoe.DB.Dapper
             this.dbType = dbtype;
             this.mulitInsertBatchcount = mulitInsertBatchcount;
             this.IsEnabledMulitConnection = IsEnabledMulitConnection;
-            RequireMethod.CheckMethod();
         }
         public IDBType dbType { set; get; }
         public string connectionString { set; get; }

@@ -1,4 +1,5 @@
 ﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
+using JoreNoe.Limit;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +22,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int size)
         {
+            RequireMethod.CheckMethod();
             using (var enumerator = source.GetEnumerator())
             {
                 while (enumerator.MoveNext())
@@ -39,6 +41,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private static IEnumerable<T> YieldBatchElements<T>(IEnumerator<T> source, int size)
         {
+            RequireMethod.CheckMethod();
             yield return source.Current;
             for (int i = 0; i < size && source.MoveNext(); i++)
             {
@@ -54,6 +57,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static bool IsNullOrEmpty<T>(T value)
         {
+            RequireMethod.CheckMethod();
             return EqualityComparer<T>.Default.Equals(value, default(T));
         }
 
@@ -65,6 +69,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static string GetEntityFiledParams<T>(T Data)
         {
+            RequireMethod.CheckMethod();
             Type type = Data.GetType();
             PropertyInfo[] properties = type.GetProperties();
             // 使用线程安全的集合来存储处理结果
@@ -95,6 +100,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static IEnumerable<IEnumerable<T>> GetBatchData<T>(this IEnumerable<T> data, long BatchCount)
         {
+            RequireMethod.CheckMethod();
             return data
             .Select((value, index) => new { Value = value, Index = index })
             .GroupBy(x => x.Index / BatchCount)
@@ -103,12 +109,14 @@ namespace JoreNoe.DB.Dapper
 
         public static string GetColumnName(PropertyInfo property)
         {
+            RequireMethod.CheckMethod();
             var columnAttr = property.GetCustomAttribute<ColumnAttribute>();
             return columnAttr != null ? columnAttr.Name : property.Name;
         }
 
         public static string GetColumnType(PropertyInfo property)
         {
+            RequireMethod.CheckMethod();
             var type = property.PropertyType;
 
             if (type == typeof(int))
@@ -149,6 +157,7 @@ namespace JoreNoe.DB.Dapper
 
         public static bool IsNullable(PropertyInfo property)
         {
+            RequireMethod.CheckMethod();
             return Nullable.GetUnderlyingType(property.PropertyType) != null ||
                    property.GetCustomAttribute<RequiredAttribute>() == null;
         }
@@ -156,6 +165,7 @@ namespace JoreNoe.DB.Dapper
 
         public static string Convert<T>(Expression<Func<T, bool>> expression)
         {
+            RequireMethod.CheckMethod();
             // Basic implementation: only handles simple expressions
             var body = expression.Body as BinaryExpression;
             if (body == null)

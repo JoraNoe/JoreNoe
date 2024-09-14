@@ -51,12 +51,12 @@ namespace JoreNoe.Message
         public IEmailMessageSettingConfigs EmailMessageSettingConfigs { get; set; }
         public EmailMessageAPI(IEmailMessageSettingConfigs EmailMessageSettingConfigs)
         {
-            RequireMethod.CheckMethod();
             this.EmailMessageSettingConfigs = EmailMessageSettingConfigs;
         }
 
         public bool Send(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false)
         {
+            RequireMethod.CheckMethod();
             try
             {
                 using (var smtpClient = new SmtpClient(this.EmailMessageSettingConfigs.SmtpHost, this.EmailMessageSettingConfigs.SmtpPort))
@@ -85,6 +85,7 @@ namespace JoreNoe.Message
 
         public async Task<bool> SendAsync(string ToEmailUser, string Subject, string Body, bool IsBodyHTML = false)
         {
+            RequireMethod.CheckMethod();
             try
             {
                 using (var smtpClient = new SmtpClient(this.EmailMessageSettingConfigs.SmtpHost, this.EmailMessageSettingConfigs.SmtpPort))

@@ -1,4 +1,5 @@
 ﻿
+using JoreNoe.Limit;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
@@ -23,6 +24,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Add(string KeyName, string Context, int Expire = 180)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -37,6 +39,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Remove(string KeyName)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -55,7 +58,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Add<T>(string KeyName, T Context, int Expire = 180)
         {
-
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -77,6 +80,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T AddOrGet<T>(string KeyName, T Context, int Expire = 180)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -93,6 +97,7 @@ namespace JoreNoe.Cache.Redis
 
         public T AddOrGet<T>(string keyName, Func<T> contentProvider, int expire = 180)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(keyName))
                 throw new ArgumentNullException(nameof(keyName));
             if (contentProvider == null)
@@ -130,6 +135,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Find<T>(string KeyName)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -141,7 +147,7 @@ namespace JoreNoe.Cache.Redis
 
         public T Single<T>(string KeyName)
         {
-
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -154,6 +160,7 @@ namespace JoreNoe.Cache.Redis
 
         public string Single(string KeyName)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -175,7 +182,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180)
         {
-
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -197,6 +204,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Exists(string KeyName)
         {
+            RequireMethod.CheckMethod();
             return this.RedisDataBase.KeyExists(KeyName);
         }
 
@@ -210,6 +218,7 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string AddOrGet(string KeyName, string Context, int Expire = 180)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -226,6 +235,7 @@ namespace JoreNoe.Cache.Redis
 
         public IList<T> AddOrGet<T>(string KeyName, IList<T> Context, int Expire = 180)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -254,6 +264,7 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string Get(string KeyName)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -271,6 +282,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public string Update(string KeyName, string Context)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -297,7 +309,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Update<T>(string KeyName, T Context)
         {
-
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
@@ -323,6 +335,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Update<T>(string KeyName, IList<T> Contexts)
         {
+            RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 

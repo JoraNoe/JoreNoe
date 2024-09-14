@@ -14,7 +14,6 @@ namespace JoreNoe.JoreHttpClient
 
         public HttpClientApi(IHttpClientFactory httpClientFactory)
         {
-            RequireMethod.CheckMethod();
             _httpClientFactory = httpClientFactory;
         }
 
