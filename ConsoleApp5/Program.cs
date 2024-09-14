@@ -13,8 +13,6 @@ namespace ConsoleApp5
             s.test();
 
         }
-
-        [RequireMethodAttribute]
         public void test()
         {
             Console.WriteLine("测试看看行不");
