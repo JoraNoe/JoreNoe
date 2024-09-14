@@ -15,6 +15,7 @@ namespace ConsoleApp5
         }
         public void test()
         {
+            RequireMethod.CheckMethod();
             Console.WriteLine("测试看看行不");
         }
 
