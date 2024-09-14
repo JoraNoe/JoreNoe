@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using JoreNoe.Limit;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
 using System.Net.Mail;
@@ -50,6 +51,7 @@ namespace JoreNoe.Message
         public IEmailMessageSettingConfigs EmailMessageSettingConfigs { get; set; }
         public EmailMessageAPI(IEmailMessageSettingConfigs EmailMessageSettingConfigs)
         {
+            RequireMethod.CheckMethod();
             this.EmailMessageSettingConfigs = EmailMessageSettingConfigs;
         }
 

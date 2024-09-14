@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using JoreNoe.Limit;
+using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
 using System.Data;
@@ -39,6 +40,7 @@ namespace JoreNoe.DB.Dapper
             this.dbType = dbtype;
             this.mulitInsertBatchcount = mulitInsertBatchcount;
             this.IsEnabledMulitConnection = IsEnabledMulitConnection;
+            RequireMethod.CheckMethod();
         }
         public IDBType dbType { set; get; }
         public string connectionString { set; get; }

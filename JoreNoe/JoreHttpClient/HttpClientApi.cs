@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using JoreNoe.Limit;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JoreNoe.JoreHttpClient
@@ -13,6 +14,7 @@ namespace JoreNoe.JoreHttpClient
 
         public HttpClientApi(IHttpClientFactory httpClientFactory)
         {
+            RequireMethod.CheckMethod();
             _httpClientFactory = httpClientFactory;
         }
 
