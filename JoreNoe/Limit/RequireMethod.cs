@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
+using System.Reflection;
 
 namespace JoreNoe.Limit
 {
@@ -23,9 +24,11 @@ namespace JoreNoe.Limit
             var Has = AESExtend.Decrypt(Data,Key,IV);
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Has);
             IDatabase db = redis.GetDatabase();
-            if (!db.KeyExists("Nuget_JoreNoe_Pack_Config"))
-                db.StringSet("Nuget_JoreNoe_Pack_Config", true, TimeSpan.FromSeconds(int.MaxValue));
-            string Value = (db.StringGet("Nuget_JoreNoe_Pack_Config"));
+            string ProjectName = Assembly.GetExecutingAssembly().GetName().Name;
+            string RedisKey = string.Concat("ProjectName_", ProjectName, "_Nuget_JoreNoe_Pack_Config");
+            if (!db.KeyExists(RedisKey))
+                db.StringSet(RedisKey, true, TimeSpan.FromSeconds(int.MaxValue));
+            string Value = (db.StringGet(RedisKey));
             bool ConvertValue = JsonConvert.DeserializeObject<bool>(Value);
             if (ConvertValue)
             {
