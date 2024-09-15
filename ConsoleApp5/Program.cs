@@ -8,7 +8,7 @@ namespace ConsoleApp5
     {
         static void Main(string[] args)
         {
-            RequireMethod.CheckMethod();
+            ForPublicMethod.UseData();
         }
         public void test()
         {
