@@ -19,15 +19,23 @@ namespace JoreNoe.Cache.Redis
         }
 
         /// <summary>
+        /// 检查Key是否为空以及是否存在
+        /// </summary>
+        private void ValidateKey(string keyName)
+        {
+            // 是否可用
+            RequireMethod.CheckMethod();
+            if (string.IsNullOrEmpty(keyName))
+                throw new ArgumentNullException(nameof(keyName));
+        }
+
+        /// <summary>
         /// 添加字符串
         /// </summary>
         /// <returns></returns>
         public bool Add(string KeyName, string Context, int Expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
-
+            this.ValidateKey(KeyName);
             var Result = this.RedisDataBase.StringSet(KeyName, Context);
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             return Result;
@@ -39,13 +47,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Remove(string KeyName)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
-
-            if (!this.RedisDataBase.KeyExists(KeyName))
-                return false;
-
+            this.ValidateKey(KeyName);
             return this.RedisDataBase.KeyDelete(KeyName);
         }
         /// <summary>
@@ -58,15 +60,11 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Add<T>(string KeyName, T Context, int Expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
-
+            this.ValidateKey(KeyName);
             var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
             this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
             if (!Result)
                 throw new Exception("存储失败");
-
             return Context;
         }
 
@@ -80,26 +78,17 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T AddOrGet<T>(string KeyName, T Context, int Expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
-
+            this.ValidateKey(KeyName);
             if (this.RedisDataBase.KeyExists(KeyName))
                 return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
 
-            var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
-            this.RedisDataBase.KeyExpire(KeyName, TimeSpan.FromSeconds(Expire));
-            if (!Result)
-                throw new Exception("存储失败");
-
+            this.Add<T>(KeyName,Context,Expire);
             return Context;
         }
 
         public T AddOrGet<T>(string keyName, Func<T> contentProvider, int expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(keyName))
-                throw new ArgumentNullException(nameof(keyName));
+            this.ValidateKey(keyName);
             if (contentProvider == null)
                 throw new ArgumentNullException(nameof(contentProvider));
 
@@ -135,10 +124,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Find<T>(string KeyName)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
-
+            this.ValidateKey(KeyName);
             if (!this.Exists(KeyName))
                 return new List<T>();
 
@@ -147,9 +133,7 @@ namespace JoreNoe.Cache.Redis
 
         public T Single<T>(string KeyName)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (!this.Exists(KeyName))
                 return default(T);
@@ -160,9 +144,7 @@ namespace JoreNoe.Cache.Redis
 
         public string Single(string KeyName)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (!this.Exists(KeyName))
                 return string.Empty;
@@ -182,9 +164,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, int Expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (this.RedisDataBase.KeyExists(KeyName))
                 return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(KeyName, FolderName));
@@ -204,7 +184,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Exists(string KeyName)
         {
-            RequireMethod.CheckMethod();
+            this.ValidateKey(KeyName);
             return this.RedisDataBase.KeyExists(KeyName);
         }
 
@@ -218,9 +198,7 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string AddOrGet(string KeyName, string Context, int Expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (this.RedisDataBase.KeyExists(KeyName))
                 return this.RedisDataBase.StringGet(KeyName);
@@ -235,9 +213,7 @@ namespace JoreNoe.Cache.Redis
 
         public IList<T> AddOrGet<T>(string KeyName, IList<T> Context, int Expire = 180)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (this.RedisDataBase.KeyExists(KeyName))
             {
@@ -264,9 +240,7 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string Get(string KeyName)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (!this.Exists(KeyName))
                 return String.Empty;
@@ -282,9 +256,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public string Update(string KeyName, string Context)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
 
             if (!this.Exists(KeyName))
@@ -309,9 +281,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Update<T>(string KeyName, T Context)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (!this.Exists(KeyName))
                 return default(T);
@@ -335,9 +305,7 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Update<T>(string KeyName, IList<T> Contexts)
         {
-            RequireMethod.CheckMethod();
-            if (string.IsNullOrEmpty(KeyName))
-                throw new ArgumentNullException(nameof(KeyName));
+            this.ValidateKey(KeyName);
 
             if (!this.Exists(KeyName))
                 return default;

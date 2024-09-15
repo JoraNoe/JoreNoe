@@ -1,4 +1,5 @@
-﻿using JoreNoe.Limit;
+﻿using JoreNoe.Extend;
+using JoreNoe.Limit;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 namespace ConsoleApp5
@@ -7,15 +8,11 @@ namespace ConsoleApp5
     {
         static void Main(string[] args)
         {
-            
-
-            Program s = new Program();
-            s.test();
-
+            RequireMethod.CheckMethod();
         }
         public void test()
         {
-            RequireMethod.CheckMethod();
+            
             Console.WriteLine("测试看看行不");
         }
 
