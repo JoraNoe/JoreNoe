@@ -75,19 +75,28 @@ namespace JoreNoe.Extend
         public static string BooleanToString(this bool Value, string Letter)
         {
             RequireMethod.CheckMethod();
+
             if (string.IsNullOrWhiteSpace(Letter))
                 throw new ArgumentNullException("自定义标识为空，请输入内容");
-            //判断是否包含规定字符,
-            if (!Letter.Contains(",") && !Letter.Contains("，"))
-                throw new ArgumentException("自定义标识中未包含 ' , ',参考 '是,否' || '是，否' ");
-            //判断规定字符个数,
-            if (Letter.Split().Where(d => d.Contains(",") || d.Contains("，")).Count() > 1)
-                throw new ArgumentException("自定义标识错误 ' , ',参考 '是,否' || '是，否' ");
 
-            //拆解数据
-            var SplitLetter = Letter.Split(",").Length == 0 ? Letter.Split(",") : Letter.Split("，");
+            // 判断是否包含规定字符
+            if (!Letter.Contains(",") && !Letter.Contains("，"))
+                throw new ArgumentException("自定义标识中未包含 ' , ',参考 '是,否' 或 '是，否' ");
+
+            // 判断规定字符的个数
+            if (Letter.Count(d => d == ',' || d == '，') != 1)
+                throw new ArgumentException("自定义标识错误，逗号只能出现一次，参考 '是,否' 或 '是，否' ");
+
+            // 拆解数据
+            var SplitLetter = Letter.Contains(",") ? Letter.Split(",") : Letter.Split("，");
+
+            // 检查拆分后的数组长度
+            if (SplitLetter.Length != 2)
+                throw new ArgumentException("自定义标识格式不正确，必须包含两个元素，参考 '是,否' 或 '是，否' ");
+
             return Value ? SplitLetter[0] : SplitLetter[1];
         }
+
 
         /// <summary>
         /// 自定义类型

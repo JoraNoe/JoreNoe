@@ -2,13 +2,19 @@
 using JoreNoe.Limit;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using JoreNoe.Extend;
+using static JoreNoe.Extend.BooleanExtend;
 namespace ConsoleApp5
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            ForPublicMethod.UseData();
+            var x = false;
+
+           var xxx =  x.BooleanToString();
+            Console.WriteLine(xxx);
+            //ForPublicMethod.UseData();
         }
         public void test()
         {
