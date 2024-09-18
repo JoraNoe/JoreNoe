@@ -394,6 +394,97 @@ Console.WriteLine(RedisManager.Get("Test"));
 Console.ReadLine();
 ```
 
+#### 4.网络请求HttpClientAPI 
+
+4.1注入方式
+
+```C#
+// 注入 在 StartUp 或者 （NEt6以上在Program中注册）
+ services.AddHttpClientApi();
+
+//使用Demo
+using Microsoft.AspNetCore.Mvc;
+using JoreNoe.JoreHttpClient; // 引入你的命名空间
+
+namespace MyApp.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TestController : ControllerBase
+    {
+        private readonly HttpClientApi _httpClientApi;
+
+        public TestController(HttpClientApi httpClientApi)
+        {
+            _httpClientApi = httpClientApi;
+        }
+
+        [HttpGet("get")]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var response = await _httpClientApi.GetAsync("https://api.example.com/data");
+                return Ok(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("post")]
+        public async Task<IActionResult> Post([FromBody] string content)
+        {
+            try
+            {
+                var response = await _httpClientApi.PostAsync("https://api.example.com/data", content);
+                return Ok(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+    }
+}
+```
+
+4.2 直接使用方式
+
+```C#
+ // 创建 HttpClientHandler（可以配置 SSL 验证等）
+var handler = new HttpClientHandler
+{
+    // 例如：禁用 SSL 证书验证
+    ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true
+};
+
+// 创建 HttpClient 实例
+var httpClient = new HttpClient(handler)
+{
+    BaseAddress = new Uri("https://api.example.com/")
+};
+
+// 创建 IHttpClientFactory 的模拟实现
+var httpClientFactory = new FakeHttpClientFactory(httpClient);
+
+// 创建 HttpClientApi 实例
+var httpClientApi = new HttpClientApi(httpClientFactory);
+
+// 使用 HttpClientApi 发送请求
+try
+{
+    var response = await httpClientApi.GetAsync("data");
+    Console.WriteLine(response);
+}
+catch (HttpRequestException ex)
+{
+    Console.WriteLine($"Error: {ex.Message}");
+}
+```
+
+
 
 
 <a name="OPT3"></a>
