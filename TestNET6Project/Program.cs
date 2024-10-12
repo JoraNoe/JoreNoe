@@ -4,6 +4,7 @@ namespace TestNET6Project
     using JoreNoe.DB.Dapper;
     using JoreNoe.Middleware;
     using Newtonsoft.Json;
+    
 
     public class Program
     {
@@ -18,20 +19,26 @@ namespace TestNET6Project
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
+            //builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
+            builder.Services.AddJoreNoeSystemIPBlackListMiddleware("43.136.101.66:6379,Password=JoreNoe123",100,TimeSpan.FromMinutes(1),true);
 
             //builder.Logging.AddConsole();
 
+            //builder.Services.AddJoreNoeRequestVisitRecordIpAddressMiddleware<ip>();
 
             builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
             builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123", "Dogegg", 1);
             var app = builder.Build();
 
-            
+            //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
+            app.UseJoreNoeSystemIPBlackListMiddleware();
+            //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware(e => {
+            //    Console.WriteLine("方法" + e.IpAddress);
+            //});
 
 
-            app.UseJoreNoeGlobalErrorHandlingMiddleware();
-            app.UseJoreNoeRequestLoggingMiddleware();
+            //app.UseJoreNoeGlobalErrorHandlingMiddleware();
+            //app.UseJoreNoeRequestLoggingMiddleware();
 
             // webapi 全局错误日志中间件  直接使用方法回调方式
             //app.UseJoreNoeGlobalErrorHandlingMiddleware(async (ex, context) =>

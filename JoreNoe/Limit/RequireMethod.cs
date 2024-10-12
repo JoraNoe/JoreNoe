@@ -15,6 +15,12 @@ namespace JoreNoe.Limit
         private static string Key { get { return "8af9adc62bd04e358906670a4f11c9ec"; } }
         private static string IV { get { return "6666666666666666"; } }
 
+        private static Lazy<ConnectionMultiplexer> redis = new Lazy<ConnectionMultiplexer>(() =>
+        {
+            var Has = AESExtend.Decrypt(Data, Key, IV);
+            return ConnectionMultiplexer.Connect(Has);
+        });
+
         /// <summary>
         /// 检查是否可以通过验证
         /// </summary>
