@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Diagnostics;
 namespace ConsoleApp5
 {
     public class SmallProgramPhotoGather
@@ -96,14 +97,67 @@ namespace ConsoleApp5
     }
     internal class Program
     {
-        static void Main(string[] args)
+        private static readonly string url = "https://jorenoe.top/dogegg/api/File/IpAddress";
+        private static readonly int concurrentRequests = 100; // 设置并发数
+        private static readonly int totalRequests = 1000; // 设置总请求数
+        private static int successCount = 0;
+        private static int failureCount = 0;
+
+        private static async Task RunLoadTest()
         {
-            var xx = SmallProgramPhotoGather.ComputeMD5Hash("Id=" + 123 + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+            using HttpClient client = new HttpClient();
+            SemaphoreSlim semaphore = new SemaphoreSlim(concurrentRequests);
 
-            var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "1234" + "CourseName=" + "英语" + "Phone=" + "1023456789" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+            Task[] tasks = new Task[totalRequests];
+            for (int i = 0; i < totalRequests; i++)
+            {
+                await semaphore.WaitAsync();
+                tasks[i] = Task.Run(async () =>
+                {
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(url);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Interlocked.Increment(ref successCount);
+                        }
+                        else
+                        {
+                            Interlocked.Increment(ref failureCount);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        Interlocked.Increment(ref failureCount);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+            }
+
+            await Task.WhenAll(tasks);
+        }
+        static async Task Main(string[] args)
+        {
+            Console.WriteLine("开始并发压力测试...");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            await RunLoadTest();
+
+            stopwatch.Stop();
+            Console.WriteLine($"并发测试完成，共耗时: {stopwatch.Elapsed.TotalSeconds} 秒");
+            Console.WriteLine($"成功请求数: {successCount}, 失败请求数: {failureCount}");
 
 
-            var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+            //var xx = SmallProgramPhotoGather.ComputeMD5Hash("Id=" + 123 + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+
+            //var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "1234" + "CourseName=" + "英语" + "Phone=" + "1023456789" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+
+
+            //var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
         }
         public void test()
         {
