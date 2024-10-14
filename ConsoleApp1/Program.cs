@@ -160,6 +160,16 @@ namespace ConsoleApp1
 
             Parallel.For(0, 100, i =>
             {
+                var result = api.AddAsync(new test
+                {
+                    Flg = true,
+                    Email = "123",
+                    Name = "test"
+                });
+            });
+
+            Parallel.For(0, 100, i =>
+            {
                 var result = api.Add(new test
                 {
                     Flg = true,
@@ -168,7 +178,7 @@ namespace ConsoleApp1
                 });
             });
 
-            
+
 
             // redis 并发测试
 

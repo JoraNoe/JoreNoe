@@ -35,46 +35,58 @@ namespace JoreNoe.DB.Dapper
         /// </summary>
         private static AsyncLocal<bool> IsMulitConnection = new AsyncLocal<bool>();
         /// <summary>
-        /// 扩展执行方法
+        /// 扩展执行方法异步
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Connection"></param>
         /// <param name="DBAction"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<T> ExcuteWithConnectionAsync<T>(this IDbConnection Connection, Func<IDbConnection, Task<T>> DBActionAsync)
+        {
+            if (IsMulitConnection.Value)
+            {
+                using (Connection)
+                {
+
+                    return await DBActionAsync(Connection).ConfigureAwait(false);
+
+                }
+            }
+            else
+            {
+                return await DBActionAsync(Connection).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// 扩展执行方法同步
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="DBActionAsync"></param>
+        /// <returns></returns>
         public static T ExcuteWithConnection<T>(this IDbConnection Connection, Func<IDbConnection, T> DBAction)
         {
-            try
+            if (IsMulitConnection.Value)
             {
-                if (IsMulitConnection.Value)
-                {
-                    if (Connection.State != System.Data.ConnectionState.Open)
-                    {
-                        Connection.Open();
-                    }
-                    using (Connection)
-                    {
-                        return DBAction(Connection);
-                    }
-                }
-                else
+                using (Connection)
                 {
                     return DBAction(Connection);
                 }
             }
-            catch (Exception ex)
+            else
             {
-
-                throw new InvalidOperationException("出现了错误", ex);
+                return DBAction(Connection);
             }
         }
-        
+
         /// <summary>
         /// 设置属性值
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="Value"></param>
-        public static void DapperSettingIsEnabledMulitConnection(this IDbConnection Connection,bool Value)
+        public static void DapperSettingIsEnabledMulitConnection(this IDbConnection Connection, bool Value)
         {
             IsMulitConnection.Value = Value;
         }
@@ -122,6 +134,7 @@ namespace JoreNoe.DB.Dapper
                 return SingleConnection;
             }
         }
+
 
         /// <summary>
         /// 尽量不要使用,全表检索
@@ -175,7 +188,7 @@ namespace JoreNoe.DB.Dapper
             string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", this.GetTableName<T>(),
                 " where ", ParamsKeyName, " = ", "'", ParamsValue, "'");
 
-            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(QuerySQL)).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnectionAsync(async DbCon => await DbCon.QueryFirstOrDefaultAsync<T>(QuerySQL).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -195,7 +208,7 @@ namespace JoreNoe.DB.Dapper
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(SQL)).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnectionAsync(async DbCon => await DbCon.QueryFirstOrDefaultAsync<T>(SQL).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         public T SingleSQL(string SQL, object Params)
@@ -209,7 +222,7 @@ namespace JoreNoe.DB.Dapper
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(SQL, Params)).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnectionAsync(async DbCon => await DbCon.QueryFirstOrDefaultAsync<T>(SQL, Params).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
 
@@ -511,7 +524,7 @@ namespace JoreNoe.DB.Dapper
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>(IgnoreFailds);
             string insertQuery = $"INSERT INTO {typeof(T).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
-            await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.ExecuteAsync(insertQuery, entity));
+            await this.GetDBConnection.ExcuteWithConnectionAsync(async (DbCon) => await DbCon.ExecuteAsync(insertQuery, entity).ConfigureAwait(false));
             return entity;
         }
 
@@ -568,7 +581,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(SQLExcute))
                 throw new ArgumentNullException(nameof(SQLExcute));
 
-            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryAsync<T>(SQLExcute, Params)).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnectionAsync(async DbCon => await DbCon.QueryAsync<T>(SQLExcute, Params).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -597,7 +610,7 @@ namespace JoreNoe.DB.Dapper
             // Convert the expression to SQL
             var sql = ExpressionToSqlConverter.Convert(Predicate);
 
-            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryAsync<T>(sql)).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnectionAsync(async DbCon => await DbCon.QueryAsync<T>(sql).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         /// <summary>
