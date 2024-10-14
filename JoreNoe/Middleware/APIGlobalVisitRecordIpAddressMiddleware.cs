@@ -55,7 +55,7 @@ namespace JoreNoe.Middleware
             {
                 // 获取 IP 地址和 User-Agent
                 var ip = JoreNoeRequestCommonTools.GetClientIpAddress(context);
-                var userAgent = context.Request.Headers["User-Agent"].ToString();
+                var userAgent = context.Request.Headers["User-Agent"];
 
                 // 记录访问信息
                 _callback(new GlobalVisitRecord
@@ -105,7 +105,7 @@ namespace JoreNoe.Middleware
             {
                 // 获取 IP 地址和 User-Agent
                 var ip = JoreNoeRequestCommonTools.GetClientIpAddress(context);
-                var userAgent = context.Request.Headers["User-Agent"].ToString();
+                var userAgent = context.Request.Headers["User-Agent"];
 
                 // 记录访问信息
                 await _entity.VisitRecordIpAddress(new GlobalVisitRecord
