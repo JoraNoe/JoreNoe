@@ -2,6 +2,7 @@
 using JoreNoe.Limit;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using System;
 using System.Collections.Concurrent;
 
 namespace JoreNoe.Cache.Redis
@@ -13,11 +14,6 @@ namespace JoreNoe.Cache.Redis
         /// 字符串
         /// </summary>
         string ConnectionString { get; set; }
-
-        /// <summary>
-        /// 实例名称
-        /// </summary>
-        string InstanceName { get; set; }
 
         /// <summary>
         /// 默认数据库
@@ -34,15 +30,13 @@ namespace JoreNoe.Cache.Redis
         {
 
         }
-        public SettingConfigs(string ConnectionString, string InstanceName, int DefaultDB = 0)
+        public SettingConfigs(string ConnectionString, int DefaultDB = 0)
         {
             this.ConnectionString = ConnectionString;
-            this.InstanceName = InstanceName;
             this.DefaultDB = DefaultDB;
         }
 
         public string ConnectionString { get; set; }
-        public string InstanceName { get; set; }
         public int DefaultDB { get; set; }
     }
 
@@ -51,7 +45,7 @@ namespace JoreNoe.Cache.Redis
     /// </summary>
     public interface IJoreNoeRedisBaseService
     {
-        ConcurrentDictionary<string, ConnectionMultiplexer> ConnectionDB { get; set; }
+        Lazy<ConnectionMultiplexer> ConnectionDB { get; set; }
 
         IDatabase RedisDataBase { get; set; }
     }
@@ -62,15 +56,15 @@ namespace JoreNoe.Cache.Redis
     public class JoreNoeRedisBaseService : IJoreNoeRedisBaseService
     {
         private readonly ISettingConfigs SettingConfigs;
-        public ConcurrentDictionary<string, ConnectionMultiplexer> ConnectionDB { set; get; }
+        public Lazy<ConnectionMultiplexer> ConnectionDB { get; set; }
         public IDatabase RedisDataBase { get; set; }
 
         public JoreNoeRedisBaseService(ISettingConfigs SettingConfigs)
         {
             this.SettingConfigs = SettingConfigs;
-            this.ConnectionDB = new ConcurrentDictionary<string, ConnectionMultiplexer>();
-            var GetConnection = this.ConnectionDB.GetOrAdd(this.SettingConfigs.InstanceName, Instance => ConnectionMultiplexer.Connect(this.SettingConfigs.ConnectionString));
-            this.RedisDataBase = GetConnection.GetDatabase(this.SettingConfigs.DefaultDB);
+            this.ConnectionDB = new Lazy<ConnectionMultiplexer>(() =>
+            ConnectionMultiplexer.Connect(this.SettingConfigs.ConnectionString));
+            this.RedisDataBase = this.ConnectionDB.Value.GetDatabase(this.SettingConfigs.DefaultDB);
         }
     }
 
@@ -79,9 +73,9 @@ namespace JoreNoe.Cache.Redis
     /// </summary>
     public static class JoreNoeRedisExtensions
     {
-        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, string InstanceName, int DefaultDB = 0)
+        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, int DefaultDB = 0)
         {
-            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, InstanceName, DefaultDB));
+            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB));
             services.AddScoped<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
             services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
         }

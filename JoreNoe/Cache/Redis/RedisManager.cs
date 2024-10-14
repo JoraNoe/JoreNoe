@@ -24,7 +24,7 @@ namespace JoreNoe.Cache.Redis
         private void ValidateKey(string keyName)
         {
             // 是否可用
-            RequireMethod.CheckMethod();
+            //RequireMethod.CheckMethod();
             if (string.IsNullOrEmpty(keyName))
                 throw new ArgumentNullException(nameof(keyName));
         }

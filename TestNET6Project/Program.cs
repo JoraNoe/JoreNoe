@@ -27,7 +27,7 @@ namespace TestNET6Project
             //builder.Services.AddJoreNoeRequestVisitRecordIpAddressMiddleware<ip>();
 
             builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
-            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123", "Dogegg", 1);
+            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123", 1);
             var app = builder.Build();
 
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();

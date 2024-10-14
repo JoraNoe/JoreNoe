@@ -7,7 +7,7 @@ using System.Reflection;
 namespace JoreNoe.Limit
 {
     /// <summary>
-    /// 验证类
+    /// 验证类  - 已经停用不适用
     /// </summary>
     internal class RequireMethod
     {

@@ -2,24 +2,84 @@
 using JoreNoe.Extend;
 using JoreNoe.JoreNoeLog;
 using JoreNoe.Limit;
+using MathNet.Numerics.Statistics;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace JoreNoe.DB.Dapper
 {
+    /// <summary>
+    /// 通用方法扩展
+    /// </summary>
+    static class JoreNoeDapperDBConnectionExtensions
+    {
+        /// <summary>
+        /// 是否启用多数据库操作
+        /// </summary>
+        private static AsyncLocal<bool> IsMulitConnection = new AsyncLocal<bool>();
+        /// <summary>
+        /// 扩展执行方法
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="DBAction"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static T ExcuteWithConnection<T>(this IDbConnection Connection, Func<IDbConnection, T> DBAction)
+        {
+            try
+            {
+                if (IsMulitConnection.Value)
+                {
+                    if (Connection.State != System.Data.ConnectionState.Open)
+                    {
+                        Connection.Open();
+                    }
+                    using (Connection)
+                    {
+                        return DBAction(Connection);
+                    }
+                }
+                else
+                {
+                    return DBAction(Connection);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw new InvalidOperationException("出现了错误", ex);
+            }
+        }
+        
+        /// <summary>
+        /// 设置属性值
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Value"></param>
+        public static void DapperSettingIsEnabledMulitConnection(this IDbConnection Connection,bool Value)
+        {
+            IsMulitConnection.Value = Value;
+        }
+    }
+
     public class Repository<T> : IRepository<T> where T : class, new()
     {
         /// <summary>
@@ -27,11 +87,40 @@ namespace JoreNoe.DB.Dapper
         /// </summary>
         private readonly IDbConnection DBConnection;
 
+        /// <summary>
+        /// 数据库
+        /// </summary>
         private readonly IDatabaseService databaseService;
+
+        /// <summary>
+        /// 是否启用多数据库链接
+        /// </summary>
+        private readonly bool IsMulitEnabledConnection;
         public Repository(IDatabaseService dataBaseService)
         {
             this.databaseService = dataBaseService;
             this.DBConnection = dataBaseService.GetConnection();
+            this.IsMulitEnabledConnection = databaseService.DataBaseSettings.IsEnabledMulitConnection;
+        }
+
+        /// <summary>
+        /// 判断是否允许多条链接，不允许只用一条，允许就使用多条
+        /// </summary>
+        private IDbConnection GetDBConnection => this.GetConnectionNewMethod();
+        private IDbConnection GetConnectionNewMethod()
+        {
+            if (this.IsMulitEnabledConnection)
+            {
+                var NewConnection = this.databaseService.GetConnection();
+                NewConnection.DapperSettingIsEnabledMulitConnection(this.IsMulitEnabledConnection);
+                return NewConnection;
+            }
+            else
+            {
+                var SingleConnection = this.DBConnection;
+                SingleConnection.DapperSettingIsEnabledMulitConnection(this.IsMulitEnabledConnection);
+                return SingleConnection;
+            }
         }
 
         /// <summary>
@@ -41,7 +130,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public IEnumerable<T> All(string[] ParamsColumns = null)
         {
-            return this.DBConnection.Query<T>($"Select {(ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns))} from " + this.GetTableName<T>());
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Query<T>($"Select {(ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns))} from " + this.GetTableName<T>()));
         }
 
         /// <summary>
@@ -60,10 +149,21 @@ namespace JoreNoe.DB.Dapper
 
             // 组装SQL 
             string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", this.GetTableName<T>(),
-                " where ", ParamsKeyName, " = ", "'",ParamsValue,"'");
+                " where ", ParamsKeyName, " = ", "'", ParamsValue, "'");
 
-            return this.DBConnection.QueryFirstOrDefault<T>(QuerySQL);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefault<T>(QuerySQL));
+
+
         }
+        /// <summary>
+        /// 异步查询单个数据
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="ParamsValue"></param>
+        /// <param name="ParamsKeyName"></param>
+        /// <param name="ParamsColumns"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         public async Task<T> SingleAsync<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null)
         {
             if (DapperExtend.IsNullOrEmpty(ParamsValue))
@@ -75,7 +175,7 @@ namespace JoreNoe.DB.Dapper
             string QuerySQL = string.Concat("select ", (ParamsColumns == null ? "*" : string.Join(", ", ParamsColumns)), " From ", this.GetTableName<T>(),
                 " where ", ParamsKeyName, " = ", "'", ParamsValue, "'");
 
-            return await this.DBConnection.QueryFirstOrDefaultAsync<T>(QuerySQL).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(QuerySQL)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -88,31 +188,31 @@ namespace JoreNoe.DB.Dapper
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return this.DBConnection.QueryFirstOrDefault<T>(SQL);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefault<T>(SQL));
         }
 
         public async Task<T> SingleSQLAsync(string SQL)
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return await this.DBConnection.QueryFirstOrDefaultAsync<T>(SQL).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(SQL)).ConfigureAwait(false);
         }
 
         public T SingleSQL(string SQL, object Params)
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return this.DBConnection.QueryFirstOrDefault<T>(SQL, Params);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefault<T>(SQL, Params));
         }
 
         public async Task<T> SingleSQLAsync(string SQL, object Params)
         {
             if (string.IsNullOrEmpty(SQL))
                 throw new System.Exception("SQL 为空");
-            return await this.DBConnection.QueryFirstOrDefaultAsync<T>(SQL, Params).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(SQL, Params)).ConfigureAwait(false);
         }
 
-        
+
 
 
 
@@ -138,7 +238,7 @@ namespace JoreNoe.DB.Dapper
 
             Dictionary<string, object> parameters = new Dictionary<string, object> { { ParamsKeyName, ParamsValue } };
             string DeleteSQL = $"DELETE FROM {typeof(T).Name} WHERE {ParamsKeyName} = @{ParamsKeyName}";
-            this.DBConnection.Execute(DeleteSQL, parameters);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(DeleteSQL, parameters));
 
             return ExistsValueInfo;
         }
@@ -215,7 +315,7 @@ namespace JoreNoe.DB.Dapper
                 throw new System.Exception("ParamsKeyName为空,请传递参数。");
 
             var ExistsSQL = $"SELECT COUNT(*) FROM {this.GetTableName<T>()} WHERE {ParamsKeyName}='{ParamsValues}'";
-            return this.DBConnection.QueryFirstOrDefault<bool>(ExistsSQL, ParamsKeyName);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefault<bool>(ExistsSQL, ParamsKeyName));
         }
 
 
@@ -247,7 +347,7 @@ namespace JoreNoe.DB.Dapper
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
             string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
-            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(DeleteSQL, ConvertToDictionary));
 
             return ExistsValueInfo;
         }
@@ -272,7 +372,7 @@ namespace JoreNoe.DB.Dapper
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
             string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
-            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(DeleteSQL, ConvertToDictionary));
 
             return ExistsValueInfo;
         }
@@ -299,7 +399,7 @@ namespace JoreNoe.DB.Dapper
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
             string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
-            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(DeleteSQL, ConvertToDictionary));
 
 
             return ExistsValueInfo;
@@ -327,7 +427,7 @@ namespace JoreNoe.DB.Dapper
             var GetSQLParams = DictionaryToFormattedExtend.DictionaryToFormattedSQL(ConvertToDictionary);
             ConvertToDictionary.Add(ParamsKeyName, ParamsValue);
             string DeleteSQL = $"UPDATE {this.GetTableName<T>()} SET {GetSQLParams} WHERE {ParamsKeyName} = @{ParamsKeyName}";
-            this.DBConnection.Execute(DeleteSQL, ConvertToDictionary);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(DeleteSQL, ConvertToDictionary));
 
 
             return ExistsValueInfo;
@@ -411,7 +511,7 @@ namespace JoreNoe.DB.Dapper
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>(IgnoreFailds);
             string insertQuery = $"INSERT INTO {typeof(T).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
-            await this.DBConnection.ExecuteAsync(insertQuery, entity);
+            await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.ExecuteAsync(insertQuery, entity));
             return entity;
         }
 
@@ -430,7 +530,7 @@ namespace JoreNoe.DB.Dapper
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>(IgnoreFailds);
             string insertQuery = $"INSERT INTO {this.GetTableName<T>()} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
-            this.DBConnection.Execute(insertQuery, entity);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(insertQuery, entity));
             return entity;
         }
 
@@ -445,7 +545,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(SQLExcute))
                 throw new ArgumentNullException(nameof(SQLExcute));
 
-            return this.DBConnection.Query<T>(SQLExcute);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Query<T>(SQLExcute));
         }
 
         /// <summary>
@@ -460,7 +560,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(SQLExcute))
                 throw new ArgumentNullException(nameof(SQLExcute));
 
-            return this.DBConnection.Query<T>(SQLExcute, Params);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Query<T>(SQLExcute, Params));
         }
 
         public async Task<IEnumerable<T>> FindAsync(string SQLExcute, object Params)
@@ -468,7 +568,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(SQLExcute))
                 throw new ArgumentNullException(nameof(SQLExcute));
 
-            return await this.DBConnection.QueryAsync<T>(SQLExcute, Params).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryAsync<T>(SQLExcute, Params)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -477,7 +577,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="Predicate"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public IEnumerable<T> Find(Expression<Func<T,bool>> Predicate)
+        public IEnumerable<T> Find(Expression<Func<T, bool>> Predicate)
         {
             if (Predicate == null)
                 throw new ArgumentNullException(nameof(Predicate));
@@ -486,7 +586,7 @@ namespace JoreNoe.DB.Dapper
             var sql = ExpressionToSqlConverter.Convert(Predicate);
             //var sql = DapperExtend.Convert(Predicate);
 
-            return this.DBConnection.Query<T>(sql);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Query<T>(sql));
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> Predicate)
@@ -497,7 +597,7 @@ namespace JoreNoe.DB.Dapper
             // Convert the expression to SQL
             var sql = ExpressionToSqlConverter.Convert(Predicate);
 
-            return await this.DBConnection.QueryAsync<T>(sql).ConfigureAwait(false);
+            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryAsync<T>(sql)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -512,7 +612,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(SQLExcute))
                 throw new ArgumentNullException(nameof(SQLExcute));
 
-            return this.DBConnection.Execute(SQLExcute, Params);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(SQLExcute, Params));
         }
 
         /// <summary>
@@ -526,7 +626,7 @@ namespace JoreNoe.DB.Dapper
             if (string.IsNullOrEmpty(SQLExcute))
                 throw new ArgumentNullException(nameof(SQLExcute));
 
-            return this.DBConnection.Execute(SQLExcute);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(SQLExcute));
         }
 
         /// <summary>
@@ -559,7 +659,7 @@ namespace JoreNoe.DB.Dapper
             sqlBuilder.Length -= 2;
             sqlBuilder.Append(")");
 
-            this.DBConnection.Execute(sqlBuilder.ToString());
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(sqlBuilder.ToString()));
 
             return true;
         }
@@ -587,7 +687,7 @@ namespace JoreNoe.DB.Dapper
 
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<BaseHistory>();
             string insertQuery = $"INSERT INTO {typeof(BaseHistory).Name} ({GetColumns.Item1}) VALUES ({GetColumns.Item2})";
-            this.DBConnection.Execute(insertQuery, Entity);
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(insertQuery, Entity));
         }
 
 
@@ -621,7 +721,7 @@ namespace JoreNoe.DB.Dapper
             sqlBuilder.Length -= 2;
             sqlBuilder.Append(")");
 
-            this.DBConnection.Execute(sqlBuilder.ToString());
+            this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.Execute(sqlBuilder.ToString()));
         }
 
         /// <summary>
@@ -801,35 +901,6 @@ namespace JoreNoe.DB.Dapper
             this.DBConnection.Execute(sql);
         }
 
-
-        /// <summary>
-        /// 创建数据库链接
-        /// </summary>
-        /// <param name="connectionDbType"></param>
-        /// <param name="connectionString"></param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
-        private IDbConnection CreateDbConnection(IDBType connectionDbType, string connectionString)
-        {
-            return connectionDbType switch
-            {
-                IDBType.MySql => new MySqlConnection(connectionString),
-                IDBType.SqlServer => new SqlConnection(connectionString),
-                _ => throw new NotSupportedException("Unsupported database type"),
-            };
-        }
-
-        /// <summary>
-        /// 获取一个新的数据库链接上下文
-        /// </summary>
-        /// <param name="connectionDbType">链接类型</param>
-        /// <param name="connectionString">链接字符串</param>
-        /// <returns></returns>
-        public IDbConnection GetDbConnection(IDBType connectionDbType, string connectionString)
-        {
-            return this.CreateDbConnection(connectionDbType, connectionString);
-        }
-
         /// <summary>
         /// 获取名称
         /// </summary>
@@ -907,7 +978,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public int Count()
         {
-            return this.DBConnection.QuerySingle<int>($"select Count(*) from {this.GetTableName<T>()}");
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QuerySingle<int>($"select Count(*) from {this.GetTableName<T>()}"));
         }
 
         /// <summary>
@@ -924,9 +995,7 @@ namespace JoreNoe.DB.Dapper
             // Convert the expression to SQL
             var sql = ExpressionToSqlConverter.Convert(Predicate);
 
-            return this.DBConnection.QuerySingle<int>(sql);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QuerySingle<int>(sql));
         }
-
-
     }
 }

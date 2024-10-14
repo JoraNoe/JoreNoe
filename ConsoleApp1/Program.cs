@@ -130,16 +130,56 @@ namespace ConsoleApp1
             //    Console.WriteLine($"总共耗时: {elapsedTime.TotalSeconds} 秒");
             //}
 
-            var services = new ServiceCollection();
-            services.AddHttpClientApi();
+           // var services = new ServiceCollection();
+           // services.AddHttpClientApi();
 
-            // 构建服务提供者
-            var serviceProvider = services.BuildServiceProvider();
+           // // 构建服务提供者
+           // var serviceProvider = services.BuildServiceProvider();
 
-            // 获取 HttpClientApi 实例
-            var httpClientApi = serviceProvider.GetRequiredService<HttpClientApi>();
+           // // 获取 HttpClientApi 实例
+           // var httpClientApi = serviceProvider.GetRequiredService<HttpClientApi>();
 
-           var ss = await  httpClientApi.GetAsync("https://jorenoe.top/dogegg/api/notice");
+           //var ss = await  httpClientApi.GetAsync("https://jorenoe.top/dogegg/api/notice");
+
+
+            var Service = new ServiceCollection();
+            Service.AddJoreNoeDapper("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IDBType.MySql,true);
+            Service.AddJoreNoeRedis("43.136.101.66:6379,password=JoreNoe123", 0);
+            var serviceProvider = Service.BuildServiceProvider();
+            var api = serviceProvider.GetRequiredService<JoreNoe.DB.Dapper.IRepository<test>>();
+
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    var result = api.Add(new test
+            //    {
+            //        Flg = true,
+            //        Email = "123",
+            //        Name = "test"
+            //    });
+            //}
+
+            Parallel.For(0, 100, i =>
+            {
+                var result = api.Add(new test
+                {
+                    Flg = true,
+                    Email = "123",
+                    Name = "test"
+                });
+            });
+
+            
+
+            // redis 并发测试
+
+            var redisapi = serviceProvider.GetRequiredService<JoreNoe.Cache.Redis.IRedisManager>();
+            var xxx = new ConcurrentBag<string>();
+            Parallel.For(0, 10000, e =>
+            {
+                var ff = redisapi.Single("ProjectName_JoreNoe_Nuget_JoreNoe_Pack_Config");
+
+                xxx.Add(ff);
+            });
 
             Console.ReadLine();
         }
