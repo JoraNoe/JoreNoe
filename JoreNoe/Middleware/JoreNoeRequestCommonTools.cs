@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -150,6 +151,15 @@ namespace JoreNoe.Middleware
             </body>
             </html>
             ";
+        }
+
+        /// <summary>
+        /// 获取当前项目名称
+        /// </summary>
+        /// <returns>项目名称</returns>
+        public static  string GetReferencingProjectName()
+        {
+            return Assembly.GetEntryAssembly()?.GetName().Name ?? "UnknownProject";  // 获取项目名称
         }
     }
 }

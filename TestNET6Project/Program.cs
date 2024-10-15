@@ -28,9 +28,11 @@ namespace TestNET6Project
 
             builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
             builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123", 1);
+            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware("43.136.101.66:6379,Password=JoreNoe123");
             var app = builder.Build();
 
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
+            app.UseJoreNoeIntefaceAccessMiddleware();
             app.UseJoreNoeSystemIPBlackListMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware(e => {
             //    Console.WriteLine("·½·¨" + e.IpAddress);

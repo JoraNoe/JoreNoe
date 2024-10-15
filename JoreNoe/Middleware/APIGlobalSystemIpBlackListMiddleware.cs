@@ -101,12 +101,13 @@ namespace JoreNoe.Middleware
 
                 // 首次访问时，设置该IP请求次数的过期时间
                 if (currentCount == 1)
-                    await _redisDb.KeyExpireAsync(redisKey, _config.TimeSpanTime);
+                    await _redisDb.KeyExpireAsync(redisKey, TimeSpan.FromMinutes(int.MaxValue));
 
                 // 如果请求次数超过限制，将IP加入黑名单
                 if (currentCount > _config.MaxRequestCount)
                 {
                     await _redisDb.SetAddAsync(GetBlacklistKey(), remoteIp);  // 将IP加入黑名单
+                    await _redisDb.KeyPersistAsync(GetBlacklistKey());
                     var deniedMessage = await QueryDeniedMessage();
                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     await context.Response.WriteAsync(deniedMessage);
@@ -161,6 +162,7 @@ namespace JoreNoe.Middleware
             {
                 var defaultMessage = JoreNoeRequestCommonTools.ReturnDeniedHTMLPage();  // 返回默认HTML拒绝消息
                 await _redisDb.StringSetAsync(messageKey, defaultMessage);  // 存入Redis
+                await _redisDb.KeyPersistAsync(messageKey);
                 return defaultMessage;
             }
         }
