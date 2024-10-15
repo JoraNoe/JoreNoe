@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JoreNoe.JoreHttpClient;
+using Org.BouncyCastle.Asn1.X9;
 
 namespace ConsoleApp1
 {
@@ -130,16 +131,75 @@ namespace ConsoleApp1
             //    Console.WriteLine($"总共耗时: {elapsedTime.TotalSeconds} 秒");
             //}
 
-           // var services = new ServiceCollection();
-           // services.AddHttpClientApi();
+            // var services = new ServiceCollection();
+            // services.AddHttpClientApi();
 
-           // // 构建服务提供者
-           // var serviceProvider = services.BuildServiceProvider();
+            // // 构建服务提供者
+            // var serviceProvider = services.BuildServiceProvider();
 
-           // // 获取 HttpClientApi 实例
-           // var httpClientApi = serviceProvider.GetRequiredService<HttpClientApi>();
+            // // 获取 HttpClientApi 实例
+            // var httpClientApi = serviceProvider.GetRequiredService<HttpClientApi>();
 
-           //var ss = await  httpClientApi.GetAsync("https://jorenoe.top/dogegg/api/notice");
+            //var ss = await  httpClientApi.GetAsync("https://jorenoe.top/dogegg/api/notice");
+
+            string result = "牛逼公司";
+            string[] organizations = new string[]
+            {
+                    "集团", "公司", "企业", "事务所", "办事处", "基金会", "联合会", "协会",
+                    "研究会", "联谊会", "学会", "促进会", "红十字会", "慈善总会",
+                    "狮子联会", "红十字总会", "大学", "医院", "中心", "学院"
+            };
+
+            // 过滤掉这些字段 
+            foreach (var or in organizations)
+            {
+                result = result.Replace(or, "");
+            }
+
+            var asdf = "2";
+
+            if (asdf == "2")
+            {
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = string.Empty;
+                }
+                else
+                {
+                    string namePart = result;
+                    string unitPart;
+
+                    if (string.IsNullOrEmpty(result))
+                    {
+                        unitPart = string.Empty;
+                    }
+                    else
+                    {
+                        unitPart = result;
+                    }
+
+                    result = string.Concat(namePart, "(", unitPart, ")").Trim();
+                }
+
+                if (result.Length < 4)
+                {
+
+                }
+
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = result;
+                }
+                else
+                {
+                    result = result;
+                }
+
+
+            }
 
 
             var Service = new ServiceCollection();

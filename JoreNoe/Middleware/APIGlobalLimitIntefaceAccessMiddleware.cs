@@ -12,14 +12,31 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.Middleware
 {
+
+    public interface ILimitInteFaceAccessSetting
+    {
+        public string ReturnMessage { get; set; }
+    }
+
+    public class LimitInteFaceAccessSetting : ILimitInteFaceAccessSetting
+    {
+        public LimitInteFaceAccessSetting(string returnMessage)
+        {
+            this.ReturnMessage = returnMessage;
+        }
+        public string ReturnMessage { get; set; }
+    }
+
     public class APIGlobalLimitIntefaceAccessMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly IDatabase _redisDb;
-        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, IConnectionMultiplexer Redis)
+        private readonly ILimitInteFaceAccessSetting _limitInteFaceAccessSetting;
+        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, IConnectionMultiplexer Redis,ILimitInteFaceAccessSetting Config)
         {
             _next = next;
             _redisDb = Redis.GetDatabase();
+            _limitInteFaceAccessSetting = Config;
         }
 
         public async Task Invoke(HttpContext context)
@@ -31,7 +48,7 @@ namespace JoreNoe.Middleware
                 if (Single == false)
                 {
                     context.Response.StatusCode = StatusCodes.Status403Forbidden;  // 设置403禁止状态码
-                    await context.Response.WriteAsync("Access Denied");  // 返回消息
+                    await context.Response.WriteAsync(_limitInteFaceAccessSetting.ReturnMessage);  // 返回消息
                     return;  // 结束请求管道
                 }
             }
@@ -67,7 +84,7 @@ namespace JoreNoe.Middleware
         /// <param name="maxRequestCount">最大请求次数</param>
         /// <param name="spanTime">时间窗口</param>
         /// <param name="isEnabledRequestLimit">是否启用请求限制</param>
-        public static void AddJoreNoeJoreNoeIntefaceAccessMiddleware(this IServiceCollection services, string redisConnection)
+        public static void AddJoreNoeJoreNoeIntefaceAccessMiddleware(this IServiceCollection services, string redisConnection,string ReturnMessage = "Access Denied")
         {
             if (string.IsNullOrEmpty(redisConnection))
                 throw new ArgumentNullException(nameof(redisConnection));
@@ -75,6 +92,8 @@ namespace JoreNoe.Middleware
             // 注册单例的 Redis 连接
             var multiplexer = ConnectionMultiplexer.Connect(redisConnection);
             services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+
+            services.AddSingleton<ILimitInteFaceAccessSetting>(new LimitInteFaceAccessSetting(ReturnMessage));
         }
     }
 }
