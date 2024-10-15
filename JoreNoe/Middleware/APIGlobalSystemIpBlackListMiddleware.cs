@@ -101,7 +101,7 @@ namespace JoreNoe.Middleware
 
                 // 首次访问时，设置该IP请求次数的过期时间
                 if (currentCount == 1)
-                    await _redisDb.KeyExpireAsync(redisKey, TimeSpan.FromMinutes(int.MaxValue));
+                    await _redisDb.KeyExpireAsync(redisKey, _config.TimeSpanTime);
 
                 // 如果请求次数超过限制，将IP加入黑名单
                 if (currentCount > _config.MaxRequestCount)
