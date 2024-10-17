@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using JoreNoe.Cache.Redis;
 
 namespace JoreNoe.Middleware
 {
@@ -34,7 +35,6 @@ namespace JoreNoe.Middleware
     /// </summary>
     public class JoreNoeSystemIpBlackListRedisSettingConfig : IJoreNoeSystemIpBlackListRedisSettingConfig
     {
-        public string RedisConnection { get; set; }
         public bool IsEnabledRequestLimit { get; set; }
         public int MaxRequestCount { get; set; }
         public TimeSpan TimeSpanTime { get; set; }
@@ -61,18 +61,16 @@ namespace JoreNoe.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IJoreNoeSystemIpBlackListRedisSettingConfig _config;
-        private readonly IDatabase _redisDb;
-
+        private IDatabase _redisDb;
         /// <summary>
         /// 构造函数，初始化中间件和Redis数据库连接
         /// </summary>
         /// <param name="next">下一个中间件</param>
         /// <param name="config">配置参数</param>
-        public APIGlobalSystemIpBlackListMiddleware(RequestDelegate next, IJoreNoeSystemIpBlackListRedisSettingConfig config,IConnectionMultiplexer Redis)
+        public APIGlobalSystemIpBlackListMiddleware(RequestDelegate next, IJoreNoeSystemIpBlackListRedisSettingConfig config)
         {
             _next = next;
             _config = config;
-            _redisDb = Redis.GetDatabase(); // Redis连接
         }
 
         /// <summary>
@@ -80,8 +78,12 @@ namespace JoreNoe.Middleware
         /// </summary>
         /// <param name="context">HTTP上下文</param>
         /// <returns></returns>
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context,IServiceProvider ServiceProvider)
         {
+
+            var JoreNoeRedisBaseService = ServiceProvider.GetRequiredService<IJoreNoeRedisBaseService>();
+            _redisDb = JoreNoeRedisBaseService.RedisDataBase;
+
             var remoteIp = JoreNoeRequestCommonTools.GetClientIpAddress(context); // 获取请求IP
 
             // 如果IP已被拉黑，拒绝访问
@@ -200,15 +202,8 @@ namespace JoreNoe.Middleware
         /// <param name="maxRequestCount">最大请求次数</param>
         /// <param name="spanTime">时间窗口</param>
         /// <param name="isEnabledRequestLimit">是否启用请求限制</param>
-        public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services, string redisConnection, int maxRequestCount, TimeSpan spanTime, bool isEnabledRequestLimit = false)
+        public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services,int maxRequestCount, TimeSpan spanTime, bool isEnabledRequestLimit = false)
         {
-            if (string.IsNullOrEmpty(redisConnection))
-                throw new ArgumentNullException(nameof(redisConnection));
-
-            // 注册单例的 Redis 连接
-            var multiplexer = ConnectionMultiplexer.Connect(redisConnection);
-            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
-
             services.AddSingleton<IJoreNoeSystemIpBlackListRedisSettingConfig>(new JoreNoeSystemIpBlackListRedisSettingConfig(maxRequestCount, spanTime, isEnabledRequestLimit));
         }
     }

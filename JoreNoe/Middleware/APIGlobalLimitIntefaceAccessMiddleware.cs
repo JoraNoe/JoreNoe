@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using JoreNoe.Cache.Redis;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -30,17 +31,18 @@ namespace JoreNoe.Middleware
     public class APIGlobalLimitIntefaceAccessMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IDatabase _redisDb;
         private readonly ILimitInteFaceAccessSetting _limitInteFaceAccessSetting;
-        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, IConnectionMultiplexer Redis,ILimitInteFaceAccessSetting Config)
+        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config)
         {
             _next = next;
-            _redisDb = Redis.GetDatabase();
             _limitInteFaceAccessSetting = Config;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
         {
+            var JoreNoeRedisBase = serviceProvider.GetRequiredService<IJoreNoeRedisBaseService>();
+            var _redisDb = JoreNoeRedisBase.RedisDataBase;
+
             var Key = JoreNoeRequestCommonTools.GetReferencingProjectName() + ":RequestPathLists:" + context.Request.Path;
             if (await _redisDb.KeyExistsAsync(Key).ConfigureAwait(false))
             {
@@ -84,15 +86,8 @@ namespace JoreNoe.Middleware
         /// <param name="maxRequestCount">最大请求次数</param>
         /// <param name="spanTime">时间窗口</param>
         /// <param name="isEnabledRequestLimit">是否启用请求限制</param>
-        public static void AddJoreNoeJoreNoeIntefaceAccessMiddleware(this IServiceCollection services, string redisConnection,string ReturnMessage = "Access Denied")
+        public static void AddJoreNoeJoreNoeIntefaceAccessMiddleware(this IServiceCollection services, string ReturnMessage = "Access Denied")
         {
-            if (string.IsNullOrEmpty(redisConnection))
-                throw new ArgumentNullException(nameof(redisConnection));
-
-            // 注册单例的 Redis 连接
-            var multiplexer = ConnectionMultiplexer.Connect(redisConnection);
-            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
-
             services.AddSingleton<ILimitInteFaceAccessSetting>(new LimitInteFaceAccessSetting(ReturnMessage));
         }
     }

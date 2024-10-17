@@ -20,15 +20,16 @@ namespace TestNET6Project
             builder.Services.AddSwaggerGen();
 
             //builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
-            builder.Services.AddJoreNoeSystemIPBlackListMiddleware("43.136.101.66:6379,Password=JoreNoe123",100,TimeSpan.FromMinutes(1),true);
+            
 
             //builder.Logging.AddConsole();
 
             //builder.Services.AddJoreNoeRequestVisitRecordIpAddressMiddleware<ip>();
 
-            builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
-            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123", 1);
-            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware("43.136.101.66:6379,Password=JoreNoe123");
+            //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
+            builder.Services.AddJoreNoeRedis("jorenoe-redis.redis.rds.aliyuncs.com,Password=jiatianhao123$%^,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false", 1);
+            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100000000, TimeSpan.FromMinutes(1), true);
+            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
             var app = builder.Build();
 
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();

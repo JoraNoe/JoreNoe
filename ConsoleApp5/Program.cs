@@ -141,15 +141,15 @@ namespace ConsoleApp5
         }
         static async Task Main(string[] args)
         {
-            Console.WriteLine("开始并发压力测试...");
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+            //Console.WriteLine("开始并发压力测试...");
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
 
-            await RunLoadTest();
+            //await RunLoadTest();
 
-            stopwatch.Stop();
-            Console.WriteLine($"并发测试完成，共耗时: {stopwatch.Elapsed.TotalSeconds} 秒");
-            Console.WriteLine($"成功请求数: {successCount}, 失败请求数: {failureCount}");
+            //stopwatch.Stop();
+            //Console.WriteLine($"并发测试完成，共耗时: {stopwatch.Elapsed.TotalSeconds} 秒");
+            //Console.WriteLine($"成功请求数: {successCount}, 失败请求数: {failureCount}");
 
 
             //var xx = SmallProgramPhotoGather.ComputeMD5Hash("Id=" + 123 + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
@@ -157,7 +157,7 @@ namespace ConsoleApp5
             //var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "1234" + "CourseName=" + "英语" + "Phone=" + "1023456789" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
 
 
-            //var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+            var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
         }
         public void test()
         {

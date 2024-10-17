@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace JoreNoe.Cache.Redis
 {
@@ -45,8 +46,6 @@ namespace JoreNoe.Cache.Redis
     /// </summary>
     public interface IJoreNoeRedisBaseService
     {
-        Lazy<ConnectionMultiplexer> ConnectionDB { get; set; }
-
         IDatabase RedisDataBase { get; set; }
     }
 
@@ -56,15 +55,12 @@ namespace JoreNoe.Cache.Redis
     public class JoreNoeRedisBaseService : IJoreNoeRedisBaseService
     {
         private readonly ISettingConfigs SettingConfigs;
-        public Lazy<ConnectionMultiplexer> ConnectionDB { get; set; }
         public IDatabase RedisDataBase { get; set; }
 
-        public JoreNoeRedisBaseService(ISettingConfigs SettingConfigs)
+        public JoreNoeRedisBaseService(ISettingConfigs SettingConfigs, IConnectionMultiplexer connectionMultiplexer)
         {
             this.SettingConfigs = SettingConfigs;
-            this.ConnectionDB = new Lazy<ConnectionMultiplexer>(() =>
-            ConnectionMultiplexer.Connect(this.SettingConfigs.ConnectionString));
-            this.RedisDataBase = this.ConnectionDB.Value.GetDatabase(this.SettingConfigs.DefaultDB);
+            this.RedisDataBase = connectionMultiplexer.GetDatabase(this.SettingConfigs.DefaultDB);
         }
     }
 
@@ -73,8 +69,30 @@ namespace JoreNoe.Cache.Redis
     /// </summary>
     public static class JoreNoeRedisExtensions
     {
+        /// <summary>
+        /// 注册Redis 服务
+        /// 包括中间件
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="ConnectionString"></param>
+        /// <param name="DefaultDB"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, int DefaultDB = 0)
         {
+            services.AddSingleton<IConnectionMultiplexer>(provider =>
+            {
+                try
+                {
+                    return ConnectionMultiplexer.Connect(ConnectionString);
+                }
+                catch (Exception ex)
+                {
+                    // 处理连接异常
+                    throw new InvalidOperationException("Unable to connect to Redis", ex);
+                }
+            });
+
+
             services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB));
             services.AddScoped<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
             services.AddScoped(typeof(IRedisManager), typeof(RedisManager));

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.0.9</Version>
+		<Version>7.1.0</Version>
 		<Description>提升整体性能，优化代码</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
