@@ -1,3 +1,4 @@
+using JoreNoe;
 using JoreNoe.Cache.Redis;
 using JoreNoe.Queue.RBMQ;
 using Microsoft.AspNetCore.Mvc;
@@ -25,14 +26,14 @@ namespace TestNET6Project.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public APIReturnInfo<string> Get()
         {
 
             this._queueManger.SendPublish("我是张三","test");
 
 
-
-            return null;
+            return APIReturnInfo<string>.Success("测试");
+         
         }
 
         [HttpGet("MENT")]

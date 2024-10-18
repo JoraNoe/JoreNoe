@@ -24,7 +24,7 @@ namespace TestNET6Project
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            //builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
+           // builder.Services.AddJoreNoeRequestLoggingMiddleware();
             
 
             //builder.Logging.AddConsole();
@@ -38,7 +38,8 @@ namespace TestNET6Project
 
             // 使用RabbitMQ
             builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
-            
+
+            builder.Services.AddResponseCaching();
             var app = builder.Build();
 
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
@@ -48,7 +49,13 @@ namespace TestNET6Project
             //    Console.WriteLine("方法" + e.IpAddress);
             //});
 
+            app.UseResponseCaching();
             app.usexxmiddle();
+
+            app.UseJoreNoeRequestLoggingMiddleware(ConnectionInfo =>
+            {
+                Console.WriteLine(ConnectionInfo.ResponseBody);
+            });
 
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestLoggingMiddleware();

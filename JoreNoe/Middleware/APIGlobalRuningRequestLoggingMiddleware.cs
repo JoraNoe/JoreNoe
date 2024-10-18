@@ -69,6 +69,11 @@ namespace JoreNoe.Middleware
         public string RequestBody { get; set; }
 
         /// <summary>
+        /// 响应体
+        /// </summary>
+        public string ResponseBody { get; set; }
+
+        /// <summary>
         /// 时长
         /// </summary>
         public TimeSpan Duration { get; set; }
@@ -91,7 +96,9 @@ namespace JoreNoe.Middleware
         {
             // 备份原始请求体
             var originalRequestBody = context.Request.Body;
+            var originalResponseBodyStream = context.Response.Body;
             string RequestBody = string.Empty;
+            string ResponsBody = string.Empty;
             try
             {
                 // 创建一个新的内存流来保存请求体的副本
@@ -108,14 +115,32 @@ namespace JoreNoe.Middleware
                     memStream.Seek(0, SeekOrigin.Begin);
                     context.Request.Body = memStream;
 
+
+                }
+
+                using (var responseBody = new MemoryStream())
+                {
+                    // 替换响应体为内存流
+                    context.Response.Body = responseBody;
                     // 调用下一个中间件
                     await _next(context);
+
+                    // 读取响应体
+                    responseBody.Seek(0, SeekOrigin.Begin);
+                    ResponsBody = await new StreamReader(responseBody).ReadToEndAsync();
+                    responseBody.Seek(0, SeekOrigin.Begin);
+
+                    // 将响应体内容写回原始响应流
+                    await responseBody.CopyToAsync(originalResponseBodyStream);
                 }
+
+                
             }
             finally
             {
                 // 恢复原始请求体
                 context.Request.Body = originalRequestBody;
+                context.Response.Body = originalResponseBodyStream;
             }
 
             var startTime = DateTime.UtcNow;
@@ -135,13 +160,14 @@ namespace JoreNoe.Middleware
                 Path = path,
                 QueryString = queryString,
                 RequestBody = requestBody,
+                ResponseBody = ResponsBody,
                 Duration = duration,
                 Headers = JsonConvert.SerializeObject(request.Headers),
                 Hsot = request.Host.ToString(),
                 Scheme = request.Scheme,
                 FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
             };
-           
+
             // 回调 
             _callback(Entity);
         }
@@ -166,7 +192,9 @@ namespace JoreNoe.Middleware
         {
             // 备份原始请求体
             var originalRequestBody = context.Request.Body;
+            var originalResponseBodyStream = context.Response.Body;
             string RequestBody = string.Empty;
+            string ResponsBody = string.Empty;
             try
             {
                 // 创建一个新的内存流来保存请求体的副本
@@ -182,9 +210,21 @@ namespace JoreNoe.Middleware
                     // 将内存流设置为请求的新请求体
                     memStream.Seek(0, SeekOrigin.Begin);
                     context.Request.Body = memStream;
-
+                }
+                using (var responseBody = new MemoryStream())
+                {
+                    // 替换响应体为内存流
+                    context.Response.Body = responseBody;
                     // 调用下一个中间件
                     await _next(context);
+
+                    // 读取响应体
+                    responseBody.Seek(0, SeekOrigin.Begin);
+                    ResponsBody = await new StreamReader(responseBody).ReadToEndAsync();
+                    responseBody.Seek(0, SeekOrigin.Begin);
+
+                    // 将响应体内容写回原始响应流
+                    await responseBody.CopyToAsync(originalResponseBodyStream);
                 }
             }
             finally
@@ -207,15 +247,16 @@ namespace JoreNoe.Middleware
                 Path = path,
                 QueryString = queryString,
                 RequestBody = RequestBody,
+                ResponseBody = ResponsBody,
                 Duration = duration,
                 Headers = JsonConvert.SerializeObject(request.Headers),
                 Hsot = request.Host.ToString(),
                 Scheme = request.Scheme,
                 FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
             };
-            
+
             await _entity.RunningRequestLogging(EntityData).ConfigureAwait(false);
-            
+
         }
     }
 
