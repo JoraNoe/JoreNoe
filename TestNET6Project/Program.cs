@@ -4,7 +4,8 @@ namespace TestNET6Project
     using JoreNoe.DB.Dapper;
     using JoreNoe.Middleware;
     using Newtonsoft.Json;
-    
+    using JoreNoe.Queue.RBMQ;
+    using System.Runtime.CompilerServices;
 
     public class Program
     {
@@ -12,6 +13,10 @@ namespace TestNET6Project
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.Limits.MaxConcurrentConnections = int.MaxValue;
+            });
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -30,6 +35,10 @@ namespace TestNET6Project
             builder.Services.AddJoreNoeRedis("jorenoe-redis.redis.rds.aliyuncs.com,Password=jiatianhao123$%^,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false", 1);
             builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100000000, TimeSpan.FromMinutes(1), true);
             builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
+
+            // 使用RabbitMQ
+            builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
+            
             var app = builder.Build();
 
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
@@ -39,6 +48,7 @@ namespace TestNET6Project
             //    Console.WriteLine("方法" + e.IpAddress);
             //});
 
+            app.usexxmiddle();
 
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestLoggingMiddleware();

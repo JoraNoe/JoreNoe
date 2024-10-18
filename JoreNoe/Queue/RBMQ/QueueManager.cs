@@ -8,95 +8,72 @@ using System.Threading.Tasks;
 
 namespace JoreNoe.Queue.RBMQ
 {
-    public class QueueManager
+    public interface IQueueManger
     {
-        private static ConnectionFactory ConectionFactory = Register.ConectionFactory;
-        private static string QueueName = Register._ChannelName;
+        void SendPublish<T>(T Entity,string QueueName, string Type = ExchangeType.Topic);
+        void Receive<T>(ICustome<T> Custome, string QueueName) where T : class;
+    }
+    public class QueueManager : IQueueManger
+    {
+        private readonly IJoreNoeRabbitMQBaseService JoreNoeRabbitMQBaseService;
+        private IConnection connection;
+        private IModel channel;
 
-        /// <summary>
-        /// 推送消息
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Entity"></param>
-        /// <param name="QueueChannle"></param>
-        public static void SendPublish<T>(T Entity, string Type = ExchangeType.Topic)
+        public QueueManager(IJoreNoeRabbitMQBaseService JoreNoeRabbitMQBaseService)
         {
-            using (var connection = ConectionFactory.CreateConnection())
-            {
-                using (var channel = connection.CreateModel())
-                {
-                    channel.ExchangeDeclare(QueueName, Type);
-                    channel.QueueDeclare(QueueName, false, false, false, null);
-                    string message = JsonConvert.SerializeObject(Entity);
-                    var properties = channel.CreateBasicProperties();
-                    properties.DeliveryMode = 2;
-                    var body = Encoding.UTF8.GetBytes(message);
-                    channel.BasicPublish("", QueueName, properties, body);
-                }
-            }
+            this.JoreNoeRabbitMQBaseService = JoreNoeRabbitMQBaseService;
+            this.connection = JoreNoeRabbitMQBaseService.ConnectionFactory.CreateConnection();
+            this.channel = connection.CreateModel();
         }
 
-
-        /// <summary>
-        /// 接收消息
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Custome"></param>
-        public static void Receive<T>(ICustome<T> Custome, string QueueName) where T : class
+        public void SendPublish<T>(T Entity,string QueueName, string Type = ExchangeType.Topic)
         {
-            Task.Run(async () =>
-            {
-                var connection = ConectionFactory.CreateConnection();
-                var channel = connection.CreateModel();
-                while (true)
-                {
-                    channel.QueueDeclare(queue: QueueName,
-                                             durable: false,
-                                             exclusive: false,
-                                             autoDelete: false,
-                                             arguments: null);
+            channel.ExchangeDeclare(QueueName, Type);
+            channel.QueueDeclare(QueueName, true, false, false, null); // durable = true
+            string message = JsonConvert.SerializeObject(Entity);
+            var properties = channel.CreateBasicProperties();
+            properties.DeliveryMode = 2; // 设置消息为持久化
 
-                    var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, ea) =>
+            var body = Encoding.UTF8.GetBytes(message);
+            channel.BasicPublish("", QueueName, properties, body);
+        }
+
+        public void Receive<T>(ICustome<T> Custome, string QueueName) where T : class
+        {
+            channel.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+            var consumer = new EventingBasicConsumer(channel);
+            channel.BasicQos(0, 1, false); // 控制消息的预取数量，批量处理消息
+
+            consumer.Received += (model, ea) =>
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+
+                try
+                {
+                    if (IsValidJson(message))
                     {
-                        var body = ea.Body.ToArray();
-                        var message = Encoding.UTF8.GetString(body);
-
-                        try
+                        Custome.ConSume(new CustomeContent<T>
                         {
-                            if (IsValidJson(message))
-                            {
-                                Custome.ConSume(new CustomeContent<T>
-                                {
-                                    QueueName = QueueName,
-                                    Context = JsonConvert.DeserializeObject<T>(message)
-                                });
-                            }
-                            else
-                            {
-                                throw new Exception("无法序列化");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-
-                            throw new Exception(ex.Message);
-                        }
-
-                    };
-                    channel.BasicConsume(queue: QueueName,
-                                         autoAck: true,
-                                         consumer: consumer);
-                    await Task.Delay(1000);
+                            QueueName = QueueName,
+                            Context = JsonConvert.DeserializeObject<T>(message)
+                        });
+                    }
+                    else
+                    {
+                        throw new Exception("无法序列化");
+                    }
                 }
-
-
-            }).ConfigureAwait(false);
-
-
+                catch (Exception ex)
+                {
+                    // Log error (需要添加日志系统)
+                    Console.WriteLine($"Error processing message: {ex.Message}");
+                }
+            };
+            channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer); // 手动确认
         }
 
-        static bool IsValidJson(string json)
+        private static bool IsValidJson(string json)
         {
             try
             {
@@ -107,7 +84,7 @@ namespace JoreNoe.Queue.RBMQ
             {
                 return false;
             }
-
         }
     }
+
 }

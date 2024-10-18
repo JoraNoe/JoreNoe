@@ -1,4 +1,5 @@
 using JoreNoe.Cache.Redis;
+using JoreNoe.Queue.RBMQ;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TestNET6Project.Controllers
@@ -14,27 +15,24 @@ namespace TestNET6Project.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IRedisManager _redisMan22ager;
+        private readonly IQueueManger _queueManger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IRedisManager _redisManager)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IRedisManager _redisManager,IQueueManger ii)
         {
             _logger = logger;
             _redisMan22ager = _redisManager;
+            _queueManger = ii;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
 
+            this._queueManger.SendPublish("我是张三","test");
 
 
 
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return null;
         }
 
         [HttpGet("MENT")]
