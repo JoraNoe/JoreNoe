@@ -28,6 +28,7 @@ namespace TestNET6Project.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public APIReturnInfo<string> Get()
         {
+            //var xx = int.Parse("x");
 
             this._queueManger.SendPublish("我是张三","test");
 

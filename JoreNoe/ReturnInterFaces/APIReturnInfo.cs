@@ -1,4 +1,6 @@
-﻿namespace JoreNoe
+﻿using MathNet.Numerics.Statistics;
+
+namespace JoreNoe
 {
     /// <summary>
     /// Api返回信息
@@ -11,9 +13,9 @@
         /// </summary>
         /// <param name="Data"></param>
         /// <returns></returns>
-        public static APIReturnInfo<T> Success(T Data)
+        public static APIReturnInfo<T> Success(T Data, string Message = "Success", int Status = 200)
         {
-            return new APIReturnInfo<T> { Data = Data };
+            return new APIReturnInfo<T> { Data = Data, Message = Message, Status = Status };
         }
 
         /// <summary>
@@ -21,19 +23,19 @@
         /// </summary>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public static APIReturnInfo<T> Success(string Message)
-        {
-            return new APIReturnInfo<T> { Message = Message };
-        }
+        //public static APIReturnInfo<T> Success(string Message)
+        //{
+        //    return new APIReturnInfo<T> { Message = Message };
+        //}
 
         /// <summary>
         /// 返回错误消息
         /// </summary>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public static APIReturnInfo<T> Error(string Message)
+        public static APIReturnInfo<T> Error(string Message = "Fail", int Status = 200)
         {
-            return new APIReturnInfo<T> { Data = default, Message = Message, Status = false, State = false };
+            return new APIReturnInfo<T> { Data = default, Message = Message, Status = Status, State = false };
         }
 
         /// <summary>
@@ -42,9 +44,9 @@
         /// <param name="Data"></param>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public static APIReturnInfo<T> Error(T Data, string Message)
+        public static APIReturnInfo<T> Error(T Data, string Message = "Fail", int Status = 200)
         {
-            return new APIReturnInfo<T> { Data = Data, Message = Message, Status = false, State = false };
+            return new APIReturnInfo<T> { Data = Data, Message = Message, Status = Status, State = false };
         }
 
         /// <summary>
@@ -63,7 +65,7 @@
         /// <summary>
         /// 请求状态
         /// </summary>
-        public bool Status { get; set; } = true;
+        public int Status { get; set; }
 
 
     }

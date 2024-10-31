@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using JoreNoe.ReturnInterFaces;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -17,15 +19,22 @@ namespace JoreNoe.Middleware
         /// 是否启用控制台输出
         /// </summary>
         public bool EnableConsoleOut { get; set; }
+
+        /// <summary>
+        /// 是否启用返回消息不直接500  返回 错误信息
+        /// </summary>
+        public bool EnableReturnRecordErrorMessage { get; set; }
     }
 
     public class JoreNoeGlobalErrorHandlingSettings : IJoreNoeGlobalErrorHandlingSettings
     {
-        public JoreNoeGlobalErrorHandlingSettings(bool EnableConsoleOut)
+        public JoreNoeGlobalErrorHandlingSettings(bool EnableConsoleOut, bool EnableReturnRecordErrorMessage)
         {
             this.EnableConsoleOut = EnableConsoleOut;
+            this.EnableReturnRecordErrorMessage = EnableReturnRecordErrorMessage;
         }
         public bool EnableConsoleOut { get; set; }
+        public bool EnableReturnRecordErrorMessage { get; set; }
     }
 
     /// <summary>
@@ -89,6 +98,16 @@ namespace JoreNoe.Middleware
                     await Console.Out.WriteLineAsync(JoreNoeRequestCommonTools.FormatError(ex));
 
                 await _Entity.GlobalErrorHandling(ex).ConfigureAwait(false);
+
+                if (this.joreNoeGlobalErrorHandlingSettings.EnableReturnRecordErrorMessage)
+                {
+                    var response = APIReturnInfo<string>.Error(JoreNoeRequestCommonTools.FormatError(ex),Status: StatusCodes.Status500InternalServerError); // 使用 APIReturnInfo 返回错误
+                    context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+
+                    return;
+                }
             }
         }
     }
@@ -113,10 +132,10 @@ namespace JoreNoe.Middleware
         /// </summary>
         /// <typeparam name="Entity"></typeparam>
         /// <param name="Service"></param>
-        public static void AddJoreNoeGlobalErrorHandlingMiddleware<Entity>(this IServiceCollection Service, bool EnableConsoleOut = false)
+        public static void AddJoreNoeGlobalErrorHandlingMiddleware<Entity>(this IServiceCollection Service, bool EnableConsoleOut = false, bool EnableReturnRecordErrorMessage = false)
             where Entity : class, IJoreNoeGlobalErrorHandling
         {
-            Service.AddSingleton<IJoreNoeGlobalErrorHandlingSettings>(new JoreNoeGlobalErrorHandlingSettings(EnableConsoleOut));
+            Service.AddSingleton<IJoreNoeGlobalErrorHandlingSettings>(new JoreNoeGlobalErrorHandlingSettings(EnableConsoleOut, EnableReturnRecordErrorMessage));
             Service.AddSingleton<IJoreNoeGlobalErrorHandling, Entity>();
         }
 

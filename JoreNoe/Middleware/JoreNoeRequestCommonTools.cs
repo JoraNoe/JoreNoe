@@ -60,10 +60,10 @@ namespace JoreNoe.Middleware
         public static string FormatError(Exception ex)
         {
             var formattedMessage = new StringBuilder();
-            formattedMessage.AppendLine($"[JorenoeGlobalErrorInfo] ,报错时间：{DateTime.Now},报错内容: {ex.Message}, 详情信息如下： ");
+            formattedMessage.AppendLine($"[JorenoeGlobalErrorInfo]  报错时间：{DateTime.Now}  报错内容: {ex.Message}  详情信息如下： ");
             if (ex != null)
             {
-                formattedMessage.AppendLine(ex.ToString());
+                formattedMessage.AppendLine(ex .ToString());
             }
             return formattedMessage.ToString();
         }

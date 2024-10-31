@@ -34,7 +34,9 @@ namespace TestNET6Project
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
             builder.Services.AddJoreNoeRedis("jorenoe-redis.redis.rds.aliyuncs.com,Password=jiatianhao123$%^,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false", 1);
             builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100000000, TimeSpan.FromMinutes(1), true);
-            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
+            //builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
+
+            builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>(EnableReturnRecordErrorMessage:true);
 
             // 使用RabbitMQ
             builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
@@ -42,9 +44,10 @@ namespace TestNET6Project
             builder.Services.AddResponseCaching();
             var app = builder.Build();
 
+            app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
-            app.UseJoreNoeIntefaceAccessMiddleware();
-            app.UseJoreNoeSystemIPBlackListMiddleware();
+            //app.UseJoreNoeIntefaceAccessMiddleware();
+            //app.UseJoreNoeSystemIPBlackListMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware(e => {
             //    Console.WriteLine("方法" + e.IpAddress);
             //});

@@ -154,10 +154,32 @@ namespace ConsoleApp5
 
             //var xx = SmallProgramPhotoGather.ComputeMD5Hash("Id=" + 123 + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
 
-            //var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "1234" + "CourseName=" + "英语" + "Phone=" + "1023456789" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+
+
+           // CalcSemesterYear(241,220);
+
+           var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "04571" + "CourseName=" + "演讲的方法与艺术" + "Phone=" + "66666666666" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
 
 
             var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+        }
+
+        public static Tuple<string, string> CalcSemesterYear(int SemesterId, int InSemesterId)
+        {
+            var SemesterIds = new List<string>();
+            for (int i = 0; i < SemesterId - InSemesterId+1; i++)
+            {
+                var AddSemester = InSemesterId;
+                AddSemester = AddSemester - 1 + i;
+                AddSemester++;
+                if (AddSemester.ToString()[^1].ToString() == "0" || AddSemester.ToString()[^1].ToString() == "1")
+                {
+                    SemesterIds.Add(AddSemester.ToString());
+                }
+            }
+
+            var Year = int.Parse( SemesterId.ToString()[..2]) - int.Parse( InSemesterId.ToString()[..2]);
+            return new Tuple<string,string>(Year.ToString(),string.Join(",",SemesterIds));
         }
         public void test()
         {
