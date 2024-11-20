@@ -74,20 +74,13 @@ namespace JoreNoe.Middleware
                 if (await this._redisDb.KeyExistsAsync(Key).ConfigureAwait(false))
                 {
                     var GetRedisValue = await this._redisDb.StringGetAsync(Key).ConfigureAwait(false);
-                    if (bool.TryParse(GetRedisValue, out var parsedValue))
-                    {
-                        value = parsedValue;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Redis value is not a valid boolean.");
-                    }
+                    value = bool.Parse(GetRedisValue);
                 }
                 else
                 {
                     value = true;
                     this.MemoryCache.Set(Key, true, this._limitInteFaceAccessSetting.LocalCacheDurationInMinutes);
-                    await this._redisDb.StringSetAsync(Key, true).ConfigureAwait(false);
+                    await this._redisDb.StringSetAsync(Key, true.ToString()).ConfigureAwait(false);
                     await this._redisDb.KeyPersistAsync(Key).ConfigureAwait(false);
                 }
             }

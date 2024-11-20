@@ -16,13 +16,16 @@ namespace TestNET6Project.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IRedisManager _redisMan22ager;
-        private readonly IQueueManger _queueManger;
+        // private readonly IQueueManger _queueManger;
+        //IRedisManager _redisManager
+        private readonly IJoreNoeRedisBaseService ss;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IRedisManager _redisManager,IQueueManger ii)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IJoreNoeRedisBaseService ss)
         {
             _logger = logger;
-            _redisMan22ager = _redisManager;
-            _queueManger = ii;
+            //_redisMan22ager = _redisManager;
+            //_queueManger = ii;
+            this.ss = ss;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -30,18 +33,20 @@ namespace TestNET6Project.Controllers
         {
             //var xx = int.Parse("x");
 
-            this._queueManger.SendPublish("我是张三","test");
+            //this._queueManger.SendPublish("我是张三", "test");
 
 
             return APIReturnInfo<string>.Success("测试");
-         
+
         }
 
         [HttpGet("MENT")]
         public async Task<ActionResult> Ge1t()
         {
-            //var  v = await this._redisMan22ager.GetAsync("1").ConfigureAwait(false);
+            ss.RedisDataBase.StringSet("sadf", false.ToString());
+            var v = ss.RedisDataBase.StringGet("sadf");
 
+            var l = bool.Parse(v);
             return Ok();
         }
 
