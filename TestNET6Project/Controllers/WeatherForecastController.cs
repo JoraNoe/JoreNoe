@@ -40,9 +40,9 @@ namespace TestNET6Project.Controllers
         [HttpGet("MENT")]
         public async Task<ActionResult> Ge1t()
         {
-            var  v = await this._redisMan22ager.GetAsync("1").ConfigureAwait(false);
+            //var  v = await this._redisMan22ager.GetAsync("1").ConfigureAwait(false);
 
-            return Ok(v);
+            return Ok();
         }
 
     }

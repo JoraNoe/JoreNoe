@@ -7,9 +7,9 @@ namespace TestNET6Project
         
         public static void usexxmiddle(this IApplicationBuilder biilder)
         {
-            var con = biilder.ApplicationServices.GetRequiredService<IQueueManger>();
-            // 注册使用
-            con.Receive(new reci(),"test");
+            //var con = biilder.ApplicationServices.GetRequiredService<IQueueManger>();
+            //// 注册使用
+            //con.Receive(new reci(),"test");
         }
     }
 

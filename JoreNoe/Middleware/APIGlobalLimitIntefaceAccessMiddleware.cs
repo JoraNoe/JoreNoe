@@ -32,16 +32,18 @@ namespace JoreNoe.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILimitInteFaceAccessSetting _limitInteFaceAccessSetting;
-        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config)
+        private readonly IDatabase _redisDb;
+        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config,IJoreNoeRedisBaseService RedisBaseService)
         {
             _next = next;
             _limitInteFaceAccessSetting = Config;
+            _redisDb = RedisBaseService.RedisDataBase;
         }
 
         public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
         {
-            var JoreNoeRedisBase = serviceProvider.GetRequiredService<IJoreNoeRedisBaseService>();
-            var _redisDb = JoreNoeRedisBase.RedisDataBase;
+            //var JoreNoeRedisBase = serviceProvider.GetRequiredService<IJoreNoeRedisBaseService>();
+            //var _redisDb = JoreNoeRedisBase.RedisDataBase;
 
             var Key = JoreNoeRequestCommonTools.GetReferencingProjectName() + ":RequestPathLists:" + context.Request.Path;
             if (await _redisDb.KeyExistsAsync(Key).ConfigureAwait(false))

@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System;
 using JoreNoe.Cache.Redis;
+using Microsoft.Extensions.Caching.Memory;
+using System.Linq;
 
 namespace JoreNoe.Middleware
 {
@@ -54,24 +56,40 @@ namespace JoreNoe.Middleware
         }
     }
 
+
     /// <summary>
     /// 全局IP黑名单中间件
     /// </summary>
     public class APIGlobalSystemIpBlackListMiddleware
     {
+        // 常量
+        private readonly string KeyTemplateIpCount = "{0}:IP:{1}:count";
+        private readonly string KeyTemplateBlacklist = "{0}:SystemBlackIps";
+        private readonly string KeyTemplateDeniedMessage = "{0}:DeniedReturnMessage";
+
+        // 初始化
         private readonly RequestDelegate _next;
         private readonly IJoreNoeSystemIpBlackListRedisSettingConfig _config;
-        private IDatabase _redisDb;
+        private readonly IDatabase _redisDb;
+        private readonly IMemoryCache MemoryCache;
         /// <summary>
         /// 构造函数，初始化中间件和Redis数据库连接
         /// </summary>
         /// <param name="next">下一个中间件</param>
         /// <param name="config">配置参数</param>
-        public APIGlobalSystemIpBlackListMiddleware(RequestDelegate next, IJoreNoeSystemIpBlackListRedisSettingConfig config)
+        public APIGlobalSystemIpBlackListMiddleware(RequestDelegate next, IJoreNoeSystemIpBlackListRedisSettingConfig config,IJoreNoeRedisBaseService RedisBaseService,
+            IMemoryCache MemoryCache)
         {
             _next = next;
             _config = config;
+            _redisDb = RedisBaseService.RedisDataBase;
+            this.MemoryCache = MemoryCache;
         }
+
+
+        private string GetRedisKey(string remoteIp) => string.Format(KeyTemplateIpCount, ProjectName, remoteIp);
+        private string GetBlacklistKey() => string.Format(KeyTemplateBlacklist, ProjectName);
+        private string ProjectName => Assembly.GetEntryAssembly()?.GetName().Name ?? "UnknownProject";
 
         /// <summary>
         /// 中间件主逻辑，检测IP并根据请求频率限制访问
@@ -80,11 +98,8 @@ namespace JoreNoe.Middleware
         /// <returns></returns>
         public async Task Invoke(HttpContext context,IServiceProvider ServiceProvider)
         {
-
-            var JoreNoeRedisBaseService = ServiceProvider.GetRequiredService<IJoreNoeRedisBaseService>();
-            _redisDb = JoreNoeRedisBaseService.RedisDataBase;
-
-            var remoteIp = JoreNoeRequestCommonTools.GetClientIpAddress(context); // 获取请求IP
+            // 获取请求IP
+            var remoteIp = JoreNoeRequestCommonTools.GetClientIpAddress(context); 
 
             // 如果IP已被拉黑，拒绝访问
             if (!string.IsNullOrEmpty(remoteIp) && await IsBlackListed(remoteIp))
@@ -121,32 +136,25 @@ namespace JoreNoe.Middleware
         }
 
         /// <summary>
-        /// 生成用于存储请求次数的Redis键
+        /// 查询内存中的IP是否存在
+        /// 不存在则写入IP
         /// </summary>
-        /// <param name="remoteIp">客户端IP</param>
-        /// <returns>Redis键名</returns>
-        private string GetRedisKey(string remoteIp)
-        {
-            return $"{GetReferencingProjectName()}:IP:{remoteIp}:count";
-        }
-
-        /// <summary>
-        /// 检查指定IP是否在黑名单中
-        /// </summary>
-        /// <param name="remoteIp">客户端IP</param>
-        /// <returns>是否在黑名单中</returns>
+        /// <param name="remoteIp"></param>
+        /// <returns></returns>
         private async Task<bool> IsBlackListed(string remoteIp)
         {
-            return await _redisDb.SetContainsAsync(GetBlacklistKey(), remoteIp);  // 检查IP是否在黑名单集合中
-        }
+            if (this.MemoryCache.TryGetValue(remoteIp, out _))
+            {
+                return true;
+            }
 
-        /// <summary>
-        /// 生成用于存储黑名单的Redis键
-        /// </summary>
-        /// <returns>黑名单的Redis键</returns>
-        private string GetBlacklistKey()
-        {
-            return $"{GetReferencingProjectName()}:SystemBlackIps";
+            var isBlacklisted = await _redisDb.SetContainsAsync(GetBlacklistKey(), remoteIp);
+            if (isBlacklisted)
+            {
+                MemoryCache.Set(remoteIp, true, _config.TimeSpanTime);
+            }
+
+            return isBlacklisted;
         }
 
         /// <summary>
@@ -155,7 +163,7 @@ namespace JoreNoe.Middleware
         /// <returns>拒绝访问的HTML消息</returns>
         private async Task<string> QueryDeniedMessage()
         {
-            var messageKey = $"{GetReferencingProjectName()}:DeniedReturnMessage";
+            var messageKey = $"{ProjectName}:DeniedReturnMessage";
             if (await _redisDb.KeyExistsAsync(messageKey))
             {
                 return await _redisDb.StringGetAsync(messageKey);  // 从Redis中获取消息
@@ -167,15 +175,6 @@ namespace JoreNoe.Middleware
                 await _redisDb.KeyPersistAsync(messageKey);
                 return defaultMessage;
             }
-        }
-
-        /// <summary>
-        /// 获取当前项目名称
-        /// </summary>
-        /// <returns>项目名称</returns>
-        private string GetReferencingProjectName()
-        {
-            return Assembly.GetEntryAssembly()?.GetName().Name ?? "UnknownProject";  // 获取项目名称
         }
     }
 
@@ -205,6 +204,7 @@ namespace JoreNoe.Middleware
         public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services,int maxRequestCount, TimeSpan spanTime, bool isEnabledRequestLimit = false)
         {
             services.AddSingleton<IJoreNoeSystemIpBlackListRedisSettingConfig>(new JoreNoeSystemIpBlackListRedisSettingConfig(maxRequestCount, spanTime, isEnabledRequestLimit));
+            services.AddMemoryCache();
         }
     }
 }

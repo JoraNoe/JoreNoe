@@ -15,8 +15,7 @@
 
         static async Task Main(string[] args)
         {
-            // 提高默认连接池的并发限制
-            ServicePointManager.DefaultConnectionLimit = int.MaxValue; // 根据实际需求设置最大连接数
+            ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             Console.WriteLine("请输入请求的URL:");
             string url = Console.ReadLine();
@@ -42,15 +41,14 @@
                 requestDelay = 1;
             }
 
-            Console.WriteLine("开始并发压力测试...");
+            Console.WriteLine("执行中");
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-
             await RunLoadTest(url, concurrentRequests, totalRequests, requestDelay);
 
             stopwatch.Stop();
-            Console.WriteLine($"并发测试完成，共耗时: {stopwatch.Elapsed.TotalSeconds} 秒");
-            Console.WriteLine($"成功请求数: {successCount}, 失败请求数: {failureCount}");
+            Console.WriteLine($"测试完成，共耗时: {stopwatch.Elapsed.TotalSeconds} 秒");
+            Console.WriteLine($"成功: {successCount}, 失败: {failureCount}");
 
             Console.WriteLine("测试结束，按任意键退出...");
             Console.ReadKey();

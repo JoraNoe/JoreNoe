@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Diagnostics;
+using System.Web;
+using Newtonsoft.Json;
 namespace ConsoleApp5
 {
     public class SmallProgramPhotoGather
@@ -139,6 +141,25 @@ namespace ConsoleApp5
 
             await Task.WhenAll(tasks);
         }
+
+        static void vo(long s)
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+
+                    DateTime a = DateTime.Now;
+                    if (a.Minute == 01)
+                        break;
+
+                    //Console.WriteLine("进程：" + s + "_" + DateTime.Now);
+                    await System.Threading.Tasks.Task.Delay(3000);
+                    Console.WriteLine("执行完一次");
+                }
+            });
+        }
+
         static async Task Main(string[] args)
         {
             //Console.WriteLine("开始并发压力测试...");
@@ -154,14 +175,89 @@ namespace ConsoleApp5
 
             //var xx = SmallProgramPhotoGather.ComputeMD5Hash("Id=" + 123 + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
 
+            //Parallel.For(0, 900000000000, e =>
+            //{
+            //    vo( e);
+            //});
 
 
-           // CalcSemesterYear(241,220);
 
-           var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "04571" + "CourseName=" + "演讲的方法与艺术" + "Phone=" + "66666666666" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+            //// 主线程继续运行，避免立即退出
+            //Console.WriteLine("主线程继续运行...");
+            //Console.ReadLine(); // 等待用户输入，保持主线程活动
+
+            // CalcSemesterYear(241,220);
+
+            //var xx1 = SmallProgramPhotoGather.ComputeMD5Hash("CourseId=" + "04383" + "CourseName=" + "穿出你的优雅——服饰搭配" + "Phone=" + "99999999999" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
 
 
-            var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+            //var xx12 = SmallProgramPhotoGather.ComputeMD5Hash("PhoneNumber=" + "18583857276" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+
+
+
+            //var xx112 = SmallProgramPhotoGather.ComputeMD5Hash("Id=" + "7152b154c8b54fa4aea56188f0d0cb" + "&Key=" + "00011469004a4d5f8f0f71ce628ddb11");
+
+            string json = @"[
+  {
+    ""CreatePreExamReviewModel"": {
+      ""ExamName"": ""string"",
+      ""ExamCode"": ""string"",
+      ""StudentNumber"": ""string"",
+      ""StudentName"": ""string"",
+      ""SpecialtyName"": ""string"",
+      ""SpecialtyCode"": ""string"",
+      ""CourseName"": ""string"",
+      ""CourseCode"": ""string"",
+      ""IsExam"": true,
+      ""InSemesterId"": ""string"",
+      ""InSemesterName"": ""string"",
+      ""SpecialtyRuleId"": ""string"",
+      ""LiveCourseCountTotal"": 0,
+      ""LiveCourseCountSuccess"": 0,
+      ""XkHomeWorkCountTotal"": 0,
+      ""XkHomeWorkCountSuccess"": 0,
+      ""StudyPress"": 0,
+      ""OrganizationCode"": ""string"",
+      ""Id"": ""string""
+    },
+    ""CreatePreExamReviewResultModel"": {
+      ""PreExamReviewId"": ""string"",
+      ""CourseName"": ""string"",
+      ""CourseCode"": ""string"",
+      ""LiveCourseName"": ""string"",
+      ""LiveCourseCode"": ""string"",
+      ""LookLong"": ""string"",
+      ""LookGoBackLong"": ""string"",
+      ""LookTotalLong"": ""string"",
+      ""Is100Minture"": true,
+      ""Id"": ""string""
+    },
+    ""CreatePreExamReviewXkHomeWorkModel"": {
+      ""PreExamReviewId"": ""string"",
+      ""XkTaskName"": ""string"",
+      ""XkScore"": 0,
+      ""IsCommint"": true,
+      ""Id"": ""123444424""
+    }
+  }
+]";
+
+            var xxx = JsonConvert.SerializeObject(json, formatting: Newtonsoft.Json.Formatting.None);
+            var xx = MD5q(xxx + "152EB4973567D7FD873955435D172A7E");
+        }
+
+        public static string MD5q(string data)
+        {
+            using (var md5 = MD5.Create())
+            {
+                var hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(data));
+                var sb = new StringBuilder();
+                foreach (var b in hashBytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                return sb.ToString();
+            }
         }
 
         public static Tuple<string, string> CalcSemesterYear(int SemesterId, int InSemesterId)

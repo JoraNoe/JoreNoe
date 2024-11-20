@@ -94,7 +94,7 @@ namespace JoreNoe.Cache.Redis
 
 
             services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB));
-            services.AddScoped<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
+            services.AddSingleton<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
             services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
         }
     }
