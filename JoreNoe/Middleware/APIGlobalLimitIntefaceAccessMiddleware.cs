@@ -1,6 +1,7 @@
 ﻿using JoreNoe.Cache.Redis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -17,15 +18,19 @@ namespace JoreNoe.Middleware
     public interface ILimitInteFaceAccessSetting
     {
         public string ReturnMessage { get; set; }
+
+        public TimeSpan LocalCacheDurationInMinutes { get; set; }
     }
 
     public class LimitInteFaceAccessSetting : ILimitInteFaceAccessSetting
     {
-        public LimitInteFaceAccessSetting(string returnMessage)
+        public LimitInteFaceAccessSetting(string returnMessage, TimeSpan LocalCacheDurationInMinutes)
         {
             this.ReturnMessage = returnMessage;
+            this.LocalCacheDurationInMinutes = LocalCacheDurationInMinutes;
         }
         public string ReturnMessage { get; set; }
+        public TimeSpan LocalCacheDurationInMinutes { get; set; }
     }
 
     public class APIGlobalLimitIntefaceAccessMiddleware
@@ -33,35 +38,60 @@ namespace JoreNoe.Middleware
         private readonly RequestDelegate _next;
         private readonly ILimitInteFaceAccessSetting _limitInteFaceAccessSetting;
         private readonly IDatabase _redisDb;
-        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config,IJoreNoeRedisBaseService RedisBaseService)
+        private readonly IMemoryCache MemoryCache;
+        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config, IJoreNoeRedisBaseService RedisBaseService, IMemoryCache MemoryCache)
         {
             _next = next;
             _limitInteFaceAccessSetting = Config;
             _redisDb = RedisBaseService.RedisDataBase;
+            this.MemoryCache = MemoryCache;
         }
+
+        private string LimitIntefaceKey(string Path) => string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", "RequestPathLists", ":", Path);
 
         public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
         {
-            //var JoreNoeRedisBase = serviceProvider.GetRequiredService<IJoreNoeRedisBaseService>();
-            //var _redisDb = JoreNoeRedisBase.RedisDataBase;
-
-            var Key = JoreNoeRequestCommonTools.GetReferencingProjectName() + ":RequestPathLists:" + context.Request.Path;
-            if (await _redisDb.KeyExistsAsync(Key).ConfigureAwait(false))
+            var Key = this.LimitIntefaceKey(context.Request.Path);
+            if (!await this.MethodPathIsExists(Key, context.Request.Path))
             {
-                var Single = await _redisDb.StringGetAsync(Key).ConfigureAwait(false);
-                if (Single == false)
-                {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;  // 设置403禁止状态码
-                    await context.Response.WriteAsync(_limitInteFaceAccessSetting.ReturnMessage);  // 返回消息
-                    return;  // 结束请求管道
-                }
-            }
-            else
-            {
-                await _redisDb.StringSetAsync(Key, true);
-                await _redisDb.KeyPersistAsync(Key);
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;  // 设置403禁止状态码
+                await context.Response.WriteAsync(_limitInteFaceAccessSetting.ReturnMessage);  // 返回消息
+                return;  // 结束请求管道
             }
             await _next(context);
+        }
+
+        /// <summary>
+        /// 查询本地缓存是否存在，不存在则查询Redis ，Redis 不存在则写入 本地和 Redis 中 
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="Path"></param>
+        /// <returns></returns>
+        private async Task<bool> MethodPathIsExists(string Key, string Path)
+        {
+            if (!this.MemoryCache.TryGetValue(Key, out bool value))
+            {
+                if (await this._redisDb.KeyExistsAsync(Key).ConfigureAwait(false))
+                {
+                    var GetRedisValue = await this._redisDb.StringGetAsync(Key).ConfigureAwait(false);
+                    if (bool.TryParse(GetRedisValue, out var parsedValue))
+                    {
+                        value = parsedValue;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Redis value is not a valid boolean.");
+                    }
+                }
+                else
+                {
+                    value = true;
+                    this.MemoryCache.Set(Key, true, this._limitInteFaceAccessSetting.LocalCacheDurationInMinutes);
+                    await this._redisDb.StringSetAsync(Key, true).ConfigureAwait(false);
+                    await this._redisDb.KeyPersistAsync(Key).ConfigureAwait(false);
+                }
+            }
+            return value;
         }
     }
 
@@ -84,13 +114,12 @@ namespace JoreNoe.Middleware
         /// 添加IP黑名单配置到服务容器
         /// </summary>
         /// <param name="services">服务容器</param>
-        /// <param name="redisConnection">Redis连接字符串</param>
-        /// <param name="maxRequestCount">最大请求次数</param>
-        /// <param name="spanTime">时间窗口</param>
-        /// <param name="isEnabledRequestLimit">是否启用请求限制</param>
-        public static void AddJoreNoeJoreNoeIntefaceAccessMiddleware(this IServiceCollection services, string ReturnMessage = "Access Denied")
+        /// <param name="LocalCacheDurationInMinutes">本地缓存MemoryCache失效时间 默认不设置为30分钟失效时间</param>
+        /// <param name="ReturnMessage">返回消息内容 默认不设置为 Access Denied</param>
+        public static void AddJoreNoeJoreNoeIntefaceAccessMiddleware(this IServiceCollection services, TimeSpan LocalCacheDurationInMinutes = default, string ReturnMessage = "Access Denied")
         {
-            services.AddSingleton<ILimitInteFaceAccessSetting>(new LimitInteFaceAccessSetting(ReturnMessage));
+            services.AddSingleton<ILimitInteFaceAccessSetting>(new LimitInteFaceAccessSetting(ReturnMessage, LocalCacheDurationInMinutes == TimeSpan.Zero ? TimeSpan.FromMinutes(30) : LocalCacheDurationInMinutes));
+            services.AddMemoryCache();
         }
     }
 }

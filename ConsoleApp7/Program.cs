@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ConsoleApp7
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             //var date1 = new DateTime(2024,4,01);
             //var datte2 = DateTime.Now;
@@ -15,11 +17,35 @@ namespace ConsoleApp7
             //UseMonth = UseMonth + (month.days >= 15 ? 1 : 0);
             //var returnMonth = UseMonth;
 
-            var ff = (int)Math.Ceiling((double)3 / 2);
+            for (int i = 0; i < 1001; i++) {
+                await GetAsync("http://localhost:6631/api/File/IpAddress");
 
-            var x = CalcYear(2,3);
+            }
 
         }
+
+        private static readonly HttpClient _httpClient = new HttpClient();
+
+        /// <summary>
+        /// 发起 GET 请求
+        /// </summary>
+        /// <param name="url">请求的 URL</param>
+        /// <returns>返回响应的字符串</returns>
+        public static async Task<string> GetAsync(string url)
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // 抛出异常如果 HTTP 状态码不成功
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GET 请求失败: {ex.Message}");
+                throw;
+            }
+        }
+
 
         private static string CalcYear(int year, int semester)
         {

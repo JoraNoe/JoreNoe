@@ -66,6 +66,8 @@ namespace JoreNoe.Middleware
         private readonly string KeyTemplateIpCount = "{0}:IP:{1}:count";
         private readonly string KeyTemplateBlacklist = "{0}:SystemBlackIps";
         private readonly string KeyTemplateDeniedMessage = "{0}:DeniedReturnMessage";
+        private readonly string MemoryCacheCurrentIpCountKey = "IP{0}Count";
+        private readonly string MemoryCacheCurrentIpBlackListKey = "IP{0}Black";
 
         // 初始化
         private readonly RequestDelegate _next;
@@ -77,7 +79,7 @@ namespace JoreNoe.Middleware
         /// </summary>
         /// <param name="next">下一个中间件</param>
         /// <param name="config">配置参数</param>
-        public APIGlobalSystemIpBlackListMiddleware(RequestDelegate next, IJoreNoeSystemIpBlackListRedisSettingConfig config,IJoreNoeRedisBaseService RedisBaseService,
+        public APIGlobalSystemIpBlackListMiddleware(RequestDelegate next, IJoreNoeSystemIpBlackListRedisSettingConfig config, IJoreNoeRedisBaseService RedisBaseService,
             IMemoryCache MemoryCache)
         {
             _next = next;
@@ -88,47 +90,42 @@ namespace JoreNoe.Middleware
 
 
         private string GetRedisKey(string remoteIp) => string.Format(KeyTemplateIpCount, ProjectName, remoteIp);
-        private string GetBlacklistKey() => string.Format(KeyTemplateBlacklist, ProjectName);
+        private string GetBlacklistKey => string.Format(KeyTemplateBlacklist, ProjectName);
         private string ProjectName => Assembly.GetEntryAssembly()?.GetName().Name ?? "UnknownProject";
+
 
         /// <summary>
         /// 中间件主逻辑，检测IP并根据请求频率限制访问
         /// </summary>
         /// <param name="context">HTTP上下文</param>
         /// <returns></returns>
-        public async Task Invoke(HttpContext context,IServiceProvider ServiceProvider)
+        public async Task Invoke(HttpContext context, IServiceProvider ServiceProvider)
         {
             // 获取请求IP
-            var remoteIp = JoreNoeRequestCommonTools.GetClientIpAddress(context); 
-
-            // 如果IP已被拉黑，拒绝访问
-            if (!string.IsNullOrEmpty(remoteIp) && await IsBlackListed(remoteIp))
-            {
-                var deniedMessage = await QueryDeniedMessage();  // 获取拒绝访问消息
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;  // 设置403禁止状态码
-                await context.Response.WriteAsync(deniedMessage);  // 返回消息
-                return;  // 结束请求管道
-            }
+            var remoteIp = JoreNoeRequestCommonTools.GetClientIpAddress(context);
 
             // 如果启用请求限制，检测IP的请求次数
-            if (!string.IsNullOrEmpty(remoteIp) && _config.IsEnabledRequestLimit)
+            if (!string.IsNullOrEmpty(remoteIp))
             {
-                var redisKey = GetRedisKey(remoteIp);  // 生成用于存储请求次数的Redis键
-                var currentCount = await _redisDb.StringIncrementAsync(redisKey);  // 增加该IP的请求次数
-
-                // 首次访问时，设置该IP请求次数的过期时间
-                if (currentCount == 1)
-                    await _redisDb.KeyExpireAsync(redisKey, _config.TimeSpanTime);
-
-                // 如果请求次数超过限制，将IP加入黑名单
-                if (currentCount > _config.MaxRequestCount)
+                var GetBlackListData = await IsBlackListed(remoteIp).ConfigureAwait(false);
+                if (GetBlackListData)
                 {
-                    await _redisDb.SetAddAsync(GetBlacklistKey(), remoteIp);  // 将IP加入黑名单
-                    await _redisDb.KeyPersistAsync(GetBlacklistKey());
-                    var deniedMessage = await QueryDeniedMessage();
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                    await context.Response.WriteAsync(deniedMessage);
-                    return;
+                    //黑名单中存在，直接结束管道
+                    await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
+                }
+
+                // 是否启用限制
+                if (_config.IsEnabledRequestLimit)
+                {
+                    var currentCount = this.AddIpCount(remoteIp); //await _redisDb.StringIncrementAsync(redisKey).ConfigureAwait(false);  // 增加该IP的请求次数
+
+                    // 如果请求次数超过限制，将IP加入黑名单
+                    if (currentCount >= _config.MaxRequestCount)
+                    {
+                        await _redisDb.SetAddAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
+                        await _redisDb.KeyPersistAsync(this.GetBlacklistKey).ConfigureAwait(false);
+                        await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
+                    }
                 }
             }
 
@@ -136,25 +133,57 @@ namespace JoreNoe.Middleware
         }
 
         /// <summary>
+        /// 结束管道并且返回错误信息
+        /// </summary>
+        /// <param name="Context"></param>
+        /// <returns></returns>
+        private async Task EndPipeLineReturnErroMessage(HttpContext Context)
+        {
+            var deniedMessage = await QueryDeniedMessage().ConfigureAwait(false);
+            Context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await Context.Response.WriteAsync(deniedMessage).ConfigureAwait(false);
+            return;
+        }
+
+        /// <summary>
         /// 查询内存中的IP是否存在
-        /// 不存在则写入IP
         /// </summary>
         /// <param name="remoteIp"></param>
         /// <returns></returns>
         private async Task<bool> IsBlackListed(string remoteIp)
         {
-            if (this.MemoryCache.TryGetValue(remoteIp, out _))
+            var Key = string.Format(MemoryCacheCurrentIpBlackListKey, remoteIp);
+            if (!this.MemoryCache.TryGetValue(Key, out bool isBlacklisted))
             {
-                return true;
+                isBlacklisted = await _redisDb.SetContainsAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);
+                if (isBlacklisted)
+                {
+                    MemoryCache.Set(Key, true, TimeSpan.FromMinutes(6));
+                }
             }
-
-            var isBlacklisted = await _redisDb.SetContainsAsync(GetBlacklistKey(), remoteIp);
-            if (isBlacklisted)
-            {
-                MemoryCache.Set(remoteIp, true, _config.TimeSpanTime);
-            }
-
             return isBlacklisted;
+        }
+
+        /// <summary>
+        /// 添加计数
+        /// </summary>
+        /// <param name="remoteIp"></param>
+        /// <returns></returns>
+        private int AddIpCount(string remoteIp)
+        {
+            var cacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp);
+            var IsExists = this.MemoryCache.TryGetValue(cacheKey, out int value);
+            if (IsExists)
+            {
+                value += 1;
+                this.MemoryCache.Set(cacheKey, value, _config.TimeSpanTime);
+            }
+            else
+            {
+                value = 1;
+                this.MemoryCache.Set(cacheKey, value, _config.TimeSpanTime);
+            }
+            return value;
         }
 
         /// <summary>
@@ -164,15 +193,15 @@ namespace JoreNoe.Middleware
         private async Task<string> QueryDeniedMessage()
         {
             var messageKey = $"{ProjectName}:DeniedReturnMessage";
-            if (await _redisDb.KeyExistsAsync(messageKey))
+            if (await _redisDb.KeyExistsAsync(messageKey).ConfigureAwait(false))
             {
-                return await _redisDb.StringGetAsync(messageKey);  // 从Redis中获取消息
+                return await _redisDb.StringGetAsync(messageKey).ConfigureAwait(false);  // 从Redis中获取消息
             }
             else
             {
                 var defaultMessage = JoreNoeRequestCommonTools.ReturnDeniedHTMLPage();  // 返回默认HTML拒绝消息
-                await _redisDb.StringSetAsync(messageKey, defaultMessage);  // 存入Redis
-                await _redisDb.KeyPersistAsync(messageKey);
+                await _redisDb.StringSetAsync(messageKey, defaultMessage).ConfigureAwait(false);  // 存入Redis
+                await _redisDb.KeyPersistAsync(messageKey).ConfigureAwait(false);
                 return defaultMessage;
             }
         }
@@ -201,7 +230,7 @@ namespace JoreNoe.Middleware
         /// <param name="maxRequestCount">最大请求次数</param>
         /// <param name="spanTime">时间窗口</param>
         /// <param name="isEnabledRequestLimit">是否启用请求限制</param>
-        public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services,int maxRequestCount, TimeSpan spanTime, bool isEnabledRequestLimit = false)
+        public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services, int maxRequestCount, TimeSpan spanTime, bool isEnabledRequestLimit = false)
         {
             services.AddSingleton<IJoreNoeSystemIpBlackListRedisSettingConfig>(new JoreNoeSystemIpBlackListRedisSettingConfig(maxRequestCount, spanTime, isEnabledRequestLimit));
             services.AddMemoryCache();

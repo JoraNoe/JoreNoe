@@ -32,8 +32,11 @@ namespace TestNET6Project
             //builder.Services.AddJoreNoeRequestVisitRecordIpAddressMiddleware<ip>();
 
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
-            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false", 1);
-            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100, TimeSpan.FromMinutes(1), true);
+            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false", 0);
+
+            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
+
+            //builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100, TimeSpan.FromMinutes(1), true);
             //builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
 
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>(EnableReturnRecordErrorMessage:true);
@@ -44,16 +47,18 @@ namespace TestNET6Project
             builder.Services.AddResponseCaching();
             var app = builder.Build();
 
+            app.UseJoreNoeIntefaceAccessMiddleware();
+
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
             //app.UseJoreNoeIntefaceAccessMiddleware();
-            app.UseJoreNoeSystemIPBlackListMiddleware();
+            //app.UseJoreNoeSystemIPBlackListMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware(e => {
             //    Console.WriteLine("·½·¨" + e.IpAddress);
             //});
 
             app.UseResponseCaching();
-            app.usexxmiddle();
+            //app.usexxmiddle();
 
             app.UseJoreNoeRequestLoggingMiddleware(ConnectionInfo =>
             {
