@@ -17,7 +17,12 @@ namespace ConsoleApp7
             //UseMonth = UseMonth + (month.days >= 15 ? 1 : 0);
             //var returnMonth = UseMonth;
 
-            var x = AddTIme("-","-");
+            var x = new HttpClient();
+            for (int i = 0; i < 1001; i++)
+            {
+                var ff = await x.GetAsync("https://jorenoe.top/dogegg/api/File/IpAddress");
+                Console.WriteLine(i);
+            }
 
         }
 

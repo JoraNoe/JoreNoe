@@ -176,7 +176,7 @@ namespace JoreNoe.Middleware
             if (IsExists)
             {
                 value += 1;
-                this.MemoryCache.Set(cacheKey, value, _config.TimeSpanTime);
+                this.MemoryCache.Set(cacheKey, value);
             }
             else
             {
