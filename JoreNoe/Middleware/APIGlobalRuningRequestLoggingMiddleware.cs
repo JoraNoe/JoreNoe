@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -99,42 +100,55 @@ namespace JoreNoe.Middleware
             var originalResponseBodyStream = context.Response.Body;
             string RequestBody = string.Empty;
             string ResponsBody = string.Empty;
+            var StartTime = DateTime.UtcNow;
             try
             {
-                // 创建一个新的内存流来保存请求体的副本
-                using (var memStream = new MemoryStream())
+                if(!string.IsNullOrEmpty(context.Request.ContentType) && context.Request.ContentType.ToLowerInvariant().Contains("multipart/form-data"))
                 {
-                    // 复制原始请求体到内存流
-                    await context.Request.Body.CopyToAsync(memStream);
-                    memStream.Seek(0, SeekOrigin.Begin);
+                    RequestBody = "Format：" + context.Request.ContentType + "，Length：" + context.Request.ContentLength;
+                }
+                else
+                {
+                    // 创建一个新的内存流来保存请求体的副本
+                    using (var memStream = new MemoryStream())
+                    {
+                        // 复制原始请求体到内存流
+                        await context.Request.Body.CopyToAsync(memStream);
+                        memStream.Seek(0, SeekOrigin.Begin);
 
-                    // 读取请求体内容作为字符串
-                    RequestBody = await new StreamReader(memStream).ReadToEndAsync();
+                        // 读取请求体内容作为字符串
+                        RequestBody = await new StreamReader(memStream).ReadToEndAsync();
 
-                    // 将内存流设置为请求的新请求体
-                    memStream.Seek(0, SeekOrigin.Begin);
-                    context.Request.Body = memStream;
+                        // 将内存流设置为请求的新请求体
+                        memStream.Seek(0, SeekOrigin.Begin);
+                        context.Request.Body = memStream;
 
 
+                    }
                 }
 
-                using (var responseBody = new MemoryStream())
+                if (!string.IsNullOrEmpty(context.Response.ContentType) && context.Response.ContentType.ToLowerInvariant().Contains("multipart/form-data"))
                 {
-                    // 替换响应体为内存流
-                    context.Response.Body = responseBody;
-                    // 调用下一个中间件
-                    await _next(context);
-
-                    // 读取响应体
-                    responseBody.Seek(0, SeekOrigin.Begin);
-                    ResponsBody = await new StreamReader(responseBody).ReadToEndAsync();
-                    responseBody.Seek(0, SeekOrigin.Begin);
-
-                    // 将响应体内容写回原始响应流
-                    await responseBody.CopyToAsync(originalResponseBodyStream);
+                    ResponsBody = "Format：" + context.Response.ContentType + "，Length：" + context.Response.ContentLength;
                 }
+                else
+                {
+                    using (var responseBody = new MemoryStream())
+                    {
+                        // 替换响应体为内存流
+                        context.Response.Body = responseBody;
+                        // 调用下一个中间件
+                        await _next(context);
 
-                
+                        // 读取响应体
+                        responseBody.Seek(0, SeekOrigin.Begin);
+                        ResponsBody = await new StreamReader(responseBody).ReadToEndAsync();
+                        responseBody.Seek(0, SeekOrigin.Begin);
+
+                        // 将响应体内容写回原始响应流
+                        await responseBody.CopyToAsync(originalResponseBodyStream);
+                    }
+                }
             }
             finally
             {
@@ -143,19 +157,19 @@ namespace JoreNoe.Middleware
                 context.Response.Body = originalResponseBodyStream;
             }
 
-            var startTime = DateTime.UtcNow;
+           
             var request = context.Request;
             var method = request.Method;
             var path = request.Path;
             var queryString = request.QueryString;
-            var requestBody = RequestBody; //await JoreNoeRequestCommonTools.GetRequestBodyAsync(request);
+            var requestBody = RequestBody;
             var endTime = DateTime.UtcNow;
-            var duration = endTime - startTime;
+            var duration = endTime - StartTime;
 
 
             var Entity = new JorenoeRuningRequestLoggingModel
             {
-                StartTime = startTime,
+                StartTime = StartTime,
                 Method = method,
                 Path = path,
                 QueryString = queryString,
@@ -195,69 +209,93 @@ namespace JoreNoe.Middleware
             var originalResponseBodyStream = context.Response.Body;
             string RequestBody = string.Empty;
             string ResponsBody = string.Empty;
+            var StartTime = DateTime.UtcNow;
             try
             {
-                // 创建一个新的内存流来保存请求体的副本
-                using (var memStream = new MemoryStream())
+                if (!string.IsNullOrEmpty(context.Request.ContentType) && context.Request.ContentType.ToLowerInvariant().Contains("multipart/form-data"))
                 {
-                    // 复制原始请求体到内存流
-                    await context.Request.Body.CopyToAsync(memStream);
-                    memStream.Seek(0, SeekOrigin.Begin);
-
-                    // 读取请求体内容作为字符串
-                    RequestBody = await new StreamReader(memStream).ReadToEndAsync();
-
-                    // 将内存流设置为请求的新请求体
-                    memStream.Seek(0, SeekOrigin.Begin);
-                    context.Request.Body = memStream;
+                    RequestBody = "Format：" + context.Request.ContentType + "，Length：" + context.Request.ContentLength;
                 }
-                using (var responseBody = new MemoryStream())
+                else
                 {
-                    // 替换响应体为内存流
-                    context.Response.Body = responseBody;
-                    // 调用下一个中间件
-                    await _next(context);
+                    // 创建一个新的内存流来保存请求体的副本
+                    using (var memStream = new MemoryStream())
+                    {
+                        // 复制原始请求体到内存流
+                        await context.Request.Body.CopyToAsync(memStream);
+                        memStream.Seek(0, SeekOrigin.Begin);
 
-                    // 读取响应体
-                    responseBody.Seek(0, SeekOrigin.Begin);
-                    ResponsBody = await new StreamReader(responseBody).ReadToEndAsync();
-                    responseBody.Seek(0, SeekOrigin.Begin);
+                        // 读取请求体内容作为字符串
+                        RequestBody = await new StreamReader(memStream).ReadToEndAsync();
 
-                    // 将响应体内容写回原始响应流
-                    await responseBody.CopyToAsync(originalResponseBodyStream);
+                        // 将内存流设置为请求的新请求体
+                        memStream.Seek(0, SeekOrigin.Begin);
+                        context.Request.Body = memStream;
+                    }
+                }
+                if (!string.IsNullOrEmpty(context.Response.ContentType) && context.Response.ContentType.ToLowerInvariant().Contains("multipart/form-data"))
+                {
+                    ResponsBody = "Format：" + context.Response.ContentType + "，Length：" + context.Response.ContentLength;
+                }
+                else
+                {
+                    using (var responseBody = new MemoryStream())
+                    {
+                        // 替换响应体为内存流
+                        context.Response.Body = responseBody;
+                        // 调用下一个中间件
+                        await _next(context);
+
+                        // 读取响应体
+                        responseBody.Seek(0, SeekOrigin.Begin);
+                        ResponsBody = await new StreamReader(responseBody).ReadToEndAsync();
+                        responseBody.Seek(0, SeekOrigin.Begin);
+
+                        // 将响应体内容写回原始响应流
+                        await responseBody.CopyToAsync(originalResponseBodyStream);
+                    }
                 }
             }
             finally
             {
                 // 恢复原始请求体
                 context.Request.Body = originalRequestBody;
+                context.Response.Body = originalResponseBodyStream;
             }
 
-            var startTime = DateTime.UtcNow;
-            var request = context.Request;
-            var method = request.Method;
-            var path = request.Path;
-            var queryString = request.QueryString;
-            var endTime = DateTime.UtcNow;
-            var duration = endTime - startTime;
+            // 装填数据
+            var FillDataContext = this.FillData(StartTime, context,RequestBody,ResponsBody, DateTime.UtcNow - StartTime);
+            await _entity.RunningRequestLogging(FillDataContext).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 填装数据
+        /// </summary>
+        /// <param name="StartTime"></param>
+        /// <param name="Context"></param>
+        /// <param name="RequestBody"></param>
+        /// <param name="ResponsBody"></param>
+        /// <param name="Duration"></param>
+        /// <returns></returns>
+        private JorenoeRuningRequestLoggingModel FillData(DateTime StartTime,HttpContext Context,string RequestBody,string ResponsBody,TimeSpan Duration)
+        {
             var EntityData = new JorenoeRuningRequestLoggingModel
             {
-                StartTime = startTime,
-                Method = method,
-                Path = path,
-                QueryString = queryString,
+                StartTime = StartTime,
+                Method = Context.Request.Method,
+                Path = Context.Request.Path,
+                QueryString = Context.Request.QueryString,
                 RequestBody = RequestBody,
                 ResponseBody = ResponsBody,
-                Duration = duration,
-                Headers = JsonConvert.SerializeObject(request.Headers),
-                Hsot = request.Host.ToString(),
-                Scheme = request.Scheme,
-                FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
+                Duration = Duration,
+                Headers = JsonConvert.SerializeObject(Context.Request.Headers),
+                Hsot = Context.Request.Host.ToString(),
+                Scheme = Context.Request.Scheme,
+                FullPathUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}"
             };
-
-            await _entity.RunningRequestLogging(EntityData).ConfigureAwait(false);
-
+            return EntityData;
         }
+
     }
 
 

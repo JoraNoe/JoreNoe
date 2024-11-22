@@ -17,11 +17,18 @@ namespace ConsoleApp7
             //UseMonth = UseMonth + (month.days >= 15 ? 1 : 0);
             //var returnMonth = UseMonth;
 
-            for (int i = 0; i < 1001; i++) {
-                await GetAsync("http://localhost:6631/api/File/IpAddress");
+            var x = AddTIme("-","-");
 
-            }
+        }
 
+        private static string AddTIme(string time1, string time2)
+        {
+            var ok1 = time1 == "-" ? "00:00:00" : time1.Replace(" : ", ":");
+            var ok2 = time2 == "-" ? "00:00:00" : time2.Replace(" : ", ":");
+
+            TimeSpan.TryParse(ok1, out TimeSpan value1);
+            TimeSpan.TryParse(ok2, out TimeSpan value2);
+            return (value1 + value2).ToString(@"hh\:mm\:ss");
         }
 
         private static readonly HttpClient _httpClient = new HttpClient();

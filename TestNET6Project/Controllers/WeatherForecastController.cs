@@ -40,6 +40,13 @@ namespace TestNET6Project.Controllers
 
         }
 
+        [HttpPost("asdf")]
+        public ActionResult uploadtest (IFormFile s)
+        {
+
+            return Ok(s);
+        }
+
         [HttpGet("MENT")]
         public async Task<ActionResult> Ge1t()
         {

@@ -34,20 +34,22 @@ namespace TestNET6Project
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>();
             builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false", 0);
 
-            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
+            //builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
 
             //builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100, TimeSpan.FromMinutes(1), true);
             //builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
 
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>(EnableReturnRecordErrorMessage:true);
 
+            builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
             // Ê¹ÓÃRabbitMQ
             //builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
 
             builder.Services.AddResponseCaching();
             var app = builder.Build();
 
-            app.UseJoreNoeIntefaceAccessMiddleware();
+            app.UseJoreNoeRequestLoggingMiddleware();
+            //app.UseJoreNoeIntefaceAccessMiddleware();
 
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
@@ -60,10 +62,10 @@ namespace TestNET6Project
             app.UseResponseCaching();
             //app.usexxmiddle();
 
-            app.UseJoreNoeRequestLoggingMiddleware(ConnectionInfo =>
-            {
-                Console.WriteLine(ConnectionInfo.ResponseBody);
-            });
+            //app.UseJoreNoeRequestLoggingMiddleware(ConnectionInfo =>
+            //{
+            //    Console.WriteLine(ConnectionInfo.ResponseBody);
+            //});
 
             
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
