@@ -78,6 +78,16 @@ namespace JoreNoe.Middleware
         /// 时长
         /// </summary>
         public TimeSpan Duration { get; set; }
+
+        /// <summary>
+        /// IP地址
+        /// </summary>
+        public string IpAddress { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string UserAgent { get; set; }
     }
 
     /// <summary>
@@ -179,7 +189,9 @@ namespace JoreNoe.Middleware
                 Headers = JsonConvert.SerializeObject(request.Headers),
                 Hsot = request.Host.ToString(),
                 Scheme = request.Scheme,
-                FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}"
+                FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}",
+                IpAddress = JoreNoeRequestCommonTools.GetClientIpAddress(context),
+                UserAgent = context.Request.Headers["User-Agent"]
             };
 
             // 回调 
@@ -291,7 +303,9 @@ namespace JoreNoe.Middleware
                 Headers = JsonConvert.SerializeObject(Context.Request.Headers),
                 Hsot = Context.Request.Host.ToString(),
                 Scheme = Context.Request.Scheme,
-                FullPathUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}"
+                FullPathUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}",
+                IpAddress = JoreNoeRequestCommonTools.GetClientIpAddress(Context),
+                UserAgent = Context.Request.Headers["User-Agent"]
             };
             return EntityData;
         }
