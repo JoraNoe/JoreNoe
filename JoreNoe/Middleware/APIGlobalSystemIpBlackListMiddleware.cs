@@ -194,15 +194,23 @@ namespace JoreNoe.Middleware
         private async Task<string> QueryDeniedMessage()
         {
             var messageKey = $"{ProjectName}:DeniedReturnMessage";
+            if(this.MemoryCache.TryGetValue(messageKey,out string CachedMessage))
+            {
+                return CachedMessage;
+            }
+
             if (await _redisDb.KeyExistsAsync(messageKey).ConfigureAwait(false))
             {
-                return await _redisDb.StringGetAsync(messageKey).ConfigureAwait(false);  // 从Redis中获取消息
+                var message =  await _redisDb.StringGetAsync(messageKey).ConfigureAwait(false);  // 从Redis中获取消息
+                this.MemoryCache.Set(messageKey,message,TimeSpan.FromMinutes(6));
+                return message;
             }
             else
             {
                 var defaultMessage = JoreNoeRequestCommonTools.ReturnDeniedHTMLPage();  // 返回默认HTML拒绝消息
                 await _redisDb.StringSetAsync(messageKey, defaultMessage).ConfigureAwait(false);  // 存入Redis
                 await _redisDb.KeyPersistAsync(messageKey).ConfigureAwait(false);
+                this.MemoryCache.Set(messageKey,defaultMessage,TimeSpan.FromMinutes(6));
                 return defaultMessage;
             }
         }
