@@ -18,7 +18,7 @@ namespace ConsoleApp7
             //var returnMonth = UseMonth;
 
             var x = new HttpClient();
-            for (int i = 0; i < 1001; i++)
+            for (int i = 0; i < 301; i++)
             {
                 var ff = await x.GetAsync("https://jorenoe.top/dogegg/api/File/IpAddress");
                 Console.WriteLine(i);

@@ -112,6 +112,7 @@ namespace JoreNoe.Middleware
                 {
                     //黑名单中存在，直接结束管道
                     await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
+                    return;// 结束管道、
                 }
 
                 // 是否启用限制
@@ -125,6 +126,7 @@ namespace JoreNoe.Middleware
                         await _redisDb.SetAddAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
                         await _redisDb.KeyPersistAsync(this.GetBlacklistKey).ConfigureAwait(false);
                         await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
+                        return;//结束管道
                     }
                 }
             }
@@ -142,7 +144,6 @@ namespace JoreNoe.Middleware
             var deniedMessage = await QueryDeniedMessage().ConfigureAwait(false);
             Context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await Context.Response.WriteAsync(deniedMessage).ConfigureAwait(false);
-            return;
         }
 
         /// <summary>
