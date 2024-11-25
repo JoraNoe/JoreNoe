@@ -8,6 +8,7 @@ using System;
 using JoreNoe.Cache.Redis;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace JoreNoe.Middleware
 {
@@ -35,6 +36,12 @@ namespace JoreNoe.Middleware
         /// 本地缓存
         /// </summary>
         TimeSpan TimeSpanLocalCache { get; set; }
+    }
+
+    public class LocalCacheItem
+    {
+        public int Value { get; set; }                 // 记录的值
+        public DateTime AbsoluteExpiration { get; set; } // 绝对过期时间
     }
 
     /// <summary>
@@ -130,6 +137,8 @@ namespace JoreNoe.Middleware
                     // 如果请求次数超过限制，将IP加入黑名单
                     if (currentCount >= _config.MaxRequestCount)
                     {
+                        // 清楚缓存数据
+                        this.RemoveAddIpCountLocal(remoteIp);
                         await _redisDb.SetAddAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
                         await _redisDb.KeyPersistAsync(this.GetBlacklistKey).ConfigureAwait(false);
                         await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
@@ -177,21 +186,84 @@ namespace JoreNoe.Middleware
         /// </summary>
         /// <param name="remoteIp"></param>
         /// <returns></returns>
+        //private int AddIpCount(string remoteIp)
+        //{
+        //    var cacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp);
+        //    var AbcacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp)+"AbTime";
+        //    var IsExists = this.MemoryCache.TryGetValue(cacheKey, out int value);
+        //    var IsAbExists = this.MemoryCache.TryGetValue(AbcacheKey,out DateTime timeValue);
+        //    if (IsExists)
+        //    {
+        //        if (DateTime.UtcNow >= timeValue)
+        //        {
+        //            this.MemoryCache.Remove(cacheKey);
+        //            this.MemoryCache.Remove(AbcacheKey);
+        //            return 1;
+        //        }
+                     
+        //        value += 1;
+        //        this.MemoryCache.Set(cacheKey, value);
+        //        Console.WriteLine(value);
+        //    }
+        //    else
+        //    {
+        //        value = 1;
+        //        this.MemoryCache.Set(cacheKey, value, _config.TimeSpanTime);
+        //        var AbTime = DateTime.UtcNow.AddTicks(_config.TimeSpanTime.Ticks);
+        //        this.MemoryCache.Set(AbcacheKey, AbTime, _config.TimeSpanTime);
+        //    }
+        //    return value;
+        //}
+
+
+        private readonly object _lock = new();
+
+        /// <summary>
+        /// 添加计数
+        /// </summary>
+        /// <param name="remoteIp"></param>
+        /// <returns></returns>
         private int AddIpCount(string remoteIp)
         {
             var cacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp);
-            var IsExists = this.MemoryCache.TryGetValue(cacheKey, out int value);
-            if (IsExists)
+
+            lock (_lock)
             {
-                value += 1;
-                this.MemoryCache.Set(cacheKey, value);
+                var isExists = this.MemoryCache.TryGetValue(cacheKey, out LocalCacheItem cacheItem);
+                if (isExists)
+                {
+                    if (DateTime.UtcNow >= cacheItem.AbsoluteExpiration)
+                    {
+                        this.MemoryCache.Remove(cacheKey);
+                        return 1;
+                    }
+
+                    cacheItem.Value += 1;
+                    this.MemoryCache.Set(cacheKey, cacheItem);
+                    Console.WriteLine(cacheItem.Value);
+                    return cacheItem.Value;
+                }
+                else
+                {
+                    var newItem = new LocalCacheItem
+                    {
+                        Value = 1,
+                        AbsoluteExpiration = DateTime.UtcNow.Add(_config.TimeSpanTime)
+                    };
+                    this.MemoryCache.Set(cacheKey, newItem, _config.TimeSpanTime);
+                    return newItem.Value;
+                }
             }
-            else
-            {
-                value = 1;
-                this.MemoryCache.Set(cacheKey, value, _config.TimeSpanTime);
-            }
-            return value;
+        }
+
+        /// <summary>
+        /// 清楚缓存中数据
+        /// </summary>
+        /// <param name="remoteIp"></param>
+        private void RemoveAddIpCountLocal(string remoteIp)
+        {
+            var cacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp);
+            this.MemoryCache.Remove(cacheKey);
         }
 
         /// <summary>

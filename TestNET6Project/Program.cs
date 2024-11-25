@@ -36,25 +36,25 @@ namespace TestNET6Project
 
             //builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
 
-            //builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100, TimeSpan.FromMinutes(1), true);
+            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(100, TimeSpan.FromMinutes(1),TimeSpan.FromMinutes(1), true);
             //builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware();
 
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>(EnableReturnRecordErrorMessage:true);
 
-            builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
+            //builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
             // 使用RabbitMQ
             //builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
 
             builder.Services.AddResponseCaching();
             var app = builder.Build();
 
-            app.UseJoreNoeRequestLoggingMiddleware();
+            //app.UseJoreNoeRequestLoggingMiddleware();
             //app.UseJoreNoeIntefaceAccessMiddleware();
 
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
             //app.UseJoreNoeIntefaceAccessMiddleware();
-            //app.UseJoreNoeSystemIPBlackListMiddleware();
+            app.UseJoreNoeSystemIPBlackListMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware(e => {
             //    Console.WriteLine("方法" + e.IpAddress);
             //});
