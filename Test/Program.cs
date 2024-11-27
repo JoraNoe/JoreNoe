@@ -49,8 +49,7 @@ namespace Test
                 app.UseJoreNoeSwaggerThemeDark();
                 app.UseSwaggerUI(option =>
                 {
-                    option.InjectStylesheet(SwaggerThemsExtend.BaseCssPath);
-                    option.InjectStylesheet(SwaggerThemsExtend.ThemeCssPath);
+                    option.InjectStylesheet(SwaggerThemsExtend.DarkTheme);
                     
                     option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                     option.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");

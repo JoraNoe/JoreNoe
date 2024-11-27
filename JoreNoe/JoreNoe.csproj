@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.2.4</Version>
-		<Description>提供暗黑Swagger主题</Description>
+		<Version>7.2.5</Version>
+		<Description>提供暗黑Swagger主题,优化性能，使用缓存</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/JoraNoe/JoreNoe/tree/maint</RepositoryUrl>
@@ -28,12 +28,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Extend\SwaggerStyles\SwaggerBase.css" />
 	  <None Remove="Extend\SwaggerStyles\SwaggerDark.css" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Extend\SwaggerStyles\SwaggerBase.css" />
 	  <EmbeddedResource Include="Extend\SwaggerStyles\SwaggerDark.css" />
 	</ItemGroup>
 
