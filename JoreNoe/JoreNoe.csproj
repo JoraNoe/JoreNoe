@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.2.3</Version>
-		<Description>使用内存级缓存</Description>
+		<Version>7.2.4</Version>
+		<Description>提供暗黑Swagger主题</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/JoraNoe/JoreNoe/tree/maint</RepositoryUrl>
@@ -25,6 +25,16 @@
 	  <Compile Remove="DB\Services\**" />
 	  <EmbeddedResource Remove="DB\Services\**" />
 	  <None Remove="DB\Services\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Extend\SwaggerStyles\SwaggerBase.css" />
+	  <None Remove="Extend\SwaggerStyles\SwaggerDark.css" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Extend\SwaggerStyles\SwaggerBase.css" />
+	  <EmbeddedResource Include="Extend\SwaggerStyles\SwaggerDark.css" />
 	</ItemGroup>
 
 	<ItemGroup>

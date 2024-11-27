@@ -19,13 +19,17 @@ namespace TestNET6Project.Controllers
         // private readonly IQueueManger _queueManger;
         //IRedisManager _redisManager
         private readonly IJoreNoeRedisBaseService ss;
+        private readonly TestUse x;
+        private readonly IServiceProvider f;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IJoreNoeRedisBaseService ss)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IJoreNoeRedisBaseService ss,TestUse x,IServiceProvider f)
         {
             _logger = logger;
             //_redisMan22ager = _redisManager;
             //_queueManger = ii;
             this.ss = ss;
+            this.x= x;
+            this.f = f;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -35,6 +39,8 @@ namespace TestNET6Project.Controllers
 
             //this._queueManger.SendPublish("我是张三", "test");
 
+            var x = f.GetRequiredService<TestUse>();
+            x.get();
 
             return APIReturnInfo<string>.Success("测试");
 

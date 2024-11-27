@@ -63,7 +63,7 @@ namespace JoreNoe.Middleware
             formattedMessage.AppendLine($"[JorenoeGlobalErrorInfo]  报错时间：{DateTime.Now}  报错内容: {ex.Message}  详情信息如下： ");
             if (ex != null)
             {
-                formattedMessage.AppendLine(ex .ToString());
+                formattedMessage.AppendLine(ex.ToString());
             }
             return formattedMessage.ToString();
         }
@@ -157,9 +157,19 @@ namespace JoreNoe.Middleware
         /// 获取当前项目名称
         /// </summary>
         /// <returns>项目名称</returns>
-        public static  string GetReferencingProjectName()
+        public static string GetReferencingProjectName()
         {
             return Assembly.GetEntryAssembly()?.GetName().Name ?? "UnknownProject";  // 获取项目名称
+        }
+
+        /// <summary>
+        /// 获取程序集的名称
+        /// </summary>
+        /// <returns></returns>
+        public static string GetAssemblyName()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetName().Name;
         }
     }
 }

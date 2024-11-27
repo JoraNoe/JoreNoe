@@ -46,6 +46,9 @@ namespace TestNET6Project
             //builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
 
             builder.Services.AddResponseCaching();
+
+            builder.Services.AddTransient<TestUse>();
+
             var app = builder.Build();
 
             //app.UseJoreNoeRequestLoggingMiddleware();
