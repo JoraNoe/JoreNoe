@@ -658,8 +658,7 @@ app.UseSwagger();
 app.UseJoreNoeSwaggerThemeDark(); // 注入
    app.UseSwaggerUI(option =>
    {
-       option.InjectStylesheet(SwaggerThemsExtend.BaseCssPath); // 注入地址
-       option.InjectStylesheet(SwaggerThemsExtend.ThemeCssPath); // 注入主题地址
+       option.InjectStylesheet(SwaggerThemsExtend.DarkTheme); // 注入主题地址
        
        option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
        option.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
