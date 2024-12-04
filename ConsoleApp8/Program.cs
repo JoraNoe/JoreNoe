@@ -14,6 +14,9 @@
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("1234/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");  // 更改 User-Agent
                 client.DefaultRequestHeaders.Referrer = new Uri("https://1234.example.com");  // 更改 Referer
                 client.DefaultRequestHeaders.Add("X-Forwarded-For", "127.0.0.1,123.123.123.123,123:0:0:0");  // 添加 X-Forwarded-For (可以模拟 IP)
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "your_token_here");
+                client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("gzip, deflate");
+
 
                 // 发送 GET 请求
                 try
