@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -17,12 +18,15 @@ namespace ConsoleApp7
             //UseMonth = UseMonth + (month.days >= 15 ? 1 : 0);
             //var returnMonth = UseMonth;
 
-            var x = new HttpClient();
-            for (int i = 0; i < 301; i++)
-            {
-                var ff = await x.GetAsync("https://jorenoe.top/dogegg/api/File/IpAddress");
-                Console.WriteLine(i);
-            }
+            var xx = new int[] { 3, 4, 9, 6, 7, 78 };
+            var x = xx.OrderByDescending(s=>s).ToArray();
+
+            //var x = new HttpClient();
+            //for (int i = 0; i < 301; i++)
+            //{
+            //    var ff = await x.GetAsync("https://jorenoe.top/dogegg/api/File/IpAddress");
+            //    Console.WriteLine(i);
+            //}
 
         }
 

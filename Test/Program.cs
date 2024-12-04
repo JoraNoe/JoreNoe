@@ -1,3 +1,4 @@
+using JoreNoe.Cache.Redis;
 using JoreNoe.Extend;
 using JoreNoe.Middleware;
 using SwaggerThemes;
@@ -13,6 +14,8 @@ namespace Test
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",6);
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -36,7 +39,8 @@ namespace Test
                     TermsOfService = new Uri("https://jorenoe.top")
                 });
 
-                //option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Test.xml"));
+                var x = string.Concat(Assembly.GetExecutingAssembly().GetName().Name, ".xml");
+                option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, x));
             });
 
             var app = builder.Build();

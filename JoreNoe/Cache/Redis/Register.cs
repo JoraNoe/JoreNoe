@@ -47,6 +47,8 @@ namespace JoreNoe.Cache.Redis
     public interface IJoreNoeRedisBaseService
     {
         IDatabase RedisDataBase { get; set; }
+
+        IConnectionMultiplexer ConnectionMultiplexer { get; set; }
     }
 
     /// <summary>
@@ -56,10 +58,12 @@ namespace JoreNoe.Cache.Redis
     {
         private readonly ISettingConfigs SettingConfigs;
         public IDatabase RedisDataBase { get; set; }
+        public IConnectionMultiplexer ConnectionMultiplexer { get; set; }
 
         public JoreNoeRedisBaseService(ISettingConfigs SettingConfigs, IConnectionMultiplexer connectionMultiplexer)
         {
             this.SettingConfigs = SettingConfigs;
+            this.ConnectionMultiplexer = connectionMultiplexer;
             this.RedisDataBase = connectionMultiplexer.GetDatabase(this.SettingConfigs.DefaultDB);
         }
     }

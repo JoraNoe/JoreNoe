@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using JoreNoe.Cache.Redis;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Test.Controllers
@@ -7,6 +8,10 @@ namespace Test.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IJoreNoeRedisBaseService redisManager;
+        public ValuesController(IJoreNoeRedisBaseService s) {
+            this.redisManager = s;
+        }
         /// <summary>
         /// 测试1
         /// </summary>
@@ -14,6 +19,7 @@ namespace Test.Controllers
         [HttpGet()]
         public ActionResult ok1()
         {
+            this.redisManager.ConnectionMultiplexer.GetSubscriber();
             return Ok("23");
         }
     }
