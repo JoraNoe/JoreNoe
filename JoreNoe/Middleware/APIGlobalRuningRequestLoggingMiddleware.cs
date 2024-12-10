@@ -77,7 +77,7 @@ namespace JoreNoe.Middleware
         /// <summary>
         /// 时长
         /// </summary>
-        public TimeSpan Duration { get; set; }
+        public string Duration { get; set; }
 
         /// <summary>
         /// IP地址
@@ -147,8 +147,7 @@ namespace JoreNoe.Middleware
                     {
                         // 替换响应体为内存流
                         context.Response.Body = responseBody;
-                        // 调用下一个中间件
-                        await _next(context);
+                       
 
                         // 读取响应体
                         responseBody.Seek(0, SeekOrigin.Begin);
@@ -165,37 +164,41 @@ namespace JoreNoe.Middleware
                 // 恢复原始请求体
                 context.Request.Body = originalRequestBody;
                 context.Response.Body = originalResponseBodyStream;
+                // 调用下一个中间件
+                await _next(context);
+
+                var endTime = DateTime.UtcNow;
+                var request = context.Request;
+                var method = request.Method;
+                var path = request.Path;
+                var queryString = request.QueryString;
+                var requestBody = RequestBody;
+                var duration = (endTime - StartTime).ToString(@"hh\:mm\:ss\.fff");
+
+
+                var Entity = new JorenoeRuningRequestLoggingModel
+                {
+                    StartTime = StartTime,
+                    Method = method,
+                    Path = path,
+                    QueryString = queryString,
+                    RequestBody = requestBody,
+                    ResponseBody = ResponsBody,
+                    Duration = duration,
+                    Headers = JsonConvert.SerializeObject(request.Headers),
+                    Hsot = request.Host.ToString(),
+                    Scheme = request.Scheme,
+                    FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}",
+                    IpAddress = JoreNoeRequestCommonTools.GetClientIpAddress(context),
+                    UserAgent = context.Request.Headers["User-Agent"]
+                };
+
+                // 回调 
+                _callback(Entity);
             }
 
            
-            var request = context.Request;
-            var method = request.Method;
-            var path = request.Path;
-            var queryString = request.QueryString;
-            var requestBody = RequestBody;
-            var endTime = DateTime.UtcNow;
-            var duration = endTime - StartTime;
-
-
-            var Entity = new JorenoeRuningRequestLoggingModel
-            {
-                StartTime = StartTime,
-                Method = method,
-                Path = path,
-                QueryString = queryString,
-                RequestBody = requestBody,
-                ResponseBody = ResponsBody,
-                Duration = duration,
-                Headers = JsonConvert.SerializeObject(request.Headers),
-                Hsot = request.Host.ToString(),
-                Scheme = request.Scheme,
-                FullPathUrl = $"{request.Scheme}://{request.Host}{path}{queryString}",
-                IpAddress = JoreNoeRequestCommonTools.GetClientIpAddress(context),
-                UserAgent = context.Request.Headers["User-Agent"]
-            };
-
-            // 回调 
-            _callback(Entity);
+            
         }
     }
 
@@ -255,8 +258,7 @@ namespace JoreNoe.Middleware
                     {
                         // 替换响应体为内存流
                         context.Response.Body = responseBody;
-                        // 调用下一个中间件
-                        await _next(context);
+                      
 
                         // 读取响应体
                         responseBody.Seek(0, SeekOrigin.Begin);
@@ -273,11 +275,14 @@ namespace JoreNoe.Middleware
                 // 恢复原始请求体
                 context.Request.Body = originalRequestBody;
                 context.Response.Body = originalResponseBodyStream;
-            }
 
-            // 装填数据
-            var FillDataContext = this.FillData(StartTime, context,RequestBody,ResponsBody, DateTime.UtcNow - StartTime);
-            await _entity.RunningRequestLogging(FillDataContext).ConfigureAwait(false);
+                // 调用下一个中间件
+                await _next(context);
+
+                // 装填数据
+                var FillDataContext = this.FillData(StartTime, context, RequestBody, ResponsBody, (DateTime.UtcNow - StartTime).ToString(@"hh\:mm\:ss\.fff"));
+                await _entity.RunningRequestLogging(FillDataContext).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -289,7 +294,7 @@ namespace JoreNoe.Middleware
         /// <param name="ResponsBody"></param>
         /// <param name="Duration"></param>
         /// <returns></returns>
-        private JorenoeRuningRequestLoggingModel FillData(DateTime StartTime,HttpContext Context,string RequestBody,string ResponsBody,TimeSpan Duration)
+        private JorenoeRuningRequestLoggingModel FillData(DateTime StartTime,HttpContext Context,string RequestBody,string ResponsBody,string Duration)
         {
             var EntityData = new JorenoeRuningRequestLoggingModel
             {

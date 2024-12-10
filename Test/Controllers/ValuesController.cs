@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Test.Controllers
 {
-    [Route("api/v2/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
@@ -22,5 +22,18 @@ namespace Test.Controllers
             this.redisManager.ConnectionMultiplexer.GetSubscriber();
             return Ok("23");
         }
+
+        [HttpPost("test")]
+        public ActionResult ok1(testss s)
+        {
+            Console.WriteLine(s);
+            //this.redisManager.ConnectionMultiplexer.GetSubscriber();
+            return Ok("23");
+        }
+    }
+    public class testss
+    {
+        public string asdf { get; set; }
+        public string asffds { get; set; }
     }
 }

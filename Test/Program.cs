@@ -17,6 +17,7 @@ namespace Test
 
             builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",6);
 
+            //builder.Services.AddJoreNoeRequestLoggingMiddleware();
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -64,6 +65,10 @@ namespace Test
                 
 
             }
+
+            app.UseJoreNoeRequestLoggingMiddleware(equals => {
+                Console.WriteLine(equals.RequestBody);
+            });
 
             app.UseAuthorization();
 
