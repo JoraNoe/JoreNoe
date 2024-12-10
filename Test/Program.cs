@@ -17,6 +17,7 @@ namespace Test
 
             builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",6);
 
+            builder.Services.AddJoreNoeRequestLoggingMiddleware<WeatherForecast>();
             //builder.Services.AddJoreNoeRequestLoggingMiddleware();
             builder.Services.AddSwaggerGen(option =>
             {
@@ -66,10 +67,12 @@ namespace Test
 
             }
 
-            app.UseJoreNoeRequestLoggingMiddleware(equals =>
-            {
-                Console.WriteLine(equals.RequestBody);
-            });
+            app.UseJoreNoeRequestLoggingMiddleware();
+
+            //app.UseJoreNoeRequestLoggingMiddleware(equals =>
+            //{
+            //    Console.WriteLine(equals.RequestBody);
+            //});
 
             app.UseAuthorization();
 
