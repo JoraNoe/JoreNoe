@@ -41,7 +41,7 @@ namespace TestNET6Project
 
             //builder.Services.AddJoreNoeGlobalErrorHandlingMiddleware<TestErrorMiddleWare>(EnableReturnRecordErrorMessage:true);
 
-            //builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
+            builder.Services.AddJoreNoeRequestLoggingMiddleware<TestMiddleWare>();
             //  π”√RabbitMQ
             //builder.Services.AddJoreNoeRabbitMQ("amqp://jorenoe:jorenoe@124.70.12.71:5672/Jorenoe-Monitoring");
 
@@ -51,7 +51,7 @@ namespace TestNET6Project
 
             var app = builder.Build();
 
-            //app.UseJoreNoeRequestLoggingMiddleware();
+            app.UseJoreNoeRequestLoggingMiddleware();
             //app.UseJoreNoeIntefaceAccessMiddleware();
 
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();

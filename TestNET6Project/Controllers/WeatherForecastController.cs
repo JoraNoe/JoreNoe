@@ -63,6 +63,12 @@ namespace TestNET6Project.Controllers
             return Ok();
         }
 
+        [HttpPost("fff")]
+        public ActionResult sfasd(s ss)
+        {
+            return Ok("asdf");
+        }
+
     }
 
     public class s
