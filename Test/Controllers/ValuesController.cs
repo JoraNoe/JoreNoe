@@ -16,17 +16,17 @@ namespace Test.Controllers
         /// 测试1
         /// </summary>
         /// <returns></returns>
-        [HttpGet()]
-        public ActionResult ok1()
-        {
-            this.redisManager.ConnectionMultiplexer.GetSubscriber();
-            return Ok("23");
-        }
+        //[HttpGet()]
+        //public ActionResult ok1()
+        //{
+        //    this.redisManager.ConnectionMultiplexer.GetSubscriber();
+        //    return Ok("23");
+        //}
 
-        [HttpPost("test")]
-        public ActionResult ok1(testss s)
+        [HttpPost("create")]
+        public ActionResult test(testss testok)
         {
-            Console.WriteLine(s);
+            //Console.WriteLine(s);
             //this.redisManager.ConnectionMultiplexer.GetSubscriber();
             return Ok("23");
         }
