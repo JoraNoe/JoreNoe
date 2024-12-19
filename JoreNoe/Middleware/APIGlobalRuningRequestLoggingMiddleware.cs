@@ -19,6 +19,18 @@ namespace JoreNoe.Middleware
         Task RunningRequestLogging(JorenoeRuningRequestLoggingModel Context);
     }
 
+    public interface IJorenoeRuningRequestLoggingSettingConfiguration
+    {
+        public int LimitSizeMax { get; set; }
+    }
+    public class JorenoeRuningRequestLoggingSettingConfiguration : IJorenoeRuningRequestLoggingSettingConfiguration
+    {
+        public int LimitSizeMax { get; set; }
+        public JorenoeRuningRequestLoggingSettingConfiguration(int LimitSizeMax = 600)
+        {
+            this.LimitSizeMax = LimitSizeMax;
+        }
+    }
     /// <summary>
     /// 运行日志获取内容
     /// </summary>
@@ -210,14 +222,17 @@ namespace JoreNoe.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly Entity _entity;
-        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next, Entity entity)
+        private readonly IJorenoeRuningRequestLoggingSettingConfiguration Setting;
+        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next, Entity entity,IJorenoeRuningRequestLoggingSettingConfiguration Setting)
         {
             _next = next;
             _entity = entity;
+            this.Setting = Setting;
         }
 
         public async Task Invoke(HttpContext context)
         {
+            int MaxBodySize = Setting.LimitSizeMax * 1024;
             // 备份原始请求体
             var originalRequestBody = context.Request.Body;
             var originalResponseBodyStream = context.Response.Body;
@@ -236,7 +251,14 @@ namespace JoreNoe.Middleware
                     var requestStream = new MemoryStream();
                     await context.Request.Body.CopyToAsync(requestStream);
                     requestStream.Seek(0, SeekOrigin.Begin);
-                    RequestBody = await new StreamReader(requestStream).ReadToEndAsync();
+                    if (requestStream.Length > MaxBodySize)
+                    {
+                        RequestBody = $"Request Body too large. Size: {requestStream.Length} bytes";
+                    }
+                    else
+                    {
+                        RequestBody = await new StreamReader(requestStream).ReadToEndAsync();
+                    }
                     requestStream.Seek(0, SeekOrigin.Begin);
                     context.Request.Body = requestStream;
                 }
@@ -257,7 +279,14 @@ namespace JoreNoe.Middleware
                     // 确保响应体内容已完全写入
                     responseMemoryStream.Seek(0, SeekOrigin.Begin);
                     // 读取响应体内容
-                    ResponsBody = await new StreamReader(responseMemoryStream).ReadToEndAsync();
+                    if (responseMemoryStream.Length > MaxBodySize)
+                    {
+                        ResponsBody = $"Response Body too large. Size: {responseMemoryStream.Length} bytes";
+                    }
+                    else
+                    {
+                        ResponsBody = await new StreamReader(responseMemoryStream).ReadToEndAsync();
+                    }
                     // 重置流位置
                     responseMemoryStream.Seek(0, SeekOrigin.Begin);
                     // 写回原始响应流
@@ -342,9 +371,10 @@ namespace JoreNoe.Middleware
         /// </summary>
         /// <typeparam name="Entity">要使用得类</typeparam>
         /// <param name="Service"></param>
-        public static void AddJoreNoeRequestLoggingMiddleware<Entity>(this IServiceCollection Service)
+        public static void AddJoreNoeRequestLoggingMiddleware<Entity>(this IServiceCollection Service,int SizeMaxLimit = 100)
             where Entity : class, IJorenoeRuningRequestLogging
         {
+            Service.AddSingleton<IJorenoeRuningRequestLoggingSettingConfiguration>(new JorenoeRuningRequestLoggingSettingConfiguration(SizeMaxLimit));
             Service.AddSingleton<IJorenoeRuningRequestLogging, Entity>();
         }
     }

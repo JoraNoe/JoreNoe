@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.2.6</Version>
+		<Version>7.2.7</Version>
 		<Description>提供暗黑Swagger主题,优化性能，使用缓存</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

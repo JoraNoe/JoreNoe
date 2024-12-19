@@ -22,8 +22,9 @@ namespace JoreNoe.Extend
         /// 使用暗黑Swagger模式
         /// </summary>
         /// <param name="App"></param>
-        public static void UseJoreNoeSwaggerThemeDark(this IApplicationBuilder App)
+        public static void UseJoreNoeSwaggerThemeDark(this IApplicationBuilder App, string CustomerPath = "")
         {
+            DarkTheme = string.Concat(CustomerPath, DarkTheme);
             string embeddedResourceText = GetEmbeddedResourceText("SwaggerDark.css");
             AddGetEndpoint(App, DarkTheme, embeddedResourceText);
         }
