@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.2.7</Version>
+		<Version>7.2.8</Version>
 		<Description>提供暗黑Swagger主题,优化性能，使用缓存</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -44,6 +44,7 @@
 		<!--Linq生成SQL-->
 		<!--<PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="6.1.5" />-->
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.29" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.29">
 			<PrivateAssets>all</PrivateAssets>

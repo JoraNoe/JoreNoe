@@ -1,6 +1,9 @@
 ﻿using JoreNoe.Cache.Redis;
+using JoreNoe.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using System.Reflection;
 
 namespace Test.Controllers
 {
@@ -28,7 +31,14 @@ namespace Test.Controllers
         {
             //Console.WriteLine(s);
             //this.redisManager.ConnectionMultiplexer.GetSubscriber();
-            return Ok("23");
+            var x = JoreNoeRequestCommonTools.ApiControllerEndpoints();
+            return Ok(x);
+        }
+
+        [HttpPost("sdf")]
+        public ActionResult cao()
+        {
+            return null;
         }
     }
     public class testss

@@ -1,7 +1,6 @@
 using JoreNoe.Cache.Redis;
 using JoreNoe.Extend;
 using JoreNoe.Middleware;
-using SwaggerThemes;
 using System.Reflection;
 namespace Test
 {
@@ -13,11 +12,13 @@ namespace Test
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+           
+
+            builder.Services.AddControllers().AddJsonOptions(s => s.JsonSerializerOptions.PropertyNamingPolicy = null);
 
             builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",6);
 
-            builder.Services.AddJoreNoeRequestLoggingMiddleware<WeatherForecast>();
+            //builder.Services.AddJoreNoeRequestLoggingMiddleware<WeatherForecast>();
             //builder.Services.AddJoreNoeRequestLoggingMiddleware();
             builder.Services.AddSwaggerGen(option =>
             {
@@ -45,29 +46,29 @@ namespace Test
                 //option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, x));
             });
 
+
+            builder.WebHost.UseUrls("http://*:9999");
+
             var app = builder.Build();
 
+            
             // Configure the HTTP request pipeline.
 
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
-                //app.UseJoreNoeSwaggerThemeDark();
+                app.UseJoreNoeSwaggerThemeDark();
                 app.UseSwaggerUI(option =>
                 {
-                    //option.InjectStylesheet(SwaggerThemsExtend.DarkTheme);
+                    option.InjectStylesheet(SwaggerThemsExtend.DarkTheme);
                     
-                    //option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                    option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                     //option.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
 
                 });
-
-
-                
-
             }
 
-            app.UseJoreNoeRequestLoggingMiddleware();
+            //app.UseJoreNoeRequestLoggingMiddleware();
 
             //app.UseJoreNoeRequestLoggingMiddleware(equals =>
             //{

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -171,5 +174,65 @@ namespace JoreNoe.Middleware
             Assembly assembly = Assembly.GetExecutingAssembly();
             return assembly.GetName().Name;
         }
+
+        /// <summary>
+        /// 获取所有控制器，方法和路由
+        /// </summary>
+        /// <returns></returns>
+        public static IList<ControllerEndpoints> ApiControllerEndpoints()
+        {
+            var ApiEndpoints = new List<ControllerEndpoints>();
+            var AssemblyData = Assembly.GetCallingAssembly();
+            var ControllerTypes = AssemblyData.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(ControllerBase)))
+            .ToList();
+            foreach (var controllerType in ControllerTypes)
+            {
+                
+                // 获取控制器上的所有方法（接口）
+                var methods = controllerType.GetMethods()
+                    .Where(m => m.DeclaringType == controllerType) // 只取本类的，避免继承父类的方法
+                    .Where(m => m.IsPublic && m.GetCustomAttributes<HttpMethodAttribute>().Any()); // 只取HTTP方法
+
+                foreach (var method in methods)
+                {
+                    // 获取该方法的所有 HTTP 方法特性（如 [HttpPost("sdf")]）
+                    var httpMethodAttributes = method.GetCustomAttributes<HttpMethodAttribute>();
+                    foreach (var httpMethod in httpMethodAttributes)
+                    {
+                        var SingleControllerEndpoints = new ControllerEndpoints();
+                        SingleControllerEndpoints.ControllerName = controllerType.Name;
+                        SingleControllerEndpoints.MethodName = method.Name;
+                        SingleControllerEndpoints.HttpMethodName = httpMethod.HttpMethods.First();
+                        SingleControllerEndpoints.RouteName = httpMethod.Template;
+                        ApiEndpoints.Add(SingleControllerEndpoints);
+                    }
+                }
+            }
+            return ApiEndpoints;
+        }
+    }
+
+    public class ControllerEndpoints 
+    {
+        /// <summary>
+        /// 控制器名称
+        /// </summary>
+        public string ControllerName { get; set; }
+
+        /// <summary>
+        /// 方法名称
+        /// </summary>
+        public string MethodName { get; set; }
+
+        /// <summary>
+        /// 路由名称
+        /// </summary>
+        public string RouteName { get; set; }
+
+        /// <summary>
+        /// 请求方式GET,POST,PUT,DELTE
+        /// </summary>
+        public string HttpMethodName { get; set; }
     }
 }
