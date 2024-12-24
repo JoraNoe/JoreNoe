@@ -240,7 +240,7 @@ namespace JoreNoe.Middleware
 
                     cacheItem.Value += 1;
                     this.MemoryCache.Set(cacheKey, cacheItem);
-                    Console.WriteLine(cacheItem.Value);
+                    //Console.WriteLine(cacheItem.Value);
                     return cacheItem.Value;
                 }
                 else

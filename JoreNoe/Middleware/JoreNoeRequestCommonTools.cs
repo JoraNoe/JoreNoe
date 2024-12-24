@@ -182,7 +182,7 @@ namespace JoreNoe.Middleware
         public static IList<ControllerEndpoints> ApiControllerEndpoints()
         {
             var ApiEndpoints = new List<ControllerEndpoints>();
-            var AssemblyData = Assembly.GetCallingAssembly();
+            var AssemblyData = Assembly.GetEntryAssembly();
             var ControllerTypes = AssemblyData.GetTypes()
             .Where(t => t.IsSubclassOf(typeof(ControllerBase)))
             .ToList();
