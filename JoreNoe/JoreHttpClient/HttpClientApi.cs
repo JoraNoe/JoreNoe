@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -29,12 +30,21 @@ namespace JoreNoe.JoreHttpClient
         /// <param name="content">参数内容</param>
         /// <param name="contentType">内容类型</param>
         /// <returns></returns>
-        public async Task<string> PostAsync(string url, string content, string contentType = "application/json")
+        public async Task<string> PostAsync(string url, string content, string contentType = "application/json", Dictionary<string, string> HeaderParam = null)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
             var client = CreateClient();
+            if (HeaderParam == null)
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            else
+            {
+                foreach (var header in HeaderParam)
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
             var requestContent = new StringContent(content, Encoding.UTF8, contentType);
 
             using var response = await client.PostAsync(url, requestContent);
@@ -55,13 +65,21 @@ namespace JoreNoe.JoreHttpClient
         /// <param name="url">请求地址</param>
         /// <param name="charset">编码格式</param>
         /// <returns></returns>
-        public async Task<string> GetAsync(string url, string charset = "UTF-8")
+        public async Task<string> GetAsync(string url, string charset = "UTF-8",Dictionary<string,string> HeaderParam=null)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
             var client = CreateClient();
-
+            if(HeaderParam==null)
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            else
+            {
+                foreach (var header in HeaderParam)
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
             using var response = await client.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
@@ -83,12 +101,21 @@ namespace JoreNoe.JoreHttpClient
         /// <param name="content">参数内容</param>
         /// <param name="contentType">内容类型</param>
         /// <returns></returns>
-        public async Task<string> PutAsync(string url, string content, string contentType = "application/json")
+        public async Task<string> PutAsync(string url, string content, string contentType = "application/json", Dictionary<string, string> HeaderParam = null)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
             var client = CreateClient();
+            if (HeaderParam == null)
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            else
+            {
+                foreach (var header in HeaderParam)
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
             var requestContent = new StringContent(content, Encoding.UTF8, contentType);
 
             using var response = await client.PutAsync(url, requestContent);
@@ -108,13 +135,21 @@ namespace JoreNoe.JoreHttpClient
         /// </summary>
         /// <param name="url">请求地址</param>
         /// <returns></returns>
-        public async Task<string> DeleteAsync(string url)
+        public async Task<string> DeleteAsync(string url, Dictionary<string, string> HeaderParam = null)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
             var client = CreateClient();
-
+            if (HeaderParam == null)
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            else
+            {
+                foreach (var header in HeaderParam)
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
             using var response = await client.DeleteAsync(url);
 
             if (response.IsSuccessStatusCode)
