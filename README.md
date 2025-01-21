@@ -62,6 +62,28 @@ public void ConfigureServices(IServiceCollection services)
     // 或者
     // services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql);
 }
+
+-- 最新版本
+
+// 单个模式注入
+//builder.Services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql, true);
+
+// 多个模式注入
+//builder.Services.AddJoreNoeDapper(
+//     new List<DatabaseSettings>
+//        {
+//            new DatabaseSettings("your_connection_string_here",IDBType.MySql,true,
+//            AvailableTables:new List<string>{
+//                "User"// 表名
+//            }),
+//            new DatabaseSettings("your_connection_string_here",IDBType.MySql,true,
+//            AvailableTables:new List<string>{
+//                "test"
+//            }),
+
+//        }
+//);
+
 ```
 
 #### **第三步使用服务**
