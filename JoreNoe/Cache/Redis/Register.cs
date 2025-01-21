@@ -1,10 +1,6 @@
-﻿using JoreNoe.DB.Dapper;
-using JoreNoe.Limit;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
 
 namespace JoreNoe.Cache.Redis
 {

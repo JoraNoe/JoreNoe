@@ -1,9 +1,7 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -223,7 +221,7 @@ namespace JoreNoe.Middleware
         private readonly RequestDelegate _next;
         private readonly Entity _entity;
         private readonly IJorenoeRuningRequestLoggingSettingConfiguration Setting;
-        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next, Entity entity,IJorenoeRuningRequestLoggingSettingConfiguration Setting)
+        public APIGlobalInefaceRuningRequestLoggingMiddleware(RequestDelegate next, Entity entity, IJorenoeRuningRequestLoggingSettingConfiguration Setting)
         {
             _next = next;
             _entity = entity;
@@ -371,7 +369,7 @@ namespace JoreNoe.Middleware
         /// </summary>
         /// <typeparam name="Entity">要使用得类</typeparam>
         /// <param name="Service"></param>
-        public static void AddJoreNoeRequestLoggingMiddleware<Entity>(this IServiceCollection Service,int SizeMaxLimit = 100)
+        public static void AddJoreNoeRequestLoggingMiddleware<Entity>(this IServiceCollection Service, int SizeMaxLimit = 100)
             where Entity : class, IJorenoeRuningRequestLogging
         {
             Service.AddSingleton<IJorenoeRuningRequestLoggingSettingConfiguration>(new JorenoeRuningRequestLoggingSettingConfiguration(SizeMaxLimit));

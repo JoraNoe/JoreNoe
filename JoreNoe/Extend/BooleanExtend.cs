@@ -1,5 +1,4 @@
-﻿using JoreNoe.Limit;
-using System;
+﻿using System;
 using System.Linq;
 
 namespace JoreNoe.Extend
@@ -41,7 +40,7 @@ namespace JoreNoe.Extend
         /// </summary>
         public static string BooleanToString(this bool Value, AvailableType Type = AvailableType.IsOrDeny)
         {
-            
+
             string Result;
             switch (Type)
             {
@@ -74,7 +73,7 @@ namespace JoreNoe.Extend
         /// <exception cref="ArgumentException"></exception>
         public static string BooleanToString(this bool Value, string Letter)
         {
-            
+
 
             if (string.IsNullOrWhiteSpace(Letter))
                 throw new ArgumentNullException("自定义标识为空，请输入内容");
@@ -108,7 +107,7 @@ namespace JoreNoe.Extend
         /// <exception cref="ArgumentNullException"></exception>
         public static string BooleanToString(this bool Value, string StartLetter, string LastLetter)
         {
-            
+
             if (string.IsNullOrWhiteSpace(StartLetter) || string.IsNullOrWhiteSpace(LastLetter))
                 throw new ArgumentNullException("设定值为空");
 

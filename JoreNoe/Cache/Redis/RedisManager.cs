@@ -1,6 +1,4 @@
-﻿
-using JoreNoe.Limit;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -85,7 +83,7 @@ namespace JoreNoe.Cache.Redis
             if (this.RedisDataBase.KeyExists(KeyName))
                 return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
 
-            this.Add<T>(KeyName,Context,Expire);
+            this.Add<T>(KeyName, Context, Expire);
             return Context;
         }
 

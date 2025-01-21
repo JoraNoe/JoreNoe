@@ -1,6 +1,4 @@
-﻿using MathNet.Numerics.Statistics;
-
-namespace JoreNoe
+﻿namespace JoreNoe
 {
     /// <summary>
     /// Api返回信息

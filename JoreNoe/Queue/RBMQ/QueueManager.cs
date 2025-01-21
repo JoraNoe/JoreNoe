@@ -4,13 +4,12 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace JoreNoe.Queue.RBMQ
 {
     public interface IQueueManger
     {
-        void SendPublish<T>(T Entity,string QueueName, string Type = ExchangeType.Topic);
+        void SendPublish<T>(T Entity, string QueueName, string Type = ExchangeType.Topic);
         void Receive<T>(ICustome<T> Custome, string QueueName) where T : class;
     }
     public class QueueManager : IQueueManger
@@ -26,7 +25,7 @@ namespace JoreNoe.Queue.RBMQ
             this.channel = connection.CreateModel();
         }
 
-        public void SendPublish<T>(T Entity,string QueueName, string Type = ExchangeType.Topic)
+        public void SendPublish<T>(T Entity, string QueueName, string Type = ExchangeType.Topic)
         {
             channel.ExchangeDeclare(QueueName, Type);
             channel.QueueDeclare(QueueName, true, false, false, null); // durable = true

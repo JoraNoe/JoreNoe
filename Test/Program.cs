@@ -1,4 +1,5 @@
 using JoreNoe.Cache.Redis;
+using JoreNoe.DB.Dapper;
 using JoreNoe.Extend;
 using JoreNoe.Middleware;
 using System.Reflection;
@@ -12,11 +13,11 @@ namespace Test
 
             // Add services to the container.
 
-           
+
 
             builder.Services.AddControllers().AddJsonOptions(s => s.JsonSerializerOptions.PropertyNamingPolicy = null);
 
-            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",6);
+            //builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",6);
 
             //builder.Services.AddJoreNoeRequestLoggingMiddleware<WeatherForecast>();
             //builder.Services.AddJoreNoeRequestLoggingMiddleware();
@@ -46,12 +47,28 @@ namespace Test
                 //option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, x));
             });
 
+            // 单个模式注入
+            //builder.Services.AddJoreNoeDapper("Server=43.136.101.66;Port=3306;Database=dogegg;Uid=root;Pwd=jorenoe123;Max Pool Size=500;", IDBType.MySql, true);
+
+            // 多个模式注入
+            builder.Services.AddJoreNoeDapper(
+                 new List<DatabaseSettings>
+                    {
+                        new DatabaseSettings("Server=43.136.101.66;Port=3306;Database=dogegg;Uid=root;Pwd=jorenoe123;Max Pool Size=500;",IDBType.MySql,true),
+                        new DatabaseSettings("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;Max Pool Size=500;",IDBType.MySql,true,
+                        AvailableTables:new List<string>{
+                            "test"
+                        }),
+
+                    }
+            );
+
 
             builder.WebHost.UseUrls("http://*:9999");
 
             var app = builder.Build();
 
-            
+
             // Configure the HTTP request pipeline.
 
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
@@ -61,7 +78,7 @@ namespace Test
                 app.UseSwaggerUI(option =>
                 {
                     option.InjectStylesheet(SwaggerThemsExtend.DarkTheme);
-                    
+
                     option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                     //option.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
 

@@ -1,16 +1,11 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using JoreNoe.Middleware;
+﻿using JoreNoe.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using SixLabors.Fonts.Tables.AdvancedTypographic;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace JoreNoe.Extend
 {

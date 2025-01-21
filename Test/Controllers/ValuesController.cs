@@ -1,4 +1,5 @@
 ﻿using JoreNoe.Cache.Redis;
+using JoreNoe.DB.Dapper;
 using JoreNoe.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,13 +8,18 @@ using System.Reflection;
 
 namespace Test.Controllers
 {
+    public class User { public Guid Id { get; set; } }
+    public class Test { public int Id { get; set; } }
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
         private readonly IJoreNoeRedisBaseService redisManager;
-        public ValuesController(IJoreNoeRedisBaseService s) {
-            this.redisManager = s;
+        private readonly IRepository<User> User;
+        private readonly IRepository<Test> Test;
+        public ValuesController(IRepository<User> User, IRepository<Test> Test) {
+            this.User = User;
+            this.Test = Test;
         }
         /// <summary>
         /// 测试1
@@ -31,8 +37,11 @@ namespace Test.Controllers
         {
             //Console.WriteLine(s);
             //this.redisManager.ConnectionMultiplexer.GetSubscriber();
-            var x = JoreNoeRequestCommonTools.ApiControllerEndpoints();
-            return Ok(x);
+            //var x = JoreNoeRequestCommonTools.ApiControllerEndpoints();
+            //return Ok(x);
+            var x = this.User.Single("7d8453db-6ef6-4730-bc3c-e6668a02c87f");
+            var xx = this.Test.Single("99541111");
+            return null;
         }
 
         [HttpPost("sdf")]

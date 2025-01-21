@@ -1,7 +1,4 @@
-﻿using JoreNoe.Middleware;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using NPOI.HSSF.UserModel;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using System;
 
@@ -88,7 +85,7 @@ namespace JoreNoe.Queue.RBMQ
             );
 
             Services.AddSingleton<IJoreNoeRabbitMQSettingConfiguration>(configuration);
-            Services.AddSingleton<IJoreNoeRabbitMQBaseService,JoreNoeRabbitMQBaseService>();
+            Services.AddSingleton<IJoreNoeRabbitMQBaseService, JoreNoeRabbitMQBaseService>();
             Services.AddSingleton<IConnectionFactory>(connectionFactory);
             Services.AddSingleton<IQueueManger, QueueManager>();
         }

@@ -1,5 +1,4 @@
-﻿using JoreNoe.ReturnInterFaces;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -101,7 +100,7 @@ namespace JoreNoe.Middleware
 
                 if (this.joreNoeGlobalErrorHandlingSettings.EnableReturnRecordErrorMessage)
                 {
-                    var response = APIReturnInfo<string>.Error(JoreNoeRequestCommonTools.FormatError(ex),Status: StatusCodes.Status500InternalServerError); // 使用 APIReturnInfo 返回错误
+                    var response = APIReturnInfo<string>.Error(JoreNoeRequestCommonTools.FormatError(ex), Status: StatusCodes.Status500InternalServerError); // 使用 APIReturnInfo 返回错误
                     context.Response.ContentType = "application/json";
                     context.Response.StatusCode = StatusCodes.Status200OK;
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(response));

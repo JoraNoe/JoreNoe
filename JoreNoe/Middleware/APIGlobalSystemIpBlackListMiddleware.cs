@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using JoreNoe.Cache.Redis;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using System;
-using JoreNoe.Cache.Redis;
-using Microsoft.Extensions.Caching.Memory;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace JoreNoe.Middleware
 {
@@ -61,7 +59,7 @@ namespace JoreNoe.Middleware
         /// <param name="MaxRequestCount">最大请求次数</param>
         /// <param name="TimeSpanTime">时间窗口长度</param>
         /// <param name="IsEnabledRequestLimit">是否启用请求限制</param>
-        public JoreNoeSystemIpBlackListRedisSettingConfig(int MaxRequestCount, TimeSpan TimeSpanTime,TimeSpan TimeSpanLocalCache, bool IsEnabledRequestLimit = false)
+        public JoreNoeSystemIpBlackListRedisSettingConfig(int MaxRequestCount, TimeSpan TimeSpanTime, TimeSpan TimeSpanLocalCache, bool IsEnabledRequestLimit = false)
         {
             this.IsEnabledRequestLimit = IsEnabledRequestLimit;
             this.MaxRequestCount = MaxRequestCount;
@@ -200,7 +198,7 @@ namespace JoreNoe.Middleware
         //            this.MemoryCache.Remove(AbcacheKey);
         //            return 1;
         //        }
-                     
+
         //        value += 1;
         //        this.MemoryCache.Set(cacheKey, value);
         //        Console.WriteLine(value);
@@ -273,15 +271,15 @@ namespace JoreNoe.Middleware
         private async Task<string> QueryDeniedMessage()
         {
             var messageKey = $"{ProjectName}:DeniedReturnMessage";
-            if(this.MemoryCache.TryGetValue(messageKey,out string CachedMessage))
+            if (this.MemoryCache.TryGetValue(messageKey, out string CachedMessage))
             {
                 return CachedMessage;
             }
 
             if (await _redisDb.KeyExistsAsync(messageKey).ConfigureAwait(false))
             {
-                var message =  await _redisDb.StringGetAsync(messageKey).ConfigureAwait(false);  // 从Redis中获取消息
-                this.MemoryCache.Set(messageKey,message, _config.TimeSpanLocalCache);
+                var message = await _redisDb.StringGetAsync(messageKey).ConfigureAwait(false);  // 从Redis中获取消息
+                this.MemoryCache.Set(messageKey, message, _config.TimeSpanLocalCache);
                 return message;
             }
             else
@@ -289,7 +287,7 @@ namespace JoreNoe.Middleware
                 var defaultMessage = JoreNoeRequestCommonTools.ReturnDeniedHTMLPage();  // 返回默认HTML拒绝消息
                 await _redisDb.StringSetAsync(messageKey, defaultMessage).ConfigureAwait(false);  // 存入Redis
                 await _redisDb.KeyPersistAsync(messageKey).ConfigureAwait(false);
-                this.MemoryCache.Set(messageKey,defaultMessage, _config.TimeSpanLocalCache);
+                this.MemoryCache.Set(messageKey, defaultMessage, _config.TimeSpanLocalCache);
                 return defaultMessage;
             }
         }
@@ -318,7 +316,7 @@ namespace JoreNoe.Middleware
         /// <param name="spanTime">多长时间一个IP可以请求接口多少次</param>
         /// <param name="TimeSpanLocalCache">存储限制后的返回文本时间</param>
         /// <param name="isEnabledRequestLimit">是否启用请求限制</param>
-        public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services, int maxRequestCount, TimeSpan spanTime,TimeSpan TimeSpanLocalCache, bool isEnabledRequestLimit = false)
+        public static void AddJoreNoeSystemIPBlackListMiddleware(this IServiceCollection services, int maxRequestCount, TimeSpan spanTime, TimeSpan TimeSpanLocalCache, bool isEnabledRequestLimit = false)
         {
             services.AddSingleton<IJoreNoeSystemIpBlackListRedisSettingConfig>(new JoreNoeSystemIpBlackListRedisSettingConfig(maxRequestCount, spanTime, TimeSpanLocalCache, isEnabledRequestLimit));
             services.AddMemoryCache();

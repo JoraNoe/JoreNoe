@@ -188,7 +188,7 @@ namespace JoreNoe.Middleware
             .ToList();
             foreach (var controllerType in ControllerTypes)
             {
-                
+
                 // 获取控制器上的所有方法（接口）
                 var methods = controllerType.GetMethods()
                     .Where(m => m.DeclaringType == controllerType) // 只取本类的，避免继承父类的方法
@@ -213,7 +213,7 @@ namespace JoreNoe.Middleware
         }
     }
 
-    public class ControllerEndpoints 
+    public class ControllerEndpoints
     {
         /// <summary>
         /// 控制器名称

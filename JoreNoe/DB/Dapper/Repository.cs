@@ -1,27 +1,19 @@
 ﻿using Dapper;
 using JoreNoe.Extend;
 using JoreNoe.JoreNoeLog;
-using JoreNoe.Limit;
-using MathNet.Numerics.Statistics;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
-using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using static Dapper.SqlMapper;
 using static JoreNoe.DB.Dapper.DapperExtend;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace JoreNoe.DB.Dapper
 {
@@ -95,11 +87,6 @@ namespace JoreNoe.DB.Dapper
     public class Repository<T> : IRepository<T> where T : class, new()
     {
         /// <summary>
-        /// 数据库上下文
-        /// </summary>
-        private readonly IDbConnection DBConnection;
-
-        /// <summary>
         /// 数据库
         /// </summary>
         private readonly IDatabaseService databaseService;
@@ -108,11 +95,21 @@ namespace JoreNoe.DB.Dapper
         /// 是否启用多数据库链接
         /// </summary>
         private readonly bool IsMulitEnabledConnection;
+
+        /// <summary>
+        /// 插入批次数量
+        /// </summary>
+        private readonly long mulitInsertBatchcount;
         public Repository(IDatabaseService dataBaseService)
         {
             this.databaseService = dataBaseService;
-            this.DBConnection = dataBaseService.GetConnection();
-            this.IsMulitEnabledConnection = databaseService.DataBaseSettings.IsEnabledMulitConnection;
+
+            var SettingKey = this.databaseService.MulitDatabaseSettings.IsMulit ? typeof(T).Name.ToLower() : "Default";
+            if (!databaseService.DataBaseSettingsLookUp.TryGetValue(SettingKey, out var SingleSettings))
+                throw new ArgumentException($"No database settings found for {SettingKey}.", nameof(SettingKey));
+
+            this.IsMulitEnabledConnection = SingleSettings.IsEnabledMulitConnection;
+            this.mulitInsertBatchcount = SingleSettings.mulitInsertBatchcount;
         }
 
         /// <summary>
@@ -121,18 +118,10 @@ namespace JoreNoe.DB.Dapper
         private IDbConnection GetDBConnection => this.GetConnectionNewMethod();
         private IDbConnection GetConnectionNewMethod()
         {
-            if (this.IsMulitEnabledConnection)
-            {
-                var NewConnection = this.databaseService.GetConnection();
-                NewConnection.DapperSettingIsEnabledMulitConnection(this.IsMulitEnabledConnection);
-                return NewConnection;
-            }
-            else
-            {
-                var SingleConnection = this.DBConnection;
-                SingleConnection.DapperSettingIsEnabledMulitConnection(this.IsMulitEnabledConnection);
-                return SingleConnection;
-            }
+            var GetClassName = typeof(T).Name;
+            var NewConnection = this.databaseService.GetConnection(GetClassName);
+            NewConnection.DapperSettingIsEnabledMulitConnection(this.IsMulitEnabledConnection);
+            return NewConnection;
         }
 
 
@@ -460,8 +449,8 @@ namespace JoreNoe.DB.Dapper
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
 
-            var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
-            if (this.databaseService.DataBaseSettings.IsEnabledMulitConnection)
+            var BatchData = data.GetBatchData(this.mulitInsertBatchcount);
+            if (this.IsMulitEnabledConnection)
                 Parallel.ForEach(BatchData, batch => { this.InsertBatchNew(batch, GetTableName, GetColumns.Item1); });
             else
                 foreach (var batch in BatchData) this.InsertBatchNew(batch, GetTableName, GetColumns.Item1);
@@ -483,7 +472,7 @@ namespace JoreNoe.DB.Dapper
             //var batches = data.Batch(this.BatchCount); // 自定义批量扩展方法
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-            var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
+            var BatchData = data.GetBatchData(this.mulitInsertBatchcount);
             foreach (var batch in BatchData) await this.InsertBatchAsync(batch, GetTableName, GetColumns.Item1).ConfigureAwait(false);
 
 
@@ -505,7 +494,7 @@ namespace JoreNoe.DB.Dapper
             var GetTableName = this.GetTableName<T>(); //typeof(T).Name;
             // 获取列
             var GetColumns = EntityToDictionaryExtend.EntityToSQLParams<T>();
-            var BatchData = data.GetBatchData(this.databaseService.DataBaseSettings.mulitInsertBatchcount);
+            var BatchData = data.GetBatchData(this.mulitInsertBatchcount);
             foreach (var batch in BatchData) this.InsertBatchTransaction(batch, GetTableName, GetColumns.Item1);
         }
 
@@ -748,7 +737,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private async Task InsertBatchAsync<TData>(IEnumerable<TData> data, string tableName, string InsertColumns, string InsertColumnValues)
         {
-            using (IDbConnection dbConnection = this.DBConnection)
+            using (IDbConnection dbConnection = this.GetDBConnection)
             {
                 dbConnection.Open();
                 using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -787,9 +776,9 @@ namespace JoreNoe.DB.Dapper
             InsertSQL.Append(string.Join("", insertQueue));
 
             // 判断是否启用多连接插入 
-            if (this.databaseService.DataBaseSettings.IsEnabledMulitConnection)
+            if (this.IsMulitEnabledConnection)
             {
-                using (var connection = new MySqlConnection(this.DBConnection.ConnectionString))
+                using (var connection = new MySqlConnection(this.GetDBConnection.ConnectionString))
                 {
                     await connection.OpenAsync().ConfigureAwait(false);
                     await connection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
@@ -797,7 +786,7 @@ namespace JoreNoe.DB.Dapper
             }
             else
             {
-                await this.DBConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
+                await this.GetDBConnection.ExecuteAsync(InsertSQL.ToString().TrimEnd(',')).ConfigureAwait(false);
             }
 
         }
@@ -813,7 +802,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private void InsertBatch<TData>(IEnumerable<TData> data, string tableName, string InsertColumns, string InsertColumnValues)
         {
-            using (IDbConnection dbConnection = this.DBConnection)
+            using (IDbConnection dbConnection = this.GetDBConnection)
             {
                 dbConnection.Open();
                 using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -851,9 +840,9 @@ namespace JoreNoe.DB.Dapper
             InsertSQL.Append(string.Join("", insertQueue));
 
             // 判断是否启用多连接插入 
-            if (this.databaseService.DataBaseSettings.IsEnabledMulitConnection)
+            if (this.IsMulitEnabledConnection)
             {
-                using (var connection = new MySqlConnection(this.DBConnection.ConnectionString))
+                using (var connection = new MySqlConnection(this.GetDBConnection.ConnectionString))
                 {
                     //connection.Open();
                     connection.Execute(InsertSQL.ToString().TrimEnd(','));
@@ -861,7 +850,7 @@ namespace JoreNoe.DB.Dapper
             }
             else
             {
-                this.DBConnection.Execute(InsertSQL.ToString().TrimEnd(','));
+                this.GetDBConnection.Execute(InsertSQL.ToString().TrimEnd(','));
             }
         }
 
@@ -874,7 +863,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="InsertColumns"></param>
         private void InsertBatchTransaction<TData>(IEnumerable<TData> data, string tableName, string InsertColumns)
         {
-            using (IDbConnection dbConnection = this.DBConnection)
+            using (IDbConnection dbConnection = this.GetDBConnection)
             {
                 dbConnection.Open();
                 using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -911,7 +900,7 @@ namespace JoreNoe.DB.Dapper
         {
             string inClause = string.Join(",", Value.Select(param => $"{param}"));
             string sql = $"DELETE FROM {tableName} WHERE {ParamsKeyName} IN ({inClause})";
-            this.DBConnection.Execute(sql);
+            this.GetDBConnection.Execute(sql);
         }
 
         /// <summary>
@@ -931,7 +920,7 @@ namespace JoreNoe.DB.Dapper
 
         public async Task TestMUlit(IEnumerable<T> D)
         {
-            string connectionString = this.DBConnection.ConnectionString; // 替换为你的 MySQL 连接字符串
+            string connectionString = this.GetDBConnection.ConnectionString; // 替换为你的 MySQL 连接字符串
             int totalDataCount = 10000;
             int batchSize = 500;
 

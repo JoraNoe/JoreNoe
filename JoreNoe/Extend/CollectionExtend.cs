@@ -15,7 +15,7 @@ namespace JoreNoe.Extend
         /// <param name="DataSources">数据</param>
         /// <param name="BatchSize">分批数量</param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<TSource>> YieldCollectionBatchs<TSource>(this ICollection<TSource> DataSources,int BatchSize)
+        public static IEnumerable<IEnumerable<TSource>> YieldCollectionBatchs<TSource>(this ICollection<TSource> DataSources, int BatchSize)
         {
             var BatchResult = new Collection<TSource>();
             foreach (var item in DataSources)

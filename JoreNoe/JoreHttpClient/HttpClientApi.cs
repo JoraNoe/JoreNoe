@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using JoreNoe.Limit;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace JoreNoe.JoreHttpClient
 {
@@ -65,13 +64,13 @@ namespace JoreNoe.JoreHttpClient
         /// <param name="url">请求地址</param>
         /// <param name="charset">编码格式</param>
         /// <returns></returns>
-        public async Task<string> GetAsync(string url, string charset = "UTF-8",Dictionary<string,string> HeaderParam=null)
+        public async Task<string> GetAsync(string url, string charset = "UTF-8", Dictionary<string, string> HeaderParam = null)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
             var client = CreateClient();
-            if(HeaderParam==null)
+            if (HeaderParam == null)
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             else
             {

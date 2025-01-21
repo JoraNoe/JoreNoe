@@ -1,5 +1,4 @@
 ﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
-using JoreNoe.Limit;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,6 +12,35 @@ namespace JoreNoe.DB.Dapper
 {
     public static class DapperExtend
     {
+
+        public static Dictionary<string, string> ParseConnectionString(string connectionString)
+        {
+            var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var parts = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var part in parts)
+            {
+                var keyValue = part.Split('=', 2);
+                if (keyValue.Length == 2)
+                {
+                    parameters[keyValue[0].Trim()] = keyValue[1].Trim();
+                }
+            }
+
+            return parameters;
+        }
+
+        public static string GetDatabaseName(string connectionString)
+        {
+            var parameters = ParseConnectionString(connectionString);
+            if (parameters.ContainsKey("Database"))
+            {
+                return parameters["Database"];
+            }
+
+            throw new ArgumentException("Database not found in SQL Server connection string.");
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -22,7 +50,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int size)
         {
-            
+
             using (var enumerator = source.GetEnumerator())
             {
                 while (enumerator.MoveNext())
@@ -41,7 +69,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         private static IEnumerable<T> YieldBatchElements<T>(IEnumerator<T> source, int size)
         {
-            
+
             yield return source.Current;
             for (int i = 0; i < size && source.MoveNext(); i++)
             {
@@ -69,7 +97,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static string GetEntityFiledParams<T>(T Data)
         {
-            
+
             Type type = Data.GetType();
             PropertyInfo[] properties = type.GetProperties();
             // 使用线程安全的集合来存储处理结果
@@ -100,7 +128,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static IEnumerable<IEnumerable<T>> GetBatchData<T>(this IEnumerable<T> data, long BatchCount)
         {
-            
+
             return data
             .Select((value, index) => new { Value = value, Index = index })
             .GroupBy(x => x.Index / BatchCount)
@@ -109,14 +137,14 @@ namespace JoreNoe.DB.Dapper
 
         public static string GetColumnName(PropertyInfo property)
         {
-            
+
             var columnAttr = property.GetCustomAttribute<ColumnAttribute>();
             return columnAttr != null ? columnAttr.Name : property.Name;
         }
 
         public static string GetColumnType(PropertyInfo property)
         {
-            
+
             var type = property.PropertyType;
 
             if (type == typeof(int))
@@ -157,7 +185,7 @@ namespace JoreNoe.DB.Dapper
 
         public static bool IsNullable(PropertyInfo property)
         {
-            
+
             return Nullable.GetUnderlyingType(property.PropertyType) != null ||
                    property.GetCustomAttribute<RequiredAttribute>() == null;
         }
@@ -165,7 +193,7 @@ namespace JoreNoe.DB.Dapper
 
         public static string Convert<T>(Expression<Func<T, bool>> expression)
         {
-            
+
             // Basic implementation: only handles simple expressions
             var body = expression.Body as BinaryExpression;
             if (body == null)
