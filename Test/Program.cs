@@ -62,6 +62,8 @@ namespace Test
 
             //        }
             //);
+            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(3, TimeSpan.FromSeconds(60), TimeSpan.FromMinutes(6), true);
+            builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware(LocalCacheDurationInMinutes: TimeSpan.FromMinutes(5));
 
 
             builder.WebHost.UseUrls("http://*:9999");
@@ -92,6 +94,8 @@ namespace Test
             //    Console.WriteLine(equals.RequestBody);
             //});
 
+            app.UseJoreNoeSystemIPBlackListMiddleware();
+            app.UseJoreNoeIntefaceAccessMiddleware();
             app.UseAuthorization();
 
 

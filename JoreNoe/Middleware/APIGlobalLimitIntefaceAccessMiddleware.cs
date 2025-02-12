@@ -34,19 +34,27 @@ namespace JoreNoe.Middleware
         private readonly ILimitInteFaceAccessSetting _limitInteFaceAccessSetting;
         private readonly IDatabase _redisDb;
         private readonly IMemoryCache MemoryCache;
+        private readonly IJoreNoeRedisBaseService setting;
         public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config, IJoreNoeRedisBaseService RedisBaseService, IMemoryCache MemoryCache)
         {
             _next = next;
             _limitInteFaceAccessSetting = Config;
             _redisDb = RedisBaseService.RedisDataBase;
             this.MemoryCache = MemoryCache;
+            this.setting = RedisBaseService;
         }
-
+        private string ValidateKey(string KeyName)
+        {
+            if (this.setting.SettingConfigs.IsEnabledFaieldProjectName)
+                return string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", KeyName);
+            else
+                return KeyName;
+        }
         private string LimitIntefaceKey(string Path) => string.Concat("RequestAPILists", ":", Path);
 
         public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
         {
-            var Key = this.LimitIntefaceKey(context.Request.Path);
+            var Key = ValidateKey(this.LimitIntefaceKey(context.Request.Path)) ;
             if (!await this.MethodPathIsExists(Key, context.Request.Path))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;  // 设置403禁止状态码

@@ -75,17 +75,17 @@ namespace JoreNoe.Middleware
     public class APIGlobalSystemIpBlackListMiddleware
     {
         // 常量
-        private readonly string KeyTemplateIpCount = "IP:{1}:count";
-        private readonly string KeyTemplateBlacklist = "SystemBlackIps";
-        private readonly string KeyTemplateDeniedMessage = "{0}:DeniedReturnMessage";
-        private readonly string MemoryCacheCurrentIpCountKey = "IP{0}Count";
-        private readonly string MemoryCacheCurrentIpBlackListKey = "IP{0}Black";
+        private static string KeyTemplateBlacklist = "SystemBlackIps";
+        private static string MemoryCacheCurrentIpCountKey = "IP{0}Count";
+        private static string MemoryCacheCurrentIpBlackListKey = "IP{0}Black";
 
         // 初始化
         private readonly RequestDelegate _next;
         private readonly IJoreNoeSystemIpBlackListRedisSettingConfig _config;
         private readonly IDatabase _redisDb;
         private readonly IMemoryCache MemoryCache;
+        private readonly IJoreNoeRedisBaseService setting;
+        private static bool Isenable;
         /// <summary>
         /// 构造函数，初始化中间件和Redis数据库连接
         /// </summary>
@@ -98,13 +98,21 @@ namespace JoreNoe.Middleware
             _config = config;
             _redisDb = RedisBaseService.RedisDataBase;
             this.MemoryCache = MemoryCache;
+            this.setting = RedisBaseService;
+            Isenable = setting.SettingConfigs.IsEnabledFaieldProjectName;
         }
 
+        private string GetBlacklistKey = ValidateKey(string.Format(KeyTemplateBlacklist));
 
-        private string GetRedisKey(string remoteIp) => string.Format(KeyTemplateIpCount, remoteIp);
-        private string GetBlacklistKey => string.Format(KeyTemplateBlacklist);
-
-
+        private static string ValidateKey(string KeyName)
+        {
+            var Temp = KeyName;
+            KeyName = Temp;
+            if (Isenable)
+                return string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", KeyName);
+            else
+                return KeyName;
+        }
         /// <summary>
         /// 中间件主逻辑，检测IP并根据请求频率限制访问
         /// </summary>
@@ -112,6 +120,7 @@ namespace JoreNoe.Middleware
         /// <returns></returns>
         public async Task Invoke(HttpContext context, IServiceProvider ServiceProvider)
         {
+            GetBlacklistKey = KeyTemplateBlacklist;
             // 获取请求IP
             var remoteIp = JoreNoeRequestCommonTools.GetClientIpAddress(context);
 
@@ -136,7 +145,7 @@ namespace JoreNoe.Middleware
                     {
                         // 清楚缓存数据
                         this.RemoveAddIpCountLocal(remoteIp);
-                        await _redisDb.SetAddAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
+                        await _redisDb.StringSetAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
                         await _redisDb.KeyPersistAsync(this.GetBlacklistKey).ConfigureAwait(false);
                         await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
                         return;//结束管道
@@ -167,6 +176,8 @@ namespace JoreNoe.Middleware
         private async Task<bool> IsBlackListed(string remoteIp)
         {
             var Key = string.Format(MemoryCacheCurrentIpBlackListKey, remoteIp);
+            Key = ValidateKey(Key);
+            this.GetBlacklistKey = ValidateKey(this.GetBlacklistKey);
             if (!this.MemoryCache.TryGetValue(Key, out bool isBlacklisted))
             {
                 isBlacklisted = await _redisDb.SetContainsAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);
@@ -223,7 +234,7 @@ namespace JoreNoe.Middleware
         private int AddIpCount(string remoteIp)
         {
             var cacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp);
-
+            cacheKey = ValidateKey(cacheKey);
             lock (_lock)
             {
                 var isExists = this.MemoryCache.TryGetValue(cacheKey, out LocalCacheItem cacheItem);
@@ -259,7 +270,7 @@ namespace JoreNoe.Middleware
         /// <param name="remoteIp"></param>
         private void RemoveAddIpCountLocal(string remoteIp)
         {
-            var cacheKey = string.Format(MemoryCacheCurrentIpCountKey, remoteIp);
+            var cacheKey = ValidateKey( string.Format(MemoryCacheCurrentIpCountKey, remoteIp));
             this.MemoryCache.Remove(cacheKey);
         }
 
@@ -269,7 +280,9 @@ namespace JoreNoe.Middleware
         /// <returns>拒绝访问的HTML消息</returns>
         private async Task<string> QueryDeniedMessage()
         {
+            
             var messageKey = $"DeniedReturnMessage";
+            messageKey = ValidateKey(messageKey);
             if (this.MemoryCache.TryGetValue(messageKey, out string CachedMessage))
             {
                 return CachedMessage;
@@ -285,7 +298,7 @@ namespace JoreNoe.Middleware
             {
                 var defaultMessage = JoreNoeRequestCommonTools.ReturnDeniedHTMLPage();  // 返回默认HTML拒绝消息
                 await _redisDb.StringSetAsync(messageKey, defaultMessage).ConfigureAwait(false);  // 存入Redis
-                await _redisDb.KeyPersistAsync(messageKey).ConfigureAwait(false);
+                await this._redisDb.KeyPersistAsync(messageKey).ConfigureAwait(false);
                 this.MemoryCache.Set(messageKey, defaultMessage, _config.TimeSpanLocalCache);
                 return defaultMessage;
             }

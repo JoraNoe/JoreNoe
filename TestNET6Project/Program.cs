@@ -71,8 +71,8 @@ namespace TestNET6Project
             //});
 
             
-            //app.UseJoreNoeGlobalErrorHandlingMiddleware();
-            //app.UseJoreNoeRequestLoggingMiddleware();
+            app.UseJoreNoeGlobalErrorHandlingMiddleware();
+            app.UseJoreNoeRequestLoggingMiddleware();
 
             // webapi 全局错误日志中间件  直接使用方法回调方式
             //app.UseJoreNoeGlobalErrorHandlingMiddleware(async (ex, context) =>

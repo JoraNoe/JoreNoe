@@ -538,6 +538,12 @@ namespace JoreNoe.Cache.Redis
             return Contexts;
         }
 
+        public async Task<bool> SetContainsAsync(string KeyName,string Vlaue)
+        {
+            KeyName = ValidateKey(KeyName);
+            return await this.RedisDataBase.SetContainsAsync(KeyName, Vlaue);
+        }
+
         #endregion
     }
 }
