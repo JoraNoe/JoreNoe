@@ -145,7 +145,7 @@ namespace JoreNoe.Middleware
                     {
                         // 清楚缓存数据
                         this.RemoveAddIpCountLocal(remoteIp);
-                        await _redisDb.StringSetAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
+                        await _redisDb.SetAddAsync(this.GetBlacklistKey, remoteIp).ConfigureAwait(false);  // 将IP加入黑名单
                         await _redisDb.KeyPersistAsync(this.GetBlacklistKey).ConfigureAwait(false);
                         await this.EndPipeLineReturnErroMessage(context).ConfigureAwait(false);
                         return;//结束管道
@@ -175,6 +175,7 @@ namespace JoreNoe.Middleware
         /// <returns></returns>
         private async Task<bool> IsBlackListed(string remoteIp)
         {
+            GetBlacklistKey = KeyTemplateBlacklist;
             var Key = string.Format(MemoryCacheCurrentIpBlackListKey, remoteIp);
             Key = ValidateKey(Key);
             this.GetBlacklistKey = ValidateKey(this.GetBlacklistKey);
