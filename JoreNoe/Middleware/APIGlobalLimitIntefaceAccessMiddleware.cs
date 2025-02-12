@@ -42,7 +42,7 @@ namespace JoreNoe.Middleware
             this.MemoryCache = MemoryCache;
         }
 
-        private string LimitIntefaceKey(string Path) => string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", "RequestPathLists", ":", Path);
+        private string LimitIntefaceKey(string Path) => string.Concat("RequestAPILists", ":", Path);
 
         public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
         {

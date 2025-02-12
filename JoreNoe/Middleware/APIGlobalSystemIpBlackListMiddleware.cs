@@ -75,8 +75,8 @@ namespace JoreNoe.Middleware
     public class APIGlobalSystemIpBlackListMiddleware
     {
         // 常量
-        private readonly string KeyTemplateIpCount = "{0}:IP:{1}:count";
-        private readonly string KeyTemplateBlacklist = "{0}:SystemBlackIps";
+        private readonly string KeyTemplateIpCount = "IP:{1}:count";
+        private readonly string KeyTemplateBlacklist = "SystemBlackIps";
         private readonly string KeyTemplateDeniedMessage = "{0}:DeniedReturnMessage";
         private readonly string MemoryCacheCurrentIpCountKey = "IP{0}Count";
         private readonly string MemoryCacheCurrentIpBlackListKey = "IP{0}Black";
@@ -101,9 +101,8 @@ namespace JoreNoe.Middleware
         }
 
 
-        private string GetRedisKey(string remoteIp) => string.Format(KeyTemplateIpCount, ProjectName, remoteIp);
-        private string GetBlacklistKey => string.Format(KeyTemplateBlacklist, ProjectName);
-        private string ProjectName => Assembly.GetEntryAssembly()?.GetName().Name ?? "UnknownProject";
+        private string GetRedisKey(string remoteIp) => string.Format(KeyTemplateIpCount, remoteIp);
+        private string GetBlacklistKey => string.Format(KeyTemplateBlacklist);
 
 
         /// <summary>
@@ -270,7 +269,7 @@ namespace JoreNoe.Middleware
         /// <returns>拒绝访问的HTML消息</returns>
         private async Task<string> QueryDeniedMessage()
         {
-            var messageKey = $"{ProjectName}:DeniedReturnMessage";
+            var messageKey = $"DeniedReturnMessage";
             if (this.MemoryCache.TryGetValue(messageKey, out string CachedMessage))
             {
                 return CachedMessage;
