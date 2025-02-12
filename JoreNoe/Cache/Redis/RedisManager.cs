@@ -28,7 +28,12 @@ namespace JoreNoe.Cache.Redis
                 throw new ArgumentNullException(nameof(KeyName));
 
             if (this.JoreNoeRedisBaseService.SettingConfigs.IsEnabledFaieldProjectName)
-                return string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", KeyName);
+            {
+                var Name = JoreNoeRequestCommonTools.GetReferencingProjectName();
+                if (!KeyName.Contains(Name))
+                    return string.Concat(Name, ":", KeyName);
+                else return KeyName;
+            }
             else
                 return KeyName;
         }
@@ -538,7 +543,7 @@ namespace JoreNoe.Cache.Redis
             return Contexts;
         }
 
-        public async Task<bool> SetContainsAsync(string KeyName,string Vlaue)
+        public async Task<bool> SetContainsAsync(string KeyName, string Vlaue)
         {
             KeyName = ValidateKey(KeyName);
             return await this.RedisDataBase.SetContainsAsync(KeyName, Vlaue);

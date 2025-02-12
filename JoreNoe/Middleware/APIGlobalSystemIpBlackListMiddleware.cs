@@ -109,7 +109,12 @@ namespace JoreNoe.Middleware
             var Temp = KeyName;
             KeyName = Temp;
             if (Isenable)
-                return string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", KeyName);
+            {
+                var Name = JoreNoeRequestCommonTools.GetReferencingProjectName();
+                if (!KeyName.Contains(Name))
+                    return string.Concat(Name, ":", KeyName);
+                else return KeyName;
+            }
             else
                 return KeyName;
         }
@@ -271,7 +276,7 @@ namespace JoreNoe.Middleware
         /// <param name="remoteIp"></param>
         private void RemoveAddIpCountLocal(string remoteIp)
         {
-            var cacheKey = ValidateKey( string.Format(MemoryCacheCurrentIpCountKey, remoteIp));
+            var cacheKey = ValidateKey(string.Format(MemoryCacheCurrentIpCountKey, remoteIp));
             this.MemoryCache.Remove(cacheKey);
         }
 
@@ -281,7 +286,7 @@ namespace JoreNoe.Middleware
         /// <returns>拒绝访问的HTML消息</returns>
         private async Task<string> QueryDeniedMessage()
         {
-            
+
             var messageKey = $"DeniedReturnMessage";
             messageKey = ValidateKey(messageKey);
             if (this.MemoryCache.TryGetValue(messageKey, out string CachedMessage))

@@ -46,7 +46,12 @@ namespace JoreNoe.Middleware
         private string ValidateKey(string KeyName)
         {
             if (this.setting.SettingConfigs.IsEnabledFaieldProjectName)
-                return string.Concat(JoreNoeRequestCommonTools.GetReferencingProjectName(), ":", KeyName);
+            {
+                var Name = JoreNoeRequestCommonTools.GetReferencingProjectName();
+                if (!KeyName.Contains(Name))
+                    return string.Concat(Name, ":", KeyName);
+                else return KeyName;
+            }
             else
                 return KeyName;
         }
