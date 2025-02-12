@@ -157,6 +157,19 @@ namespace JoreNoe.DB.Dapper
 
 
         }
+
+        public T Single<TKey>(Expression<Func<T,bool>> ExPression)
+        {
+            var Convert = ExpressionToSqlConverter.ConvertSingle(ExPression);
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefault<T>(Convert));
+        }
+
+        public async Task<T> SingleAsync<TKey>(Expression<Func<T, bool>> ExPression)
+        {
+            var Convert = ExpressionToSqlConverter.ConvertSingle(ExPression);
+            return await this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QueryFirstOrDefaultAsync<T>(Convert));
+        }
+
         /// <summary>
         /// 异步查询单个数据
         /// </summary>
@@ -995,9 +1008,23 @@ namespace JoreNoe.DB.Dapper
                 throw new ArgumentNullException(nameof(Predicate));
 
             // Convert the expression to SQL
-            var sql = ExpressionToSqlConverter.Convert(Predicate);
+            var sql = ExpressionToSqlConverter.ConvertCount(Predicate);
 
             return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QuerySingle<int>(sql));
+        }
+
+        /// <summary>
+        /// 通过SQL 查询数量
+        /// </summary>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int Count(string SQL)
+        {
+            if (string.IsNullOrEmpty(SQL))
+                throw new ArgumentNullException(nameof(SQL));
+
+            return this.GetDBConnection.ExcuteWithConnection(DbCon => DbCon.QuerySingle<int>(SQL));
         }
     }
 }

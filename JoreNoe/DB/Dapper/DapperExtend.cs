@@ -221,7 +221,14 @@ namespace JoreNoe.DB.Dapper
         {
             return "SELECT * FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
         }
-
+        public static string ConvertCount<T>(Expression<Func<T, bool>> expression)
+        {
+            return "SELECT COUNT(*) FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
+        }
+        public static string ConvertSingle<T>(Expression<Func<T, bool>> expression)
+        {
+            return "SELECT * FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
+        }
         private static string ProcessExpression(Expression expression)
         {
             switch (expression.NodeType)

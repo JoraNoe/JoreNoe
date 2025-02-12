@@ -16,6 +16,11 @@ namespace JoreNoe.Cache.Redis
         /// 默认数据库
         /// </summary>
         int DefaultDB { get; set; }
+
+        /// <summary>
+        /// 是否启用项目名称获取作为主文件夹
+        /// </summary>
+        bool IsEnabledFaieldProjectName { get; set; }
     }
 
     /// <summary>
@@ -27,14 +32,16 @@ namespace JoreNoe.Cache.Redis
         {
 
         }
-        public SettingConfigs(string ConnectionString, int DefaultDB = 0)
+        public SettingConfigs(string ConnectionString, int DefaultDB = 0, bool IsEnabledFaieldProjectName = false)
         {
             this.ConnectionString = ConnectionString;
             this.DefaultDB = DefaultDB;
+            this.IsEnabledFaieldProjectName = IsEnabledFaieldProjectName;
         }
 
         public string ConnectionString { get; set; }
         public int DefaultDB { get; set; }
+        public bool IsEnabledFaieldProjectName { get; set; }
     }
 
     /// <summary>
@@ -45,6 +52,8 @@ namespace JoreNoe.Cache.Redis
         IDatabase RedisDataBase { get; set; }
 
         IConnectionMultiplexer ConnectionMultiplexer { get; set; }
+
+        ISettingConfigs SettingConfigs { get; set; }
     }
 
     /// <summary>
@@ -52,7 +61,7 @@ namespace JoreNoe.Cache.Redis
     /// </summary>
     public class JoreNoeRedisBaseService : IJoreNoeRedisBaseService
     {
-        private readonly ISettingConfigs SettingConfigs;
+        public ISettingConfigs SettingConfigs { get; set; }
         public IDatabase RedisDataBase { get; set; }
         public IConnectionMultiplexer ConnectionMultiplexer { get; set; }
 
@@ -77,7 +86,7 @@ namespace JoreNoe.Cache.Redis
         /// <param name="ConnectionString"></param>
         /// <param name="DefaultDB"></param>
         /// <exception cref="InvalidOperationException"></exception>
-        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, int DefaultDB = 0)
+        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, int DefaultDB = 0, bool IsEnabledFaieldProjectName = false)
         {
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
@@ -93,7 +102,7 @@ namespace JoreNoe.Cache.Redis
             });
 
 
-            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB));
+            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB, IsEnabledFaieldProjectName));
             services.AddSingleton<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
             services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
         }

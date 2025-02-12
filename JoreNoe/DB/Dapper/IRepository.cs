@@ -179,5 +179,8 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         int Count();
         int Count(Expression<Func<T, bool>> Predicate);
+
+        Task<T> SingleAsync<TKey>(Expression<Func<T, bool>> ExPression);
+        T Single<TKey>(Expression<Func<T, bool>> ExPression);
     }
 }
