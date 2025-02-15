@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System;
+using System.Threading;
 
 namespace JoreNoe.Cache.Redis
 {
@@ -32,13 +33,12 @@ namespace JoreNoe.Cache.Redis
         {
 
         }
-        public SettingConfigs(string ConnectionString, int DefaultDB = 0, bool IsEnabledFaieldProjectName = false)
+        public SettingConfigs(string ConnectionString, int DefaultDB, bool IsEnabledFaieldProjectName)
         {
             this.ConnectionString = ConnectionString;
             this.DefaultDB = DefaultDB;
             this.IsEnabledFaieldProjectName = IsEnabledFaieldProjectName;
         }
-
         public string ConnectionString { get; set; }
         public int DefaultDB { get; set; }
         public bool IsEnabledFaieldProjectName { get; set; }
@@ -73,6 +73,14 @@ namespace JoreNoe.Cache.Redis
         }
     }
 
+    public class JoreNoeRedisEntry
+    {
+        public string ConnectionString { get; set; }
+        public int DefaultDB { get; set; }
+        public bool IsEnabledFaieldProjectName { get; set; }
+        public int DefaultRedisExpire { get; set; }
+    }
+
     /// <summary>
     /// 实用类
     /// </summary>
@@ -86,24 +94,34 @@ namespace JoreNoe.Cache.Redis
         /// <param name="ConnectionString"></param>
         /// <param name="DefaultDB"></param>
         /// <exception cref="InvalidOperationException"></exception>
-        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, int DefaultDB = 0, bool IsEnabledFaieldProjectName = false)
+        public static void AddJoreNoeRedis(this IServiceCollection services, Action<JoreNoeRedisEntry> Expires)
         {
+            var ExpiresInvoke = new JoreNoeRedisEntry();
+            Expires(ExpiresInvoke);
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
-                try
+                var lazyConnection = new Lazy<IConnectionMultiplexer>(() =>
                 {
-                    return ConnectionMultiplexer.Connect(ConnectionString);
-                }
-                catch (Exception ex)
-                {
-                    // 处理连接异常
-                    throw new InvalidOperationException("Unable to connect to Redis", ex);
-                }
+                    try
+                    {
+                        return ConnectionMultiplexer.Connect(ExpiresInvoke.ConnectionString);
+                    }
+                    catch (Exception ex)
+                    {
+                        // 处理连接异常
+                        throw new InvalidOperationException("Unable to connect to Redis", ex);
+                    }
+                });
+
+                // 返回 Lazy 对象，懒加载时会触发连接初始化
+                return lazyConnection.Value;
             });
 
-            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB, IsEnabledFaieldProjectName));
+
+            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ExpiresInvoke.ConnectionString, ExpiresInvoke.DefaultDB, ExpiresInvoke.IsEnabledFaieldProjectName));
             services.AddSingleton<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
-            services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
+            services.AddSingleton(typeof(IRedisManager), typeof(RedisManager));
+            //services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
         }
     }
 }

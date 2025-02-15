@@ -204,7 +204,7 @@ namespace ConsoleApp1
 
             var Service = new ServiceCollection();
             Service.AddJoreNoeDapper("Server=43.136.101.66;Port=3306;Database=jorenoe;Uid=root;Pwd=jorenoe123;", IDBType.MySql,true);
-            Service.AddJoreNoeRedis("43.136.101.66:6379,password=JoreNoe123", 0);
+            //Service.AddJoreNoeRedis("43.136.101.66:6379,password=JoreNoe123", 0);
             var serviceProvider = Service.BuildServiceProvider();
             var api = serviceProvider.GetRequiredService<JoreNoe.DB.Dapper.IRepository<test>>();
 

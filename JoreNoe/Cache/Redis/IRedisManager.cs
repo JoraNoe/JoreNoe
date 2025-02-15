@@ -43,6 +43,8 @@ namespace JoreNoe.Cache.Redis
         Task<IList<T>> UpdateAsync<T>(string KeyName, IList<T> Contexts);
         Task<bool> SetContainsAsync(string KeyName, string Vlaue);
 
+        Task<bool> SetAddAsync(string KeyName, string Value);
+
 
     }
 }

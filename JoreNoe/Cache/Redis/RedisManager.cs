@@ -12,11 +12,12 @@ namespace JoreNoe.Cache.Redis
     {
         private readonly IDatabase RedisDataBase;
         private readonly IJoreNoeRedisBaseService JoreNoeRedisBaseService;
-        public static TimeSpan DefaultExpire = TimeSpan.FromSeconds(180);
+        private readonly string ReferenceProjectName;
         public RedisManager(IJoreNoeRedisBaseService JoreNoeRedisBaseService)
         {
             this.JoreNoeRedisBaseService = JoreNoeRedisBaseService;
             this.RedisDataBase = this.JoreNoeRedisBaseService.RedisDataBase;
+            this.ReferenceProjectName = JoreNoeRequestCommonTools.GetReferencingProjectName();
         }
 
         /// <summary>
@@ -27,15 +28,8 @@ namespace JoreNoe.Cache.Redis
             if (string.IsNullOrEmpty(KeyName))
                 throw new ArgumentNullException(nameof(KeyName));
 
-            if (this.JoreNoeRedisBaseService.SettingConfigs.IsEnabledFaieldProjectName)
-            {
-                var Name = JoreNoeRequestCommonTools.GetReferencingProjectName();
-                if (!KeyName.Contains(Name))
-                    return string.Concat(Name, ":", KeyName);
-                else return KeyName;
-            }
-            else
-                return KeyName;
+            return this.JoreNoeRedisBaseService.SettingConfigs.IsEnabledFaieldProjectName ?
+                 string.Concat(this.ReferenceProjectName, ":", KeyName) : KeyName;
         }
 
         #region 同步
@@ -46,11 +40,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Add(string KeyName, string Context, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-
-            var Result = this.RedisDataBase.StringSet(KeyName, Context);
-            this.RedisDataBase.KeyExpire(KeyName, Expire);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            var Result = this.RedisDataBase.StringSet(AssamblyKey, Context);
+            this.RedisDataBase.KeyExpire(AssamblyKey, Expire);
             return Result;
         }
         /// <summary>
@@ -60,8 +53,8 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Remove(string KeyName)
         {
-            KeyName = this.ValidateKey(KeyName);
-            return this.RedisDataBase.KeyDelete(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
+            return this.RedisDataBase.KeyDelete(AssamblyKey);
         }
         /// <summary>
         /// 添加泛型
@@ -73,11 +66,11 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Add<T>(string KeyName, T Context, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
 
-            var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
-            this.RedisDataBase.KeyExpire(KeyName, Expire);
+            var Result = this.RedisDataBase.StringSet(AssamblyKey, JsonConvert.SerializeObject(Context));
+            this.RedisDataBase.KeyExpire(AssamblyKey, Expire);
             if (!Result)
                 throw new Exception("存储失败");
             return Context;
@@ -93,26 +86,26 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T AddOrGet<T>(string KeyName, T Context, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
 
-            this.Add<T>(KeyName, Context, Expire);
+            this.Add<T>(AssamblyKey, Context, Expire);
             return Context;
         }
 
         public T AddOrGet<T>(string KeyName, Func<T> contentProvider, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
             if (contentProvider == null)
                 throw new ArgumentNullException(nameof(contentProvider));
 
-            Expire ??= TimeSpan.FromSeconds(180);
+ 
 
             // Check if the key already exists in the Redis database
-            if (this.RedisDataBase.KeyExists(KeyName))
+            if (this.RedisDataBase.KeyExists(AssamblyKey))
             {
                 // Get the value associated with the key and deserialize it
-                string value = this.RedisDataBase.StringGet(KeyName);
+                string value = this.RedisDataBase.StringGet(AssamblyKey);
                 return JsonConvert.DeserializeObject<T>(value);
             }
 
@@ -121,7 +114,7 @@ namespace JoreNoe.Cache.Redis
 
             // Serialize the context and store it in the Redis database with an expiration time
             string serializedContext = JsonConvert.SerializeObject(context);
-            bool isStored = this.RedisDataBase.StringSet(KeyName, serializedContext, Expire);
+            bool isStored = this.RedisDataBase.StringSet(AssamblyKey, serializedContext, Expire);
 
             if (!isStored)
                 throw new Exception("Failed to store the data in Redis");
@@ -140,33 +133,33 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Find<T>(string KeyName)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.Exists(KeyName))
+            if (!this.Exists(AssamblyKey))
                 return new List<T>();
 
-            return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
+            return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(AssamblyKey));
         }
 
         public T Single<T>(string KeyName)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.Exists(KeyName))
+            if (!this.RedisDataBase.KeyExists(AssamblyKey))
                 return default(T);
 
-            return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(KeyName));
+            return JsonConvert.DeserializeObject<T>(this.RedisDataBase.StringGet(AssamblyKey));
         }
 
 
         public string Single(string KeyName)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.Exists(KeyName))
+            if (!this.RedisDataBase.KeyExists(AssamblyKey))
                 return string.Empty;
 
-            return this.RedisDataBase.StringGet(KeyName);
+            return this.RedisDataBase.StringGet(AssamblyKey);
         }
 
 
@@ -181,10 +174,10 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> AddMulitToFolder<T>(string KeyName, IList<T> Context, string FolderName, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            if (this.RedisDataBase.KeyExists(KeyName))
-                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(KeyName, FolderName));
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            if (this.RedisDataBase.KeyExists(AssamblyKey))
+                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.HashGet(AssamblyKey, FolderName));
 
             var Result = this.RedisDataBase.HashSet(KeyName, FolderName + ":" + KeyName, JsonConvert.SerializeObject(Context));
             this.RedisDataBase.KeyExpire(KeyName, Expire);
@@ -201,8 +194,8 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public bool Exists(string KeyName)
         {
-            KeyName = this.ValidateKey(KeyName);
-            return this.RedisDataBase.KeyExists(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
+            return this.RedisDataBase.KeyExists(AssamblyKey);
         }
 
         /// <summary>
@@ -215,13 +208,13 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string AddOrGet(string KeyName, string Context, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            if (this.RedisDataBase.KeyExists(KeyName))
-                return this.RedisDataBase.StringGet(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            if (this.RedisDataBase.KeyExists(AssamblyKey))
+                return this.RedisDataBase.StringGet(AssamblyKey);
 
-            var Result = this.RedisDataBase.StringSet(KeyName, Context);
-            this.RedisDataBase.KeyExpire(KeyName, Expire);
+            var Result = this.RedisDataBase.StringSet(AssamblyKey, Context);
+            this.RedisDataBase.KeyExpire(AssamblyKey, Expire);
             if (!Result)
                 throw new Exception("存储失败");
 
@@ -230,18 +223,18 @@ namespace JoreNoe.Cache.Redis
 
         public IList<T> AddOrGet<T>(string KeyName, IList<T> Context, TimeSpan? Expire = null)
         {
-            KeyName = this.ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            if (this.RedisDataBase.KeyExists(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            if (this.RedisDataBase.KeyExists(AssamblyKey))
             {
-                var GetContext = this.RedisDataBase.StringGet(KeyName);
+                var GetContext = this.RedisDataBase.StringGet(AssamblyKey);
                 if (string.IsNullOrEmpty(GetContext))
                     return default;
-                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(KeyName));
+                return JsonConvert.DeserializeObject<IList<T>>(this.RedisDataBase.StringGet(AssamblyKey));
             }
 
-            var Result = this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
-            this.RedisDataBase.KeyExpire(KeyName, Expire);
+            var Result = this.RedisDataBase.StringSet(AssamblyKey, JsonConvert.SerializeObject(Context));
+            this.RedisDataBase.KeyExpire(AssamblyKey, Expire);
             if (!Result)
                 throw new Exception("存储失败");
 
@@ -257,12 +250,12 @@ namespace JoreNoe.Cache.Redis
         /// <exception cref="NotImplementedException"></exception>
         public string Get(string KeyName)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.Exists(KeyName))
+            if (!this.RedisDataBase.KeyExists(AssamblyKey))
                 return String.Empty;
 
-            return this.RedisDataBase.StringGet(KeyName);
+            return this.RedisDataBase.StringGet(AssamblyKey);
         }
 
         /// <summary>
@@ -273,18 +266,17 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public string Update(string KeyName, string Context)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
 
-            if (!this.Exists(KeyName))
+            if (!this.RedisDataBase.KeyExists(AssamblyKey))
                 return String.Empty;
-
-            var Delete = this.RedisDataBase.KeyDelete(KeyName);
+            var KeyExpire = this.RedisDataBase.KeyTimeToLive(AssamblyKey);
+            var Delete = this.RedisDataBase.KeyDelete(AssamblyKey);
             if (Delete)
             {
-                var KeyExpire = this.RedisDataBase.KeyTimeToLive(KeyName);
-                this.RedisDataBase.StringSet(KeyName, Context);
-                this.RedisDataBase.KeyExpire(KeyName, KeyExpire);
+                this.RedisDataBase.StringSet(AssamblyKey, Context);
+                this.RedisDataBase.KeyExpire(AssamblyKey, KeyExpire);
             }
             return Context;
         }
@@ -298,17 +290,16 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public T Update<T>(string KeyName, T Context)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.Exists(KeyName))
+            if (!this.RedisDataBase.KeyExists(KeyName))
                 return default(T);
-
-            var Delete = this.RedisDataBase.KeyDelete(KeyName);
+            var KeyExpire = this.RedisDataBase.KeyTimeToLive(AssamblyKey);
+            var Delete = this.RedisDataBase.KeyDelete(AssamblyKey);
             if (Delete)
             {
-                var KeyExpire = this.RedisDataBase.KeyTimeToLive(KeyName);
-                this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Context));
-                this.RedisDataBase.KeyExpire(KeyName, KeyExpire);
+                this.RedisDataBase.StringSet(AssamblyKey, JsonConvert.SerializeObject(Context));
+                this.RedisDataBase.KeyExpire(AssamblyKey, KeyExpire);
             }
             return Context;
         }
@@ -322,17 +313,16 @@ namespace JoreNoe.Cache.Redis
         /// <returns></returns>
         public IList<T> Update<T>(string KeyName, IList<T> Contexts)
         {
-            KeyName = this.ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.Exists(KeyName))
+            if (!this.RedisDataBase.KeyExists(KeyName))
                 return default;
-
-            var Delete = this.RedisDataBase.KeyDelete(KeyName);
+            var KeyExpire = this.RedisDataBase.KeyTimeToLive(AssamblyKey);
+            var Delete = this.RedisDataBase.KeyDelete(AssamblyKey);
             if (Delete)
             {
-                var KeyExpire = this.RedisDataBase.KeyTimeToLive(KeyName);
-                this.RedisDataBase.StringSet(KeyName, JsonConvert.SerializeObject(Contexts));
-                this.RedisDataBase.KeyExpire(KeyName, KeyExpire);
+                this.RedisDataBase.StringSet(AssamblyKey, JsonConvert.SerializeObject(Contexts));
+                this.RedisDataBase.KeyExpire(AssamblyKey, KeyExpire);
             }
             return Contexts;
         }
@@ -343,25 +333,25 @@ namespace JoreNoe.Cache.Redis
 
         public async Task<bool> AddAsync(string KeyName, string Context, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            var result = await this.RedisDataBase.StringSetAsync(KeyName, Context);
-            await this.RedisDataBase.KeyExpireAsync(KeyName, Expire);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            var result = await this.RedisDataBase.StringSetAsync(AssamblyKey, Context);
+            await this.RedisDataBase.KeyExpireAsync(AssamblyKey, Expire);
             return result;
         }
 
         public async Task<bool> RemoveAsync(string KeyName)
         {
-            KeyName = ValidateKey(KeyName);
-            return await this.RedisDataBase.KeyDeleteAsync(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
+            return await this.RedisDataBase.KeyDeleteAsync(AssamblyKey);
         }
 
         public async Task<T> AddAsync<T>(string KeyName, T Context, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            var result = await this.RedisDataBase.StringSetAsync(KeyName, JsonConvert.SerializeObject(Context));
-            await this.RedisDataBase.KeyExpireAsync(KeyName, Expire);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            var result = await this.RedisDataBase.StringSetAsync(AssamblyKey, JsonConvert.SerializeObject(Context));
+            await this.RedisDataBase.KeyExpireAsync(AssamblyKey,Expire);
 
             if (!result)
                 throw new Exception("存储失败");
@@ -371,28 +361,28 @@ namespace JoreNoe.Cache.Redis
 
         public async Task<T> AddOrGetAsync<T>(string KeyName, T Context, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
-            if (await this.RedisDataBase.KeyExistsAsync(KeyName))
-                return JsonConvert.DeserializeObject<T>(await this.RedisDataBase.StringGetAsync(KeyName));
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
+                return JsonConvert.DeserializeObject<T>(await this.RedisDataBase.StringGetAsync(AssamblyKey));
 
-            await AddAsync(KeyName, Context, Expire);
+            await AddAsync(AssamblyKey, Context, Expire);
             return Context;
         }
 
         public async Task<T> AddOrGetAsync<T>(string KeyName, Func<Task<T>> contentProvider, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
             if (contentProvider == null)
                 throw new ArgumentNullException(nameof(contentProvider));
-            Expire ??= TimeSpan.FromSeconds(180);
-            if (await this.RedisDataBase.KeyExistsAsync(KeyName))
+ 
+            if (await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
             {
-                string value = await this.RedisDataBase.StringGetAsync(KeyName);
+                string value = await this.RedisDataBase.StringGetAsync(AssamblyKey);
                 return JsonConvert.DeserializeObject<T>(value);
             }
 
             T context = await contentProvider();
-            var result = await this.RedisDataBase.StringSetAsync(KeyName, JsonConvert.SerializeObject(context), Expire);
+            var result = await this.RedisDataBase.StringSetAsync(AssamblyKey, JsonConvert.SerializeObject(context), Expire);
 
             if (!result)
                 throw new Exception("Failed to store the data in Redis");
@@ -402,39 +392,39 @@ namespace JoreNoe.Cache.Redis
 
         public async Task<IList<T>> FindAsync<T>(string KeyName)
         {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return new List<T>();
 
-            return JsonConvert.DeserializeObject<IList<T>>(await this.RedisDataBase.StringGetAsync(KeyName));
+            return JsonConvert.DeserializeObject<IList<T>>(await this.RedisDataBase.StringGetAsync(AssamblyKey));
         }
 
         public async Task<T> SingleAsync<T>(string KeyName)
         {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return default;
 
-            return JsonConvert.DeserializeObject<T>(await this.RedisDataBase.StringGetAsync(KeyName));
+            return JsonConvert.DeserializeObject<T>(await this.RedisDataBase.StringGetAsync(AssamblyKey));
         }
 
         public async Task<string> SingleAsync(string KeyName)
         {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return string.Empty;
 
-            return await this.RedisDataBase.StringGetAsync(KeyName);
+            return await this.RedisDataBase.StringGetAsync(AssamblyKey);
         }
 
         public async Task<IList<T>> AddMulitToFolderAsync<T>(string KeyName, IList<T> Context, string FolderName, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
-            if (await this.RedisDataBase.KeyExistsAsync(KeyName))
-                return JsonConvert.DeserializeObject<IList<T>>(await this.RedisDataBase.HashGetAsync(KeyName, FolderName));
-            Expire ??= TimeSpan.FromSeconds(180);
-            var result = await this.RedisDataBase.HashSetAsync(KeyName, FolderName + ":" + KeyName, JsonConvert.SerializeObject(Context));
-            await this.RedisDataBase.KeyExpireAsync(KeyName, Expire);
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
+                return JsonConvert.DeserializeObject<IList<T>>(await this.RedisDataBase.HashGetAsync(AssamblyKey, FolderName));
+ 
+            var result = await this.RedisDataBase.HashSetAsync(AssamblyKey, FolderName + ":" + AssamblyKey, JsonConvert.SerializeObject(Context));
+            await this.RedisDataBase.KeyExpireAsync(AssamblyKey, Expire);
 
             if (!result)
                 throw new Exception("存储失败");
@@ -444,19 +434,28 @@ namespace JoreNoe.Cache.Redis
 
         public async Task<bool> ExistsAsync(string KeyName)
         {
-            KeyName = ValidateKey(KeyName);
-            return await this.RedisDataBase.KeyExistsAsync(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
+            return await this.RedisDataBase.KeyExistsAsync(AssamblyKey);
+        }
+
+        public async Task<string> GetAsync(string KeyName)
+        {
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
+                return string.Empty;
+
+            return await this.RedisDataBase.StringGetAsync(AssamblyKey);
         }
 
         public async Task<string> AddOrGetAsync(string KeyName, string Context, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            if (await this.RedisDataBase.KeyExistsAsync(KeyName))
-                return await this.RedisDataBase.StringGetAsync(KeyName);
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            if (await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
+                return await this.RedisDataBase.StringGetAsync(AssamblyKey);
 
-            var result = await this.RedisDataBase.StringSetAsync(KeyName, Context);
-            await this.RedisDataBase.KeyExpireAsync(KeyName, Expire);
+            var result = await this.RedisDataBase.StringSetAsync(AssamblyKey, Context);
+            await this.RedisDataBase.KeyExpireAsync(AssamblyKey, Expire);
 
             if (!result)
                 throw new Exception("存储失败");
@@ -466,19 +465,19 @@ namespace JoreNoe.Cache.Redis
 
         public async Task<IList<T>> AddOrGetAsync<T>(string KeyName, IList<T> Context, TimeSpan? Expire = null)
         {
-            KeyName = ValidateKey(KeyName);
-            Expire ??= TimeSpan.FromSeconds(180);
-            if (await this.RedisDataBase.KeyExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+ 
+            if (await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
             {
-                var getContext = await this.RedisDataBase.StringGetAsync(KeyName);
+                var getContext = await this.RedisDataBase.StringGetAsync(AssamblyKey);
                 if (string.IsNullOrEmpty(getContext))
                     return default;
 
                 return JsonConvert.DeserializeObject<IList<T>>(getContext);
             }
 
-            var result = await this.RedisDataBase.StringSetAsync(KeyName, JsonConvert.SerializeObject(Context));
-            await this.RedisDataBase.KeyExpireAsync(KeyName, Expire);
+            var result = await this.RedisDataBase.StringSetAsync(AssamblyKey, JsonConvert.SerializeObject(Context));
+            await this.RedisDataBase.KeyExpireAsync(AssamblyKey, Expire);
 
             if (!result)
                 throw new Exception("存储失败");
@@ -486,67 +485,67 @@ namespace JoreNoe.Cache.Redis
             return Context;
         }
 
-        public async Task<string> GetAsync(string KeyName)
-        {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
-                return string.Empty;
-
-            return await this.RedisDataBase.StringGetAsync(KeyName);
-        }
+       
 
         public async Task<string> UpdateAsync(string KeyName, string Context)
         {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return string.Empty;
-
-            var delete = await this.RedisDataBase.KeyDeleteAsync(KeyName);
+            var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(AssamblyKey);
+            var delete = await this.RedisDataBase.KeyDeleteAsync(AssamblyKey);
             if (delete)
             {
-                var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(KeyName);
-                await this.RedisDataBase.StringSetAsync(KeyName, Context);
-                await this.RedisDataBase.KeyExpireAsync(KeyName, keyExpire);
+                await this.RedisDataBase.StringSetAsync(AssamblyKey, Context);
+                await this.RedisDataBase.KeyExpireAsync(AssamblyKey, keyExpire);
             }
             return Context;
         }
 
         public async Task<T> UpdateAsync<T>(string KeyName, T Context)
         {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(KeyName))
                 return default;
 
-            var delete = await this.RedisDataBase.KeyDeleteAsync(KeyName);
+            var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(AssamblyKey);
+            var delete = await this.RedisDataBase.KeyDeleteAsync(AssamblyKey);
             if (delete)
             {
-                var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(KeyName);
-                await this.RedisDataBase.StringSetAsync(KeyName, JsonConvert.SerializeObject(Context));
-                await this.RedisDataBase.KeyExpireAsync(KeyName, keyExpire);
+                await this.RedisDataBase.StringSetAsync(AssamblyKey, JsonConvert.SerializeObject(Context));
+                await this.RedisDataBase.KeyExpireAsync(AssamblyKey, keyExpire);
             }
             return Context;
         }
 
         public async Task<IList<T>> UpdateAsync<T>(string KeyName, IList<T> Contexts)
         {
-            KeyName = ValidateKey(KeyName);
-            if (!await ExistsAsync(KeyName))
+            var AssamblyKey = this.ValidateKey(KeyName);
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return default;
 
-            var delete = await this.RedisDataBase.KeyDeleteAsync(KeyName);
+            var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(AssamblyKey);
+            var delete = await this.RedisDataBase.KeyDeleteAsync(AssamblyKey);
             if (delete)
             {
-                var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(KeyName);
-                await this.RedisDataBase.StringSetAsync(KeyName, JsonConvert.SerializeObject(Contexts));
-                await this.RedisDataBase.KeyExpireAsync(KeyName, keyExpire);
+                await this.RedisDataBase.StringSetAsync(AssamblyKey, JsonConvert.SerializeObject(Contexts));
+                await this.RedisDataBase.KeyExpireAsync(AssamblyKey, keyExpire);
             }
             return Contexts;
         }
 
         public async Task<bool> SetContainsAsync(string KeyName, string Vlaue)
         {
-            KeyName = ValidateKey(KeyName);
-            return await this.RedisDataBase.SetContainsAsync(KeyName, Vlaue);
+            var AssamblyKey = this.ValidateKey(KeyName);
+            return await this.RedisDataBase.SetContainsAsync(AssamblyKey, Vlaue);
+        }
+
+        public async Task<bool> SetAddAsync(string KeyName,string Value)
+        {
+            var AssamblyKey = this.ValidateKey(KeyName);
+            var Set =  await this.RedisDataBase.SetAddAsync(AssamblyKey, Value);
+            await this.RedisDataBase.KeyPersistAsync(AssamblyKey);
+            return Set;
         }
 
         #endregion

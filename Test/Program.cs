@@ -17,7 +17,10 @@ namespace Test
 
             builder.Services.AddControllers().AddJsonOptions(s => s.JsonSerializerOptions.PropertyNamingPolicy = null);
 
-            builder.Services.AddJoreNoeRedis("43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false",0,true);
+            builder.Services.AddJoreNoeRedis(s => {
+                s.ConnectionString = "43.136.101.66:6379,Password=JoreNoe123,connectTimeout=10000,syncTimeout=10000, asyncTimeout=10000,abortConnect=false";
+                s.IsEnabledFaieldProjectName = true;
+            });
 
             //builder.Services.AddJoreNoeRequestLoggingMiddleware<WeatherForecast>();
             //builder.Services.AddJoreNoeRequestLoggingMiddleware();
@@ -62,7 +65,7 @@ namespace Test
 
             //        }
             //);
-            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(3, TimeSpan.FromSeconds(60), TimeSpan.FromMinutes(6), true);
+            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(6, TimeSpan.FromSeconds(60), TimeSpan.FromMinutes(6), true);
             builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware(LocalCacheDurationInMinutes: TimeSpan.FromMinutes(5));
 
 

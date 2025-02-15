@@ -32,35 +32,20 @@ namespace JoreNoe.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILimitInteFaceAccessSetting _limitInteFaceAccessSetting;
-        private readonly IDatabase _redisDb;
+        private readonly IRedisManager _redisDb;
         private readonly IMemoryCache MemoryCache;
-        private readonly IJoreNoeRedisBaseService setting;
-        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config, IJoreNoeRedisBaseService RedisBaseService, IMemoryCache MemoryCache)
+        public APIGlobalLimitIntefaceAccessMiddleware(RequestDelegate next, ILimitInteFaceAccessSetting Config, IJoreNoeRedisBaseService JoreNoeRedisBaseService, IMemoryCache MemoryCache, IRedisManager redis)
         {
-            _next = next;
-            _limitInteFaceAccessSetting = Config;
-            _redisDb = RedisBaseService.RedisDataBase;
+            this._next = next;
+            this._limitInteFaceAccessSetting = Config;
+            this._redisDb = redis;
             this.MemoryCache = MemoryCache;
-            this.setting = RedisBaseService;
         }
-        private string ValidateKey(string KeyName)
-        {
-            if (this.setting.SettingConfigs.IsEnabledFaieldProjectName)
-            {
-                var Name = JoreNoeRequestCommonTools.GetReferencingProjectName();
-                if (!KeyName.Contains(Name))
-                    return string.Concat(Name, ":", KeyName);
-                else return KeyName;
-            }
-            else
-                return KeyName;
-        }
-        private string LimitIntefaceKey(string Path) => string.Concat("RequestAPILists", ":", Path);
 
         public async Task Invoke(HttpContext context, IServiceProvider serviceProvider)
         {
-            var Key = ValidateKey(this.LimitIntefaceKey(context.Request.Path)) ;
-            if (!await this.MethodPathIsExists(Key, context.Request.Path))
+            var RedisKey = string.Concat(JoreNoeRequestCommonTools.RequestAPIListsName, ":", context.Request.Path);
+            if (!await this.MethodPathIsExists(RedisKey, context.Request.Path))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;  // 设置403禁止状态码
                 await context.Response.WriteAsync(_limitInteFaceAccessSetting.ReturnMessage);  // 返回消息
@@ -79,17 +64,17 @@ namespace JoreNoe.Middleware
         {
             if (!this.MemoryCache.TryGetValue(Key, out bool value))
             {
-                if (await this._redisDb.KeyExistsAsync(Key).ConfigureAwait(false))
+                if (await this._redisDb.ExistsAsync(Key).ConfigureAwait(false))
                 {
-                    var GetRedisValue = await this._redisDb.StringGetAsync(Key).ConfigureAwait(false);
-                    value = bool.Parse(GetRedisValue);
+                    var GetRedisValue = await this._redisDb.SingleAsync<bool>(Key).ConfigureAwait(false);
+                    this.MemoryCache.Set(Key, GetRedisValue, this._limitInteFaceAccessSetting.LocalCacheDurationInMinutes);
+                    value = GetRedisValue;
                 }
                 else
                 {
                     value = true;
                     this.MemoryCache.Set(Key, true, this._limitInteFaceAccessSetting.LocalCacheDurationInMinutes);
-                    await this._redisDb.StringSetAsync(Key, true.ToString()).ConfigureAwait(false);
-                    await this._redisDb.KeyPersistAsync(Key).ConfigureAwait(false);
+                    await this._redisDb.AddAsync<bool>(Key, true).ConfigureAwait(false);
                 }
             }
             return value;

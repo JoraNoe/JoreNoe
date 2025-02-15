@@ -14,6 +14,32 @@ namespace JoreNoe.Middleware
     public static class JoreNoeRequestCommonTools
     {
         /// <summary>
+        /// 请求接口Redis存储名称
+        /// </summary>
+        public const string RequestAPIListsName = "RequestAPILists";
+
+        /// <summary>
+        /// 系统黑名单
+        /// </summary>
+        public const string  ProjectBlackListsName = "ProjectBlackLists";
+
+        /// <summary>
+        /// IP请求数量
+        /// </summary>
+        public const string MemoryCacheCurrentIpCountName = "IP{0}Count";
+
+        /// <summary>
+        /// IP黑名单
+        /// </summary>
+        public const string MemoryCacheCurrentIpBlackListName = "IP{0}Black";
+
+        /// <summary>
+        /// 返回缓存拒绝访问模版信息
+        /// </summary>
+        public const string DeniedReturnMessage = "DeniedReturnMessage";
+
+
+        /// <summary>
         /// 获取请求中BODY中的参数
         /// </summary>
         /// <param name="request"></param>

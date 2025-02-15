@@ -14,13 +14,18 @@ namespace Test.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly IJoreNoeRedisBaseService redisManager;
-        private readonly IRepository<User> User;
-        private readonly IRepository<Test> Test;
-        public ValuesController(IRepository<User> User, IRepository<Test> Test) {
-            this.User = User;
-            this.Test = Test;
+        private readonly IRedisManager redisManager;
+        //private readonly IRepository<User> User;
+        //private readonly IRepository<Test> Test;
+        //public ValuesController(IRepository<User> User, IRepository<Test> Test) {
+        //    this.User = User;
+        //    this.Test = Test;
+        //}
+        public ValuesController(IRedisManager redis)
+        {
+            redisManager = redis;
         }
+        
         /// <summary>
         /// 测试1
         /// </summary>
@@ -39,15 +44,25 @@ namespace Test.Controllers
             //this.redisManager.ConnectionMultiplexer.GetSubscriber();
             //var x = JoreNoeRequestCommonTools.ApiControllerEndpoints();
             //return Ok(x);
-            var x = this.User.Single("7d8453db-6ef6-4730-bc3c-e6668a02c87f");
-            var xx = this.Test.Single("99541111");
+            //var x = this.User.Single("7d8453db-6ef6-4730-bc3c-e6668a02c87f");
+           // var xx = this.Test.Single("99541111");
             return null;
         }
 
         [HttpPost("sdf")]
         public ActionResult cao()
         {
-            return null;
+            this.redisManager.Add("test",2,TimeSpan.FromSeconds(60));
+
+            this.redisManager.Update("test", 3);
+            var x = "ok1";
+            var mm = "";
+            //Parallel.For(1, 10, e =>
+            //{
+            //    var ax = APIGlobalLimitIntefaceAccessMiddleware.test(x);
+            //    Console.WriteLine(ax);
+            //});
+            return Content(mm);
         }
     }
     public class testss
