@@ -87,9 +87,12 @@ namespace JoreNoe.Cache.Redis
         public T AddOrGet<T>(string KeyName, T Context, TimeSpan? Expire = null)
         {
             var AssamblyKey = this.ValidateKey(KeyName);
- 
 
-            this.Add<T>(AssamblyKey, Context, Expire);
+            var Result = this.RedisDataBase.StringSet(AssamblyKey, JsonConvert.SerializeObject(Context));
+            this.RedisDataBase.KeyExpire(AssamblyKey, Expire);
+            if (!Result)
+                throw new Exception("存储失败");
+
             return Context;
         }
 
@@ -365,7 +368,9 @@ namespace JoreNoe.Cache.Redis
             if (await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return JsonConvert.DeserializeObject<T>(await this.RedisDataBase.StringGetAsync(AssamblyKey));
 
-            await AddAsync(AssamblyKey, Context, Expire);
+            await this.RedisDataBase.StringSetAsync(AssamblyKey, JsonConvert.SerializeObject(Context));
+            await this.RedisDataBase.KeyExpireAsync(AssamblyKey, Expire);
+
             return Context;
         }
 
