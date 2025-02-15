@@ -837,7 +837,6 @@ QueueManager.SendPublish<MoitoringEvent>(new MoitoringEvent { SID = SID,Type= Ty
         }
     }
 ```
-
 jorenoe MKF
 
 
