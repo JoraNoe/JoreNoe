@@ -123,5 +123,41 @@ namespace JoreNoe.Cache.Redis
             services.AddSingleton(typeof(IRedisManager), typeof(RedisManager));
             //services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
         }
+
+        /// <summary>
+        /// 使用Redis
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="ConnectionString"></param>
+        /// <param name="DefaultDB"></param>
+        /// <param name="IsEnabledFaieldProjectName"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void AddJoreNoeRedis(this IServiceCollection services, string ConnectionString, int DefaultDB, bool IsEnabledFaieldProjectName = false)
+        {
+            services.AddSingleton<IConnectionMultiplexer>(provider =>
+            {
+                var lazyConnection = new Lazy<IConnectionMultiplexer>(() =>
+                {
+                    try
+                    {
+                        return ConnectionMultiplexer.Connect(ConnectionString);
+                    }
+                    catch (Exception ex)
+                    {
+                        // 处理连接异常
+                        throw new InvalidOperationException("Unable to connect to Redis", ex);
+                    }
+                });
+
+                // 返回 Lazy 对象，懒加载时会触发连接初始化
+                return lazyConnection.Value;
+            });
+
+
+            services.AddSingleton<ISettingConfigs>(new SettingConfigs(ConnectionString, DefaultDB, IsEnabledFaieldProjectName));
+            services.AddSingleton<IJoreNoeRedisBaseService, JoreNoeRedisBaseService>();
+            services.AddSingleton(typeof(IRedisManager), typeof(RedisManager));
+            //services.AddScoped(typeof(IRedisManager), typeof(RedisManager));
+        }
     }
 }
