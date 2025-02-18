@@ -124,7 +124,7 @@ namespace JoreNoe.DB.Dapper
                 else if (propertyValue is DateTime)
                 {
                     // 对于日期类型，加单引号并格式化为 'yyyy-MM-dd HH:mm:ss'
-                    resultBag.Add($"'{((DateTime)propertyValue).ToString("yyyy-MM-dd HH:mm:ss")}'");
+                    resultBag.Add($"'{propertyValue}'");
                 }
                 else if (propertyValue is bool)
                 {
