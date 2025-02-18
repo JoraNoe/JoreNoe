@@ -1,4 +1,5 @@
-﻿using JoreNoe.Cache.Redis;
+﻿using Dogegg.Abstractions.Domains;
+using JoreNoe.Cache.Redis;
 using JoreNoe.DB.Dapper;
 using JoreNoe.Middleware;
 using Microsoft.AspNetCore.Http;
@@ -16,13 +17,14 @@ namespace Test.Controllers
     {
         private readonly IRedisManager redisManager;
         //private readonly IRepository<User> User;
-        //private readonly IRepository<Test> Test;
+        private readonly IRepository<GlobalRunningHistory> Test;
         //public ValuesController(IRepository<User> User, IRepository<Test> Test) {
         //    this.User = User;
         //    this.Test = Test;
         //}
-        public ValuesController(IRedisManager redis)
+        public ValuesController(IRedisManager redis, IRepository<GlobalRunningHistory> Test)
         {
+            this.Test = Test;
             redisManager = redis;
         }
         
@@ -45,7 +47,16 @@ namespace Test.Controllers
             //var x = JoreNoeRequestCommonTools.ApiControllerEndpoints();
             //return Ok(x);
             //var x = this.User.Single("7d8453db-6ef6-4730-bc3c-e6668a02c87f");
-           // var xx = this.Test.Single("99541111");
+            // var xx = this.Test.Single("99541111");
+            var x = new List<GlobalRunningHistory>();
+            x.Add(new GlobalRunningHistory { 
+                FullPathUrl= "http://jorenoe.top/api/File/IpAddress",
+                CreateTime= DateTime.Now,
+                Duration="23",
+                Headers= "{\"Connection\":[\"close\"],\"Host\":[\"jorenoe.top\"],\"User-Agent\":[\"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0\"],\"X-Real-IP\":[\"104.234.0.22\"],\"X-Forwarded-For\":[\"14.87.126.25, 104.234.0.22\"],\"X-Forwarded-Proto\":[\"https\"]}",
+                Id = Guid.NewGuid(),
+            });
+            this.Test.BulkInsert(x);
             return null;
         }
 

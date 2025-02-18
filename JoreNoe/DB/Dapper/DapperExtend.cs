@@ -97,28 +97,57 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         public static string GetEntityFiledParams<T>(T Data)
         {
-
             Type type = Data.GetType();
             PropertyInfo[] properties = type.GetProperties();
-            // 使用线程安全的集合来存储处理结果
-            var resultBag = new List<object>();
+
+            var resultBag = new List<string>();
 
             foreach (PropertyInfo property in properties)
             {
+                // 跳过带有特性标记的属性
                 if (Attribute.IsDefined(property, typeof(InsertIgnoreAutoIncrementAttribute)))
                     continue;
-                //string propertyName = property.Name;
+
                 var propertyValue = property.GetValue(Data, null); // 获取属性值
-                // 根据属性的类型判断是否需要添加单引号
-                var processedValue = (propertyValue is string || propertyValue is DateTime) ? $"'{propertyValue}'" : propertyValue;
-                resultBag.Add(processedValue);
+
+                // 如果属性值为 null，插入 NULL
+                if (propertyValue == null)
+                {
+                    resultBag.Add("NULL");
+                }
+                else if (propertyValue is string)
+                {
+                    // 对于字符串类型，加单引号并处理空字符串
+                    var stringValue = propertyValue.ToString().Replace("'", "''");  // 处理字符串中的单引号
+                    resultBag.Add($"'{stringValue}'");
+                }
+                else if (propertyValue is DateTime)
+                {
+                    // 对于日期类型，加单引号并格式化为 'yyyy-MM-dd HH:mm:ss'
+                    resultBag.Add($"'{((DateTime)propertyValue).ToString("yyyy-MM-dd HH:mm:ss")}'");
+                }
+                else if (propertyValue is bool)
+                {
+                    // 布尔值可以转换为 '1' 或 '0'
+                    resultBag.Add((bool)propertyValue ? "1" : "0");
+                }
+                else if (propertyValue is Guid)
+                {
+                    // 对于 GUID 类型，加单引号
+                    resultBag.Add($"'{propertyValue}'");
+                }
+                else
+                {
+                    // 对于其他类型（如数值类型），直接转为字符串
+                    resultBag.Add(propertyValue.ToString());
+                }
             }
 
-            // 合并结果
-            object[] results = resultBag.ToArray();
-            string result = string.Join(",", results);
-            return result;
+            // 合并结果并返回
+            return string.Join(",", resultBag);
         }
+
+
 
         /// <summary>
         /// 获取批次数据

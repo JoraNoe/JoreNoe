@@ -51,7 +51,7 @@ namespace Test
             });
 
             // 单个模式注入
-            //builder.Services.AddJoreNoeDapper("Server=43.136.101.66;Port=3306;Database=dogegg;Uid=root;Pwd=jorenoe123;Max Pool Size=500;", IDBType.MySql, true);
+            builder.Services.AddJoreNoeDapper("Server=43.136.101.66;Port=3306;Database=dogegg;Uid=root;Pwd=jorenoe123;Max Pool Size=500;", IDBType.MySql, true);
 
             // 多个模式注入
             //builder.Services.AddJoreNoeDapper(
