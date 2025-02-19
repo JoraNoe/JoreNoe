@@ -95,9 +95,9 @@ namespace JoreNoe.DB.Dapper
         /// <typeparam name="T"></typeparam>
         /// <param name="Data"></param>
         /// <returns></returns>
-        public static string GetEntityFiledParams<T>(T Data)
+        public static string GetEntityFiledParams<T>(T data)
         {
-            Type type = Data.GetType();
+            Type type = data.GetType();
             PropertyInfo[] properties = type.GetProperties();
 
             var resultBag = new List<string>();
@@ -108,37 +108,42 @@ namespace JoreNoe.DB.Dapper
                 if (Attribute.IsDefined(property, typeof(InsertIgnoreAutoIncrementAttribute)))
                     continue;
 
-                var propertyValue = property.GetValue(Data, null); // 获取属性值
+                var propertyValue = property.GetValue(data, null); // 获取属性值
 
-                // 如果属性值为 null，插入 NULL
-                if (propertyValue == null)
+                // 处理 null 或 DBNull 值
+                if (propertyValue == null || propertyValue == DBNull.Value)
                 {
                     resultBag.Add("NULL");
                 }
                 else if (propertyValue is string)
                 {
-                    // 对于字符串类型，加单引号并处理空字符串
-                    var stringValue = propertyValue.ToString().Replace("'", "''");  // 处理字符串中的单引号
+                    // 对于字符串类型，加单引号并处理单引号字符
+                    var stringValue = propertyValue.ToString().Replace("'", "''");
                     resultBag.Add($"'{stringValue}'");
                 }
-                else if (propertyValue is DateTime)
+                else if (propertyValue is DateTime dateTime)
                 {
-                    // 对于日期类型，加单引号并格式化为 'yyyy-MM-dd HH:mm:ss'
-                    resultBag.Add($"'{propertyValue}'");
+                    // 对于 DateTime 类型，格式化为 'yyyy-MM-dd HH:mm:ss'
+                    resultBag.Add($"'{dateTime:yyyy-MM-dd HH:mm:ss}'");
                 }
-                else if (propertyValue is bool)
+                else if (propertyValue is bool boolean)
                 {
-                    // 布尔值可以转换为 '1' 或 '0'
-                    resultBag.Add((bool)propertyValue ? "1" : "0");
+                    // 布尔类型转换为 '1' 或 '0'
+                    resultBag.Add(boolean ? "1" : "0");
                 }
-                else if (propertyValue is Guid)
+                else if (propertyValue is Guid guid)
                 {
                     // 对于 GUID 类型，加单引号
-                    resultBag.Add($"'{propertyValue}'");
+                    resultBag.Add($"'{guid}'");
+                }
+                else if (propertyValue is decimal decimalValue || propertyValue is float floatValue || propertyValue is double doubleValue)
+                {
+                    // 对于数值类型（decimal, float, double），保持数值格式
+                    resultBag.Add(propertyValue.ToString());
                 }
                 else
                 {
-                    // 对于其他类型（如数值类型），直接转为字符串
+                    // 对于其他类型（如整数、长整型），直接转为字符串
                     resultBag.Add(propertyValue.ToString());
                 }
             }
@@ -146,6 +151,7 @@ namespace JoreNoe.DB.Dapper
             // 合并结果并返回
             return string.Join(",", resultBag);
         }
+
 
 
 
