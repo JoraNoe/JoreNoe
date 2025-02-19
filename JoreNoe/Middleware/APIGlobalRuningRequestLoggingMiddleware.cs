@@ -120,7 +120,7 @@ namespace JoreNoe.Middleware
             var originalResponseBodyStream = context.Response.Body;
             string RequestBody = string.Empty;
             string ResponseBody = string.Empty;
-            var StartTime = DateTime.UtcNow;
+            var StartTime = DateTime.Now;
 
             try
             {
@@ -180,7 +180,7 @@ namespace JoreNoe.Middleware
                 context.Response.Body = originalResponseBodyStream;
 
                 // 记录请求信息
-                var endTime = DateTime.UtcNow;
+                var endTime = DateTime.Now;
                 var request = context.Request;
                 var method = request.Method;
                 var path = request.Path;
@@ -236,7 +236,7 @@ namespace JoreNoe.Middleware
             var originalResponseBodyStream = context.Response.Body;
             string RequestBody = string.Empty;
             string ResponsBody = string.Empty;
-            var StartTime = DateTime.UtcNow;
+            var StartTime = DateTime.Now;
 
             try
             {
@@ -300,7 +300,7 @@ namespace JoreNoe.Middleware
                 // 恢复原始请求体和响应体
                 context.Request.Body = originalRequestBody;
                 context.Response.Body = originalResponseBodyStream;
-                var duration = (DateTime.UtcNow - StartTime).ToString(@"hh\:mm\:ss\.fff");
+                var duration = (DateTime.Now - StartTime).ToString(@"hh\:mm\:ss\.fff");
                 // 装填数据
                 var FillDataContext = this.FillData(StartTime, context, RequestBody, ResponsBody, duration);
                 await _entity.RunningRequestLogging(FillDataContext).ConfigureAwait(false);
