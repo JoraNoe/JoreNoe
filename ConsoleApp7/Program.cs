@@ -91,7 +91,7 @@ namespace ConsoleApp7
 
             int months = (end.Year - start.Year) * 12 + end.Month - start.Month;
 
-            // 如果结束日小于开始日，需要减少一个月
+            // 如果结束日小于 开始日，需要减少一个月
             if (end.Day < start.Day)
             {
                 months--;
