@@ -295,7 +295,7 @@ namespace JoreNoe.Cache.Redis
         {
             var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.RedisDataBase.KeyExists(KeyName))
+            if (!this.RedisDataBase.KeyExists(AssamblyKey))
                 return default(T);
             var KeyExpire = this.RedisDataBase.KeyTimeToLive(AssamblyKey);
             var Delete = this.RedisDataBase.KeyDelete(AssamblyKey);
@@ -318,7 +318,7 @@ namespace JoreNoe.Cache.Redis
         {
             var AssamblyKey = this.ValidateKey(KeyName);
 
-            if (!this.RedisDataBase.KeyExists(KeyName))
+            if (!this.RedisDataBase.KeyExists(AssamblyKey))
                 return default;
             var KeyExpire = this.RedisDataBase.KeyTimeToLive(AssamblyKey);
             var Delete = this.RedisDataBase.KeyDelete(AssamblyKey);
@@ -510,7 +510,7 @@ namespace JoreNoe.Cache.Redis
         public async Task<T> UpdateAsync<T>(string KeyName, T Context)
         {
             var AssamblyKey = this.ValidateKey(KeyName);
-            if (!await this.RedisDataBase.KeyExistsAsync(KeyName))
+            if (!await this.RedisDataBase.KeyExistsAsync(AssamblyKey))
                 return default;
 
             var keyExpire = await this.RedisDataBase.KeyTimeToLiveAsync(AssamblyKey);

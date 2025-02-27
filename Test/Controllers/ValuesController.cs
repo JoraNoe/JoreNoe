@@ -40,7 +40,7 @@ namespace Test.Controllers
         //}
 
         [HttpPost("create")]
-        public ActionResult test(testss testok)
+        public async Task<ActionResult> test(testss testok)
         {
             //Console.WriteLine(s);
             //this.redisManager.ConnectionMultiplexer.GetSubscriber();
@@ -48,15 +48,17 @@ namespace Test.Controllers
             //return Ok(x);
             //var x = this.User.Single("7d8453db-6ef6-4730-bc3c-e6668a02c87f");
             // var xx = this.Test.Single("99541111");
-            var x = new List<GlobalRunningHistory>();
-            x.Add(new GlobalRunningHistory { 
-                FullPathUrl= "http://jorenoe.top/api/File/IpAddress",
-                CreateTime= DateTime.Now,
-                Duration="23",
-                Headers= "{\"Connection\":[\"close\"],\"Host\":[\"jorenoe.top\"],\"User-Agent\":[\"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0\"],\"X-Real-IP\":[\"104.234.0.22\"],\"X-Forwarded-For\":[\"14.87.126.25, 104.234.0.22\"],\"X-Forwarded-Proto\":[\"https\"]}",
-                Id = Guid.NewGuid(),
-            });
-            this.Test.BulkInsert(x);
+            //var x = new List<GlobalRunningHistory>();
+            //x.Add(new GlobalRunningHistory { 
+            //    FullPathUrl= "http://jorenoe.top/api/File/IpAddress",
+            //    CreateTime= DateTime.Now,
+            //    Duration="23",
+            //    Headers= "{\"Connection\":[\"close\"],\"Host\":[\"jorenoe.top\"],\"User-Agent\":[\"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0\"],\"X-Real-IP\":[\"104.234.0.22\"],\"X-Forwarded-For\":[\"14.87.126.25, 104.234.0.22\"],\"X-Forwarded-Proto\":[\"https\"]}",
+            //    Id = Guid.NewGuid(),
+            //});
+            //this.Test.BulkInsert(x);
+            this.redisManager.Add("s","sdf",TimeSpan.FromDays(1));
+            await this.redisManager.UpdateAsync<string>("s", "sdf1");
             return null;
         }
 
