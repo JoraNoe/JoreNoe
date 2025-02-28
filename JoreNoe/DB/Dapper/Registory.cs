@@ -86,7 +86,7 @@ namespace JoreNoe.DB.Dapper
         public static void AddJoreNoeDapper(this IServiceCollection services, List<DatabaseSettings> Params)
         {
             var GetDataBaseConnectionSettings = Params;
-            if (Params == null || Params.Any(d => d.AvailableTables == null || d.AvailableTables.Count==0))
+            if (Params == null || Params.Any(d => d.AvailableTables == null || d.AvailableTables.Count == 0))
             {
                 throw new NoNullAllowedException("多数据库，请填写表名,以确保程序可以准确找到那个表对应那个数据库");
             }

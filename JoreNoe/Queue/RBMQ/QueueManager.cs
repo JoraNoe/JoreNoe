@@ -21,7 +21,7 @@ namespace JoreNoe.Queue.RBMQ
         public QueueManager(IJoreNoeRabbitMQBaseService JoreNoeRabbitMQBaseService)
         {
             this.JoreNoeRabbitMQBaseService = JoreNoeRabbitMQBaseService;
-            this.connection = JoreNoeRabbitMQBaseService.ConnectionFactory.CreateConnection();
+            this.connection = this.JoreNoeRabbitMQBaseService.ConnectionFactory.CreateConnection();
             this.channel = connection.CreateModel();
         }
 

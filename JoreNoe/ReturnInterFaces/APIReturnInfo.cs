@@ -36,16 +36,16 @@
             return new APIReturnInfo<T> { Data = default, Message = Message, Status = Status, State = false };
         }
 
-        /// <summary>
-        /// 返回错误信息
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <param name="Message"></param>
-        /// <returns></returns>
-        public static APIReturnInfo<T> Error(T Data, string Message = "Fail", int Status = 200)
-        {
-            return new APIReturnInfo<T> { Data = Data, Message = Message, Status = Status, State = false };
-        }
+        ///// <summary>
+        ///// 返回错误信息
+        ///// </summary>
+        ///// <param name="Data"></param>
+        ///// <param name="Message"></param>
+        ///// <returns></returns>
+        //public static APIReturnInfo<T> Error(T Data, string Message = "Fail", int Status = 200)
+        //{
+        //    return new APIReturnInfo<T> { Data = Data, Message = Message, Status = Status, State = false };
+        //}
 
         /// <summary>
         /// 状态

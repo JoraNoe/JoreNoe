@@ -21,7 +21,7 @@ namespace JoreNoe.Middleware
         /// <summary>
         /// 系统黑名单
         /// </summary>
-        public const string  ProjectBlackListsName = "ProjectBlackLists";
+        public const string ProjectBlackListsName = "ProjectBlackLists";
 
         /// <summary>
         /// IP请求数量

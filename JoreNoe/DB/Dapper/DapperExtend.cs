@@ -256,14 +256,22 @@ namespace JoreNoe.DB.Dapper
         {
             return "SELECT * FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
         }
+
         public static string ConvertCount<T>(Expression<Func<T, bool>> expression)
         {
             return "SELECT COUNT(*) FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
         }
+
         public static string ConvertSingle<T>(Expression<Func<T, bool>> expression)
         {
             return "SELECT * FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
         }
+
+        public static string ConvertDelete<T>(Expression<Func<T, bool>> expression)
+        {
+            return "DELETE FROM " + typeof(T).Name + " WHERE " + ProcessExpression(expression.Body);
+        }
+
         private static string ProcessExpression(Expression expression)
         {
             switch (expression.NodeType)
@@ -286,6 +294,9 @@ namespace JoreNoe.DB.Dapper
                 case ExpressionType.Constant:
                     return ProcessConstantExpression((ConstantExpression)expression);
 
+                case ExpressionType.Call:
+                    return ProcessMethodCallExpression((MethodCallExpression)expression);
+
                 default:
                     throw new NotSupportedException($"The expression type '{expression.NodeType}' is not supported.");
             }
@@ -293,20 +304,90 @@ namespace JoreNoe.DB.Dapper
 
         private static string ProcessBinaryExpression(BinaryExpression expression)
         {
-            var left = ProcessExpression(expression.Left);
-            var right = ProcessExpression(expression.Right);
+            string left, right;
             var operatorSymbol = GetOperatorSymbol(expression.NodeType);
+            if (IsParameterMemberExpression(expression.Left))
+            {
+                left = ProcessExpression(expression.Left);
+                right = GetConstantValue(expression.Right)?.ToString() ?? "NULL";
+                return $"{left} {operatorSymbol} {right}";
+            }
+            else if (IsParameterMemberExpression(expression.Right))
+            {
+                left = GetConstantValue(expression.Left)?.ToString() ?? "NULL";
+                right = ProcessExpression(expression.Right);
+                return $"{right} {operatorSymbol} {left}";
+            }
+            else
+            {
+                left = ProcessExpression(expression.Left);
+                right = ProcessExpression(expression.Right);
+                return $"{right}   {operatorSymbol}   {left}";
+            }
+        }
 
-            return $"{left} {operatorSymbol} {right}";
+        private static string ProcessMethodCallExpression(MethodCallExpression expression)
+        {
+            if (expression.Method.Name == "Contains")
+            {
+                var memberExpression = expression.Object as MemberExpression;
+                var argumentExpression = expression.Arguments[0];
+
+                if (memberExpression != null && IsParameterMemberExpression(memberExpression))
+                {
+                    var columnName = ProcessMemberExpression(memberExpression);
+                    var value = GetConstantValue(argumentExpression)?.ToString() ?? "NULL";
+                    return $"{columnName} LIKE '%{value}%'";
+                }
+            }
+
+            throw new NotSupportedException($"The method '{expression.Method.Name}' is not supported.");
+        }
+
+        private static bool IsParameterMemberExpression(Expression expression)
+        {
+            return expression is MemberExpression memberExpression &&
+                   memberExpression.Expression is ParameterExpression;
+        }
+
+        private static object GetConstantValue(Expression expression)
+        {
+            if (expression is ConstantExpression constantExpression)
+            {
+                return string.Concat("'", constantExpression.Value, "'");
+            }
+            else if (expression is MemberExpression memberExpression)
+            {
+                var objectMember = Expression.Convert(memberExpression, typeof(object));
+                var getterLambda = Expression.Lambda<Func<object>>(objectMember);
+                var getter = getterLambda.Compile();
+                return string.Concat("'", getter(), "'");
+            }
+            return null;
         }
 
         private static string ProcessLogicalExpression(BinaryExpression expression)
         {
-            var left = ProcessExpression(expression.Left);
-            var right = ProcessExpression(expression.Right);
+            string left, right;
             var operatorSymbol = GetOperatorSymbol(expression.NodeType);
-
-            return $"({left} {operatorSymbol} {right})";
+            if (IsParameterMemberExpression(expression.Left))
+            {
+                left = ProcessExpression(expression.Left);
+                right = GetConstantValue(expression.Right)?.ToString() ?? "NULL";
+                return $"{left} {operatorSymbol} {right}";
+            }
+            else if (IsParameterMemberExpression(expression.Right))
+            {
+                left = GetConstantValue(expression.Left)?.ToString() ?? "NULL";
+                right = ProcessExpression(expression.Right);
+                return $"{right} {operatorSymbol} {left}";
+            }
+            else
+            {
+                left = ProcessExpression(expression.Left);
+                right = ProcessExpression(expression.Right);
+                return $"{left} {operatorSymbol} {right}";
+            }
         }
 
         private static string ProcessMemberExpression(MemberExpression expression)
@@ -339,5 +420,6 @@ namespace JoreNoe.DB.Dapper
             };
         }
     }
+
 
 }

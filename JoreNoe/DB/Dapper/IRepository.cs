@@ -23,17 +23,12 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         T Single<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
         Task<T> SingleAsync<TKey>(TKey ParamsValue, string ParamsKeyName = "Id", string[] ParamsColumns = null);
-
-        /// <summary>
-        /// 根据SQL查询
-        /// </summary>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
+        Task<T> SingleAsync(Expression<Func<T, bool>> ExPression);
+        T Single(Expression<Func<T, bool>> ExPression);
         T SingleSQL(string SQL);
         Task<T> SingleSQLAsync(string SQL);
         T SingleSQL(string SQL, object Params);
         Task<T> SingleSQLAsync(string SQL, object Params);
-
 
         /// <summary>
         /// 删除单条数据 物理删除
@@ -43,25 +38,8 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName">主键名称</param>
         /// <returns></returns>
         T Remove<TKey>(TKey ParamsValue, string ParamsKeyName = "Id");
-
-        /// <summary>
-        /// 批量删除
-        /// </summary>
-        /// <typeparam name="TKey">主键类型</typeparam>
-        /// <param name="ParamsValues">主键值</param>
-        /// <param name="ParamsKeyName">主键名称</param>
+        T Remove(Expression<Func<T, bool>> ExPression);
         void Removes<TKey>(TKey[] ParamsValues, string ParamsKeyName = "Id");
-
-        /// <summary>
-        /// 软删除 数据
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <param name="ParamsValues">软删除Key</param>
-        /// <param name="ParamsKeyName">软删除Keyname</param>
-        /// <param name="SoftKeyName">软删除字段</param>
-        /// <param name="SoftKeyValue">软删除数据</param>
-        /// <returns></returns>
-        /// <exception cref="System.Exception"></exception>
         T SoftRemove<TKey>(TKey ParamsValues, string ParamsKeyName = "Id", string SoftKeyName = "IsDelete", bool? SoftKeyValue = null);
 
         /// <summary>
@@ -72,24 +50,16 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName"></param>
         /// <returns></returns>
         bool IsExists<TKey>(TKey ParamsValues, string ParamsKeyName = "Id");
+        Task<bool> IsExistsAsync<TKey>(TKey ParamsValues, string ParamsKeyName = "Id");
+        bool IsExists(Expression<Func<T, bool>> ExPression);
+        Task<bool> IsExistsAsync(Expression<Func<T, bool>> ExPression);
 
         /// <summary>
         /// 批量插入数据
         /// </summary>
         /// <param name="data"></param>
         void BulkInsert(IEnumerable<T> data);
-
-        /// <summary>
-        /// 批量插入数据异步
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         Task BulkInsertAsync(IEnumerable<T> data);
-
-        /// <summary>
-        /// 批量插入数据事务
-        /// </summary>
-        /// <param name="data"></param>
         void BulkInsertTransaction(IEnumerable<T> data);
 
         /// <summary>
@@ -101,9 +71,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="ParamsKeyName">主键名称</param>
         /// <returns></returns>
         T Update<TKey>(TKey ParamsValue, object Entity, string ParamsKeyName = "Id");
-
         T Update<TKey>(TKey ParamsValue, Action<T> Entity, string ParamsKeyName = "Id");
-
         T Update<TKey>(TKey ParamsValue, T Entity, string ParamsKeyName = "Id");
         T Update<TKey>(TKey ParamsValue, Func<T, T> Entity, string ParamsKeyName = "Id");
 
@@ -114,12 +82,6 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         Task<T> AddAsync(T entity, string[] IgnoreFailds = null);
-
-        /// <summary>
-        /// 添加单条数据
-        /// </summary>
-        /// <param name="entity">数据</param>
-        /// <returns></returns>
         T Add(T entity, string[] IgnoreFailds = null);
 
         /// <summary>
@@ -129,20 +91,9 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         IEnumerable<T> Find(string SQLExcute);
-
-        /// <summary>
-        /// 查询数据
-        /// </summary>
-        /// <param name="SQLExcute">执行SQL</param>
-        /// <param name="Params">参数</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
         IEnumerable<T> Find(string SQLExcute, object Params);
-
         Task<IEnumerable<T>> FindAsync(string SQLExcute, object Params);
-
         IEnumerable<T> Find(Expression<Func<T, bool>> Predicate);
-
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> Predicate);
 
         /// <summary>
@@ -153,13 +104,6 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         int Excute(string SQLExcute, object Params);
-
-        /// <summary>
-        /// 执行
-        /// </summary>
-        /// <param name="SQLExcute">执行SQL</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
         int Excute(string SQLExcute);
 
         /// <summary>
@@ -168,9 +112,7 @@ namespace JoreNoe.DB.Dapper
         /// <param name="Entity"></param>
         /// <returns></returns>
         bool CreateTable(T Entity);
-
         void PublishHistory(string LogContext, string ResultContext, string ContextType, string UserName = "SystemCreate", string TableName = "BaseHistory");
-
         Task TestMUlit(IEnumerable<T> D);
 
         /// <summary>
@@ -179,8 +121,7 @@ namespace JoreNoe.DB.Dapper
         /// <returns></returns>
         int Count();
         int Count(Expression<Func<T, bool>> Predicate);
-
-        Task<T> SingleAsync<TKey>(Expression<Func<T, bool>> ExPression);
-        T Single<TKey>(Expression<Func<T, bool>> ExPression);
+        Task<int> CountAsync(Expression<Func<T, bool>> Predicate);
+        int Count(string SQL);
     }
 }

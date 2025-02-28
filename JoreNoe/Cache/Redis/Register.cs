@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System;
-using System.Threading;
 
 namespace JoreNoe.Cache.Redis
 {

@@ -57,6 +57,9 @@ namespace Test.Controllers
             //    Id = Guid.NewGuid(),
             //});
             //this.Test.BulkInsert(x);
+            var x = "sd";
+            const string ok = "123";
+            this.Test.Single(d => d.IpAddress == ok || d.Headers == x);
             this.redisManager.Add("s","sdf",TimeSpan.FromDays(1));
             await this.redisManager.UpdateAsync<string>("s", "sdf1");
             return null;
