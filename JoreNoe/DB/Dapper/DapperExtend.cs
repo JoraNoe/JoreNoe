@@ -1,8 +1,10 @@
 ﻿using JoreNoe.DB.Dapper.JoreNoeDapperAttribute;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -419,7 +421,72 @@ namespace JoreNoe.DB.Dapper
                 _ => throw new NotSupportedException($"The expression type '{type}' is not supported."),
             };
         }
+
+        //public static void CheckAndUpdateDatabaseSchema(string connectionString, Assembly modelsAssembly)
+        //{
+        //    using (IDbConnection connection = new SqlConnection(connectionString))
+        //    {
+        //        connection.Open();
+
+        //        // 获取所有数据库表
+        //        var tables = connection.Query<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'").ToList();
+
+        //        // 获取所有 Model（实体类）
+        //        var modelTypes = modelsAssembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract).ToList();
+
+        //        foreach (var modelType in modelTypes)
+        //        {
+        //            string tableName = modelType.Name; // 假设表名与类名一致
+
+        //            if (!tables.Contains(tableName))
+        //            {
+        //                Console.WriteLine($"⚠️  数据库中不存在表 `{tableName}`，可以考虑创建该表！");
+        //                continue;
+        //            }
+
+        //            // 获取数据库表字段
+        //            var dbColumns = connection.Query<string>(
+        //                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @TableName",
+        //                new { TableName = tableName }).ToHashSet();
+
+        //            // 获取 Model 字段
+        //            var modelProperties = modelType.GetProperties().Select(p => p.Name).ToHashSet();
+
+        //            // 找出 Model 中但数据库缺失的字段
+        //            var missingInDb = modelProperties.Except(dbColumns).ToList();
+
+        //            // 找出数据库中但 Model 中没有的字段（谨慎删除）
+        //            var extraInDb = dbColumns.Except(modelProperties).ToList();
+
+        //            // 自动添加缺失字段
+        //            foreach (var missingColumn in missingInDb)
+        //            {
+        //                var propertyInfo = modelType.GetProperty(missingColumn);
+        //                string columnType = GetSqlType(propertyInfo.PropertyType);
+
+        //                string alterTableSql = $"ALTER TABLE {tableName} ADD {missingColumn} {columnType}";
+        //                connection.Execute(alterTableSql);
+        //                Console.WriteLine($"✅ 添加字段 `{missingColumn}` 到表 `{tableName}`");
+        //            }
+
+        //            // 这里不自动删除 extraInDb 的字段，避免误删
+        //        }
+        //    }
+        //}
+
+        //// 获取 SQL 数据类型
+        //private static string GetSqlType(Type type)
+        //{
+        //    if (type == typeof(int) || type == typeof(int?)) return "INT";
+        //    if (type == typeof(long) || type == typeof(long?)) return "BIGINT";
+        //    if (type == typeof(float) || type == typeof(float?)) return "FLOAT";
+        //    if (type == typeof(double) || type == typeof(double?)) return "DOUBLE PRECISION";
+        //    if (type == typeof(decimal) || type == typeof(decimal?)) return "DECIMAL(18,2)";
+        //    if (type == typeof(bool) || type == typeof(bool?)) return "BIT";
+        //    if (type == typeof(DateTime) || type == typeof(DateTime?)) return "DATETIME";
+        //    if (type == typeof(string)) return "NVARCHAR(255)"; // 这里可以调整长度
+        //    return "NVARCHAR(MAX)"; // 其他默认处理
+        //}
+
     }
-
-
 }

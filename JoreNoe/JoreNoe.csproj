@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.4.7</Version>
-		<Description>调整中间件性能问题</Description>
+		<Version>7.4.7-test</Version>
+		<Description>调试一些问题</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://jorenoe.gitbook.io/jorenoe-docs</RepositoryUrl>
@@ -53,6 +53,7 @@
 		<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
 		<PackageReference Include="System.Data.Odbc" Version="8.0.0" />
 		<PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="6.102.2.3" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>

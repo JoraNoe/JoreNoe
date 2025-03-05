@@ -25,7 +25,7 @@ namespace JoreNoe.DB.Dapper
     //}
     public class DatabaseSettings
     {
-        public DatabaseSettings(string connectionString, IDBType dbtype = IDBType.MySql, bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000, IList<string> AvailableTables = null)
+        public DatabaseSettings(string connectionString, IDBType dbtype = IDBType.MySql, bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000, IList<string> AvailableTables = null,bool IsEnabledTableAutoFiled=false)
         {
             this.connectionString = connectionString;
             this.dbType = dbtype;
@@ -33,7 +33,7 @@ namespace JoreNoe.DB.Dapper
             this.IsEnabledMulitConnection = IsEnabledMulitConnection;
             this.MulitDBConnectionName = DapperExtend.GetDatabaseName(connectionString);
             this.AvailableTables = AvailableTables;
-
+            this.IsEnabledTableAutoFiled = IsEnabledTableAutoFiled;
         }
         public IDBType dbType { set; get; }
         public string connectionString { set; get; }
@@ -41,6 +41,7 @@ namespace JoreNoe.DB.Dapper
         public bool IsEnabledMulitConnection { get; set; }
         public string MulitDBConnectionName { get; set; }
         public IList<string> AvailableTables { get; set; }
+        public bool IsEnabledTableAutoFiled { get; set; }
     }
 
     public interface IMulitDatabaseSettings
@@ -74,9 +75,9 @@ namespace JoreNoe.DB.Dapper
         /// <param name="dbtype">数据库类型</param>
         /// <param name="IsEnabledMulitConnection">是否启用并发模式，支持创建多个上下文</param>
         /// <param name="mulitInsertBatchcount">批量插入，分批一批数量</param>
-        public static void AddJoreNoeDapper(this IServiceCollection services, string connectionString, IDBType dbtype, bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000)
+        public static void AddJoreNoeDapper(this IServiceCollection services, string connectionString, IDBType dbtype, bool IsEnabledMulitConnection = false, long mulitInsertBatchcount = 200000,bool IsEnabledTableAutoFiled=false)
         {
-            var AssamblyClassSettings = new DatabaseSettings(connectionString, dbtype, IsEnabledMulitConnection, mulitInsertBatchcount);
+            var AssamblyClassSettings = new DatabaseSettings(connectionString, dbtype, IsEnabledMulitConnection, mulitInsertBatchcount,IsEnabledTableAutoFiled: IsEnabledTableAutoFiled);
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddSingleton<IMulitDatabaseSettings>(new MulitDatabaseSettings(new List<DatabaseSettings> { AssamblyClassSettings }, false));
             services.AddScoped<IDatabaseService, DatabaseService>();
