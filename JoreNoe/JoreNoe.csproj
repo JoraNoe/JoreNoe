@@ -2,12 +2,12 @@
 
 	<PropertyGroup>
 		<TargetFramework>NET6.0</TargetFramework>
-		<Version>7.4.6</Version>
-		<Description>整体项目优化性能调整</Description>
+		<Version>7.4.7</Version>
+		<Description>调整中间件性能问题</Description>
 		<Authors>Jorenoe</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<RepositoryUrl>https://github.com/JoraNoe/JoreNoe/tree/maint</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/JoraNoe/JoreNoe/tree/main</PackageProjectUrl>
+		<RepositoryUrl>https://jorenoe.gitbook.io/jorenoe-docs</RepositoryUrl>
+		<PackageProjectUrl>https://jorenoe.gitbook.io/jorenoe-docs/getting-started/quickstart</PackageProjectUrl>
 		<PackageIconUrl>https://avatars.githubusercontent.com/u/170788388</PackageIconUrl>
 		<RepositoryType>git</RepositoryType>
 		<LangVersion>latest</LangVersion>

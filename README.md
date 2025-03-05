@@ -1,35 +1,37 @@
-# JoreNoe Package
+# 🎉 JoreNoe Package
 
-安装方法
+[📖 线上文档](https://jorenoe.gitbook.io/jorenoe-docs/getting-started/quickstart)
 
-| Build                                                     | NuGet                                                        | Downloads                                                    |
-| --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](https://img.shields.io/badge/NetCore-3.1-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="https://img.shields.io/nuget/dt/JoreNoe?label=Downloads" alt="NuGet Downloads"></a> |
+## 📦 安装方法
 
-```C#
-Install-Package JoreNoe -Version 7.0.0.4
+| Build                                                   | NuGet                                                        | Downloads                                                    |
+| ------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](https://img.shields.io/badge/NetCore-6.0-green.svg) | [![](https://img.shields.io/nuget/v/JoreNoe.svg)](https://www.nuget.org/packages/JoreNoe) | <a href="https://www.nuget.org/packages/JoreNoe/" rel="nofollow noreferrer"><img src="https://img.shields.io/nuget/dt/JoreNoe?label=Downloads" alt="NuGet Downloads"></a> |
+
+```sh
+Install-Package JoreNoe -Version Laster
+install-package Jorenoe -version 7.4.6
 ```
 
+---
 
 
-# 文档目录
-
-
+# 📂 文档目录
 
 #### **[ORM使用](#OPT1)**
 
 - **[Dapper教程](#OPT1-1)**
 - **[EntityFramework.Core教程](#OPT1-2)**
 
-#### [Redis使用](#OPT2)
+#### [Redis扩展如何使用](#OPT2)
 
-#### [发送消息](#OPT3)
+#### [发送Email消息扩展如何使用](#OPT3)
 
-#### [帮助扩展方法](#OPT4)
+#### [辅助开发帮助类或者函数如何使用](#OPT4)
 
-#### [中间件使用](#OPT5)
+#### [NetCore中间件使用](#OPT5)
 
-#### [RabbitMQ](#OPT6)
+#### [RabbitMQ如何使用](#OPT6)
 
 # ORM使用说明
 
@@ -41,54 +43,64 @@ Install-Package JoreNoe -Version 7.0.0.4
 
 <a name="OPT1-1"></a>
 
-## 1.Dapper 使用
+# 🏗 1. Dapper 使用指南
 
+## 📌 第一步：引用依赖
 
+在代码中引入 **JoreNoe.DB.Dapper**，确保 Dapper 能够正确使用。
 
-#### 首先第一步引用
-
-```C#
-using JoreNoe.DB.Dapper
+```csharp
+using JoreNoe.DB.Dapper;
 ```
 
-#### 第二步进行注册 
+---
 
-在您的应用程序启动时，将服务添加到依赖注入容器中。您可以在 Startup.cs 文件中的 ConfigureServices 方法中调用 AddJoreNoeDapper 方法来注册服务。
+## 🛠 第二步：注册 Dapper 服务
 
-```c#
+在应用程序启动时，将 Dapper 添加到 **依赖注入容器**。  
+在 **Startup.cs** 文件中的 `ConfigureServices` 方法中，调用 `AddJoreNoeDapper` 进行注册：
+
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddJoreNoeDapper("your_connection_string_here", IDBType.SqlServer);
     // 或者
-    // services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql);
+    services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql);
 }
-
--- 最新版本
-
-// 单个模式注入
-//builder.Services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql, true);
-
-// 多个模式注入
-//builder.Services.AddJoreNoeDapper(
-//     new List<DatabaseSettings>
-//        {
-//            new DatabaseSettings("your_connection_string_here",IDBType.MySql,true,
-//            AvailableTables:new List<string>{
-//                "User"// 表名
-//            }),
-//            new DatabaseSettings("your_connection_string_here",IDBType.MySql,true,
-//            AvailableTables:new List<string>{
-//                "test"
-//            }),
-
-//        }
-//);
-
 ```
 
-#### **第三步使用服务**
+### 🔹 最新版本支持 **单库 & 多库模式**
 
-```C#
+#### **单库模式**
+
+```csharp
+// 单个模式注入
+builder.Services.AddJoreNoeDapper("your_connection_string_here", IDBType.MySql, true);
+```
+
+#### **多库模式**
+
+```csharp
+// 多个模式注入
+builder.Services.AddJoreNoeDapper(
+    new List<DatabaseSettings>
+    {
+        new DatabaseSettings("your_connection_string_here", IDBType.MySql, true,
+        AvailableTables: new List<string> { "User" }), // 绑定 User 表
+
+        new DatabaseSettings("your_connection_string_here", IDBType.MySql, true,
+        AvailableTables: new List<string> { "test" }) // 绑定 test 表
+    }
+);
+```
+
+---
+
+## 🚀 第三步：使用 Dapper 服务
+
+### **🔹 在业务逻辑中使用 Repository**
+
+```csharp
 public class YourService
 {
     private readonly IRepository<test> TestRepository;
@@ -100,14 +112,16 @@ public class YourService
 
     public void YourMethod()
     {
-        this.TestRepository.Add(new ...);
+        this.TestRepository.Add(new test { ... });
     }
 }
 ```
 
-#### 属性获取
+---
 
-```C#
+## 🔍 获取数据库属性
+
+```csharp
 public class YourService
 {
     private readonly IDatabaseService dataBaseService;
@@ -119,64 +133,75 @@ public class YourService
 
     public IDbConnection GetConnection()
     {
-        this.dataBaseService.GetConnection();
+        return this.dataBaseService.GetConnection(); // 获取数据库连接
     }
     
     public string GetPropValue()
     {
-        return this.dataBaseService.DataBaseSettings.connectionString; // 返回链接字符串
-        return this.dataBaseService.DataBaseSettings.dbType; // 返回数据库类型
-         return this.dataBaseService.DataBaseSettings.mulitInsertBatchcount; // 返回批量插入 一批次数量
-        
+        return this.dataBaseService.DataBaseSettings.connectionString;  // 数据库连接字符串
+        return this.dataBaseService.DataBaseSettings.dbType;            // 数据库类型
+        return this.dataBaseService.DataBaseSettings.mulitInsertBatchcount; // 批量插入时每批数量
     }
-    
 }
 ```
 
+---
 
+## ❌ 不使用依赖注入方式（手动创建实例）
 
-#### 不使用注入方式
+如果不想使用 **依赖注入（DI）**，可以手动创建 `Repository` 实例：
 
-```C#
+```csharp
 public class UserController
 {
-    var database = new Repository<test>(new DatabaseService("your_connection_string_here",默认Mysql,默认20万));
-    database.add(new test{...});
+    var database = new Repository<test>(new DatabaseService("your_connection_string_here", IDBType.MySql, 200000));
+    database.Add(new test { ... });
 }
 ```
+
+---
+
+## ✅ 总结：
+
+- **支持单库 & 多库模式**
+- **支持依赖注入 & 手动实例化**
+- **提供数据库连接 & 批量插入配置**
+- **便捷的 Repository 操作，提升开发效率**
+
+🚀 **Dapper + JoreNoe 让数据操作更简单！** 🎯
 
 
 
 <a name="OPT1-2"></a>
 
-## 2.EntityFramework.Core使用
+# 🏗 2. EntityFramework.Core 使用指南
 
+## 📌 第一步：项目结构
 
+在 **仓储项目** 中创建以下文件：
 
-#### 首先第一步引用
-
-**1.在仓储项目中创建** 
-
-```C#
-1.1 RepositoryModule.cs
-
-1.2 IntegratedPlatformSupporRegister.cs  名字可随意 
+```csharp
+1. RepositoryModule.cs
+2. IntegratedPlatformSupporRegister.cs  // 名称可自定义
 ```
 
-**2.创建上下文** 
+在 **数据访问层** 中创建 **DbContext** 文件：
 
-```C#
-2.1 IntegratedPlatformSupporDBContext.cs 名字随意 
+```csharp
+3. IntegratedPlatformSupporDBContext.cs  // 名称可自定义
 ```
 
-#### 第二步具体代码实现
+---
 
-**1.1.RepositoryModule.cs 文件 具体代码实现**
+## 🛠 第二步：代码实现
 
-```C#
+### **1️⃣ RepositoryModule.cs - 依赖注入模块**
+
+```csharp
 using Autofac;
 using JoreNoe;
 using JoreNoe.DB.EntityFrameWork.Core.SqlServer;
+
 namespace IntegratedPlatformSuppor.Repository
 {
     public class RepositoryModule : Module
@@ -191,9 +216,9 @@ namespace IntegratedPlatformSuppor.Repository
 }
 ```
 
-**1.2.IntegratedPlatformSupporRegister.cs 文件具体代码实现**
+### **2️⃣ IntegratedPlatformSupporRegister.cs - 注册 DbContext**
 
-```C#
+```csharp
 using JoreNoe;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -218,12 +243,11 @@ namespace IntegratedPlatformSuppor.Repository
         }
     }
 }
-
 ```
 
-**2.1.IntegratedPlatformSupporDBContext.cs 文件具体代码实现**
+### **3️⃣ IntegratedPlatformSupporDBContext.cs - 数据库上下文**
 
-```C#
+```csharp
 using IntegratedPlatformSuppor.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -232,30 +256,16 @@ namespace IntegratedPlatformSuppor.Repository
 {
     public class IntegratedPlatformSupporDBContext : DbContext
     {
-        public IntegratedPlatformSupporDBContext()
-        {
-            //this.Configuration = configuration;
-            //如果要访问的数据库存在，则不做操作，如果不存在，会自动创建所有数据表和模式
-            //Database.EnsureCreated();
+        public IntegratedPlatformSupporDBContext() { }
 
-        }
-
-        /// <summary>
-        /// 配置
-        /// </summary>
         public IConfiguration Configuration { set; get; }
 
-        /// <summary>
-        /// 用户
-        /// </summary>
         public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!string.IsNullOrEmpty(this.Configuration.GetConnectionString("DbConnect")))
-                optionsBuilder.UseSqlServer(this.Configuration.GetConnectionString("DbConnect"));
-            else
-                optionsBuilder.UseSqlServer("Server=47.106.198.147;Database=IntegratedPlatformSuppor;Uid=sa;Password=JoreNoe123$%^");
+            var connStr = this.Configuration.GetConnectionString("DbConnect");
+            optionsBuilder.UseSqlServer(string.IsNullOrEmpty(connStr) ? "Server=47.106.198.147;Database=IntegratedPlatformSuppor;Uid=sa;Password=JoreNoe123$%^" : connStr);
             base.OnConfiguring(optionsBuilder);
         }
 
@@ -263,18 +273,17 @@ namespace IntegratedPlatformSuppor.Repository
         {
             modelBuilder.Entity<Test>().HasQueryFilter(t => t.IsDelete == false);
             modelBuilder.Entity<User>().HasQueryFilter(t => t.IsDelete == false);
-            modelBuilder.Entity<MeansCategory>().HasQueryFilter(d => !d.IsDelete); //.HasQueryFilter(t => t.IsDelete == false);
+            modelBuilder.Entity<MeansCategory>().HasQueryFilter(d => !d.IsDelete);
         }
     }
 }
-
 ```
 
-#### 进行注册
+---
 
-**1.使用AutoFac** 
+## 🔹 第三步：注册 AutoFac 依赖
 
-	在项目中创建Autofac.json 文件 写入配置如下  根据实际情况进行自行调整
+在项目根目录创建 **Autofac.json**，调整模块配置：
 
 ```json
 {
@@ -282,14 +291,13 @@ namespace IntegratedPlatformSuppor.Repository
     { "type": "IntegratedPlatformSuppor.Repository.RepositoryModule,IntegratedPlatformSuppor.Repository" },
     { "type": "IntegratedPlatformSuppor.API.APIModule,IntegratedPlatformSuppor.API" },
     { "type": "IntegratedPlatformSuppor.DomainService.DomainServiceModule,IntegratedPlatformSuppor.DomainService" }
-    //{ "type": "JoreNoe.Modules.JoreNoeModule,JoreNoe" }
   ]
 }
 ```
 
-**2.WebApi 项目中 Program.cs 文件中写入** 
+### **1️⃣ WebApi 项目 Program.cs 配置**
 
-```C#
+```csharp
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -310,12 +318,11 @@ namespace IntegratedPlatformSuppor.API
              .UseServiceProviderFactory(new AutofacServiceProviderFactory())
              .ConfigureAppConfiguration((appConfiguration, builder) =>
              {
-                 builder
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("Configs/Redis.json", optional: false, reloadOnChange: true)
-               .AddJsonFile("Configs/Exceptionless.json", optional: false, reloadOnChange: true)
-               .AddJsonFile("Configs/WeChatOpenConfig.json", optional: false, reloadOnChange: true)
-               .AddEnvironmentVariables().Build();
+                 builder.SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("Configs/Redis.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile("Configs/Exceptionless.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile("Configs/WeChatOpenConfig.json", optional: false, reloadOnChange: true)
+                        .AddEnvironmentVariables().Build();
              })
              .ConfigureWebHostDefaults(webBuilder =>
              {
@@ -324,64 +331,72 @@ namespace IntegratedPlatformSuppor.API
              });
     }
 }
-
 ```
 
-**3.StartUp.cs 中加入** 
+### **2️⃣ 在 Startup.cs 里注册 AutoFac**
 
-```C#
-      public void ConfigureContainer(ContainerBuilder builder)
-      {
-          var config = new ConfigurationBuilder();
-          config.AddJsonFile("./Configs/Autofac.json");
-          builder.RegisterModule(new ConfigurationModule(config.Build()));
-      }
-```
-
-### 实战使用
-
-```C#
-public class testDomainService :BaseRepository ,ItestDomainService
+```csharp
+public void ConfigureContainer(ContainerBuilder builder)
 {
-    private readonly IRepository<Guid, Test> test;
-    public testDomainService(
-        IRepository<Guid, Test> test,
-        IUnitOfWork Unit):base(Unit)
-    {
-        this.test = test;
-    }
-
-    public TestValue k()
-    {
-        var xss = this.test.Single(Guid.NewGuid());
-        return null;
-    }
-
+    var config = new ConfigurationBuilder();
+    config.AddJsonFile("./Configs/Autofac.json");
+    builder.RegisterModule(new ConfigurationModule(config.Build()));
 }
 ```
+
+---
+
+## 🚀 实战使用示例
+
+```csharp
+public class testDomainService : BaseRepository, ItestDomainService
+{
+    private readonly IRepository<Guid, Test> _testRepository;
+
+    public testDomainService(IRepository<Guid, Test> testRepository, IUnitOfWork unit) : base(unit)
+    {
+        _testRepository = testRepository;
+    }
+
+    public TestValue GetTest()
+    {
+        return _testRepository.Single(Guid.NewGuid());
+    }
+}
+```
+
+---
+
+## ✅ 总结
+
+- **支持 AutoFac 依赖注入**，模块化管理依赖
+- **统一管理数据库上下文**，支持多数据库配置
+- **提供自动查询过滤器**，提升数据查询效率
+- **可扩展性强**，适用于企业级应用
+
+🚀 **EFCore + JoreNoe 让数据访问更简单高效！** 🎯
+
 
 <a name="OPT2"></a>
 
-## 3.Redis 使用说明
+# 3. 🏗 Redis 使用说明
 
+### 如何使用
 
+#### 1. 注入 JoreNoe Redis 中注册上下文
 
-#### 如何使用
+📌 **步骤 1：注入 Redis**
 
-**1.注入  JoreNoe Redis 中注册上下文**
-
-```C#
+```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddJoreNoeRedis("your_connection_string_here", "InstanceName",DefaultDB=0);
+    services.AddJoreNoeRedis("your_connection_string_here", "InstanceName", DefaultDB = 0);
 }
-```
 
-**2.如何使用Redis**
+ 🔧 **步骤 2: 如何使用Redis**
 
 ```C#
 using  JoreNoe.Cache.Redis;
-
 public class RedisTest
 {
     private readonly JoreNoe.Cache.Redis.IRedisManager ReadisManager;
@@ -398,7 +413,7 @@ public class RedisTest
 }
 ```
 
-##### 	3.直接调用
+ 🔗	**步骤3：手动创建实例并调用**
 
 ```C#
 JoreNoe.Cache.Redis.JoreNoeRedisBaseService RedisDataBase = new JoreNoe.Cache.Redis.JoreNoeRedisBaseService(new JoreNoe.Cache.Redis.SettingConfigs {
@@ -419,26 +434,20 @@ Console.ReadLine();
 
 <a name="OPT3"></a>
 
-# 发送消息
+# 🏗 发送消息
 
-**目前支持：email  发送**  
+**📧目前支持：Email**  
 
-
-
-## 1.邮箱发送
+## 📌1.邮箱发送
 
 **如何使用**
 
 ```C#
 using JoreNoe.Message;
-
 public class test{
-    
     public void sendtest(){
-
         // 首先注册 
         var EmailHelper = new EmailMessageAPI(发送者，SMTP地址，SMTP端口，密码（个人是授权码），是否开启SSL认证);
-        
         EmailHelper.Send(收件人，标题，主题内容，是否开启兼容HTML);
     }
 }
@@ -448,13 +457,11 @@ public class test{
 
 <a name="OPT4"></a>
 
-# 帮助扩展方法
+# 🏗 帮助扩展方法
 
+**🚀支持：boolean，字典转SQL，映射，实体转字典，Resolve扩展**
 
-
-**支持：boolean，字典转SQL，映射，实体转字典，Resolve扩展**
-
-**1.bool 扩展方法**
+## 🔗1.bool 扩展方法
 
 ```C#
 using JoreNoe.Extend;
@@ -479,7 +486,7 @@ public class test{
 }
 ```
 
-##### 	2.映射（AutoMapper）
+## 🔗2.映射（AutoMapper）
 
 ```C#
 // 直接使用方式 
@@ -570,7 +577,7 @@ Console.ReadLine();
         }
 ```
 
-### 3.Resolve扩展
+## 🔗3.Resolve扩展
 
 ```C#
 // 在程序启动时设置容器工厂
@@ -581,11 +588,8 @@ var service = AutofacResolver.Resolve<IMyService>();
 
 ```
 
-
-
-#### 4.网络请求HttpClientAPI 
-
-4.1注入方式
+## 🔗4.网络请求HttpClientAPI 
+  ### 🔗4.1注入方式
 
 ```C#
 // 注入 在 StartUp 或者 （NEt6以上在Program中注册）
@@ -639,7 +643,7 @@ namespace MyApp.Controllers
 }
 ```
 
-4.2 直接使用方式
+ ### 🔗4.2 直接使用方式
 
 ```C#
  // 创建 HttpClientHandler（可以配置 SSL 验证等）
@@ -673,7 +677,7 @@ catch (HttpRequestException ex)
 }
 ```
 
-#### 5.Swagger暗黑主题
+## 🔗5.Swagger暗黑主题
 
 ```C#
 app.UseSwagger();
@@ -691,14 +695,11 @@ app.UseJoreNoeSwaggerThemeDark(); // 注入
 
 
 
-
 <a name="OPT5"></a>
 
-# 中间件的使用
+# 🚀中间件的使用
 
-
-
-#### 1.全局错误日志中间件
+## 🔗1.全局错误日志中间件
 
 ```C#
 // 使用方式1 webapi 全局错误日志中间件  直接使用方式
@@ -728,7 +729,7 @@ namespace TestNET6Project
 
 ```
 
-#### 2.全局运行日志中间件
+## 🔗2.全局运行日志中间件
 
 ```C#
 // webapi 全局运行日志中间件  直接使用方式
@@ -772,11 +773,9 @@ namespace TestNET6Project
 
 <a name="OPT6"></a>
 
-# RabbitMQ使用
+# 🚀 RabbitMQ使用
 
-
-
-### 1.初始化
+## 🔗1.初始化
 
 ```C#
  // 在Program  或者 StrartUp 中 进行初始化
@@ -787,9 +786,7 @@ namespace TestNET6Project
 
 ```
 
-
-
-### 注意 如果只推送 不接受按照第一步初始化即可，如果需要接受请按一下配置
+#### 📌注意 如果只推送 不接受按照第一步初始化即可，如果需要接受请按一下配置
 
 ```C#
 JoreNoe.Queue.RBMQ.Register.RegisterQueue("124.70.12.123", "jorenoe", "jorenoe", "/", "Moitoring");
@@ -805,9 +802,7 @@ QueueManager.Receive<MoitoringEvent>(new CustomerRabbitMQ(), "Moitoring");// 增
     }
 ```
 
-
-
-### 2.使用 推送 和 接受
+## 🔗2.使用 推送 和 接受
 
 ```C#
 public class MoitoringEvent
@@ -837,13 +832,24 @@ QueueManager.SendPublish<MoitoringEvent>(new MoitoringEvent { SID = SID,Type= Ty
         }
     }
 ```
-jorenoe MKF
 
+# 📜 版权声明
 
+版权所有 © JoreNoe。保留所有权利。
 
+未经许可，不得复制、修改、分发或用于商业用途。
 
+## 📌 许可条款
 
+- 允许个人或组织在 **非商业用途** 下使用、学习和研究本软件。
+- 禁止未经授权的商业使用、转载、二次开发或销售。
+- 如需商业授权，请联系 **jorenoe@163.com**。
 
+## 📞 联系方式
 
+📧 **Email**: [jorenoe@163.com](mailto:jorenoe@163.com)  
+🌍 **官网**: [JoreNoe 官方网站](https://jorenoe.top)  
 
+---
 
+**JoreNoe** 感谢您的支持！🚀  

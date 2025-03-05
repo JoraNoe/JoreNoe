@@ -2,7 +2,6 @@ using JoreNoe.Cache.Redis;
 using JoreNoe.DB.Dapper;
 using JoreNoe.Extend;
 using JoreNoe.Middleware;
-using System.Reflection;
 namespace Test
 {
     public class Program
@@ -65,7 +64,7 @@ namespace Test
 
             //        }
             //);
-            builder.Services.AddJoreNoeSystemIPBlackListMiddleware(6, TimeSpan.FromSeconds(60), TimeSpan.FromMinutes(6), true);
+            //builder.Services.AddJoreNoeSystemIPBlackListMiddleware(6, TimeSpan.FromSeconds(60), TimeSpan.FromMinutes(6), true);
             builder.Services.AddJoreNoeJoreNoeIntefaceAccessMiddleware(LocalCacheDurationInMinutes: TimeSpan.FromMinutes(5));
 
 
@@ -79,10 +78,10 @@ namespace Test
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
-                app.UseJoreNoeSwaggerThemeDark();
+                //app.UseJoreNoeSwaggerThemeDark();
                 app.UseSwaggerUI(option =>
                 {
-                    option.InjectStylesheet(SwaggerThemsExtend.DarkTheme);
+                    //option.InjectStylesheet(SwaggerThemsExtend.DarkTheme);
 
                     option.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                     //option.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
@@ -97,7 +96,7 @@ namespace Test
             //    Console.WriteLine(equals.RequestBody);
             //});
 
-            app.UseJoreNoeSystemIPBlackListMiddleware();
+            //app.UseJoreNoeSystemIPBlackListMiddleware();
             app.UseJoreNoeIntefaceAccessMiddleware();
             app.UseAuthorization();
 

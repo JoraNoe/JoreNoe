@@ -6,6 +6,7 @@ namespace TestNET6Project
     using Newtonsoft.Json;
     using JoreNoe.Queue.RBMQ;
     using System.Runtime.CompilerServices;
+    using JoreNoe.Extend;
 
     public class Program
     {
@@ -51,13 +52,13 @@ namespace TestNET6Project
 
             var app = builder.Build();
 
-            app.UseJoreNoeRequestLoggingMiddleware();
+            //app.UseJoreNoeRequestLoggingMiddleware();
             //app.UseJoreNoeIntefaceAccessMiddleware();
 
             //app.UseJoreNoeGlobalErrorHandlingMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware();
             //app.UseJoreNoeIntefaceAccessMiddleware();
-            app.UseJoreNoeSystemIPBlackListMiddleware();
+           // app.UseJoreNoeSystemIPBlackListMiddleware();
             //app.UseJoreNoeRequestVisitRecordIpAddressMiddleware(e => {
             //    Console.WriteLine("方法" + e.IpAddress);
             //});
@@ -71,8 +72,8 @@ namespace TestNET6Project
             //});
 
             
-            app.UseJoreNoeGlobalErrorHandlingMiddleware();
-            app.UseJoreNoeRequestLoggingMiddleware();
+            //app.UseJoreNoeGlobalErrorHandlingMiddleware();
+            //app.UseJoreNoeRequestLoggingMiddleware();
 
             // webapi 全局错误日志中间件  直接使用方法回调方式
             //app.UseJoreNoeGlobalErrorHandlingMiddleware(async (ex, context) =>
@@ -105,7 +106,10 @@ namespace TestNET6Project
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseJoreNoeSwaggerThemeDark();
+                app.UseSwaggerUI(option => {
+                    option.InjectStylesheet(JoreNoe.Extend.SwaggerThemsExtend.DarkTheme);
+                });
             }
 
             app.UseHttpsRedirection();

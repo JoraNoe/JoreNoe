@@ -57,6 +57,12 @@ namespace Test.Controllers
             //    Id = Guid.NewGuid(),
             //});
             //this.Test.BulkInsert(x);
+
+            var ff = "2022秋";
+            var semesetr = "";
+            string lastBit = ff.Last().ToString() == "春" ? "0" : "1";
+            semesetr = $"{ff.Substring(2, 2)}{lastBit}";
+
             var x = "sd";
             const string ok = "123";
             this.Test.Single(d => d.IpAddress == ok || d.Headers == x);
